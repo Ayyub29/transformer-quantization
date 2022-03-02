@@ -189,7 +189,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        compute_metrics=compute_metrics,
+        # compute_metrics=compute_metrics,
         tokenizer=tokenizer,
         # data collator will default to DataCollatorWithPadding,
         # so we change it if we already did the padding:
@@ -759,7 +759,8 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     # loop to handle MNLI double evaluation (matched and mis-matched accuracy)
     subtask_names = [task.name]
     eval_datasets = [eval_dataset]
-    if task == GLUE_Task.mnli:
+    logger.info(eval_datasets)
+    if task == INDONLU_Task.wrete:
         subtask_names.append('mnli-mm')
         eval_datasets.append(datasets['validation_mismatched'])
 
