@@ -135,7 +135,7 @@ def make_compute_metric_fn_indonlu(task: INDONLU_Task):
         metric_acc = load_metric('accuracy')
         metric_prec = load_metric('precision')
         metric_rec = load_metric('recall')
-        result["f1"] = metric_f1.compute(predictions=preds, references=p.label_ids)
+        result["f1"] = metric_f1.compute(predictions=preds, references=p.label_ids, average="macro")
         result["acc"] = metric_acc.compute(predictions=preds, references=p.label_ids)
         result["prec"] = metric_prec.compute(predictions=preds, references=p.label_ids)
         result["rec"] = metric_rec.compute(predictions=preds, references=p.label_ids)
