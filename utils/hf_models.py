@@ -34,6 +34,8 @@ class HF_Models(Enum):
     albert_base_v2 = 'albert-base-v2'
     albert_large_v2 = 'albert-large-v2'
 
+    
+
     @classmethod
     def list_names(cls):
         return [m.name for m in cls]

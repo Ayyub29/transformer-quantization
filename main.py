@@ -80,6 +80,10 @@ pass_config = click.make_pass_decorator(Config, ensure=True)
 def glue():
     logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
 
+@click.group()
+def indonlu():
+    logger.info("testing....")
+    logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
 
 # show default values for all options
 click.option = partial(click.option, show_default=True)
@@ -917,6 +921,16 @@ def validate_baseline(config):
 def validate_quantized(config):
     _validate(config)
 
+@indonlu.command()
+@pass_config
+@glue_options
+@transformer_base_options
+@transformer_data_options
+@transformer_model_options
+@transformer_training_options
+@transformer_progress_options
+def train_baseline_indonlu(config):
+    _train(config)
 
 if __name__ == '__main__':
-    glue()
+    indonlu()
