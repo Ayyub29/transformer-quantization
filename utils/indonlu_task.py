@@ -59,18 +59,18 @@ class INDONLU_Task(Flag):
 
 ## NEED TO BE ADJUSTED LATER
 TASK_TO_SENTENCE_KEYS = {
-    INDONLU_Task.emot: ('sentence', None),
-    INDONLU_Task.smsa: ('sentence', None),
-    INDONLU_Task.casa: ('sentence1', 'sentence2'),
-    INDONLU_Task.hoasa: ('sentence1', 'sentence2'),
-    INDONLU_Task.wrete: ('question1', 'question2'),
-    INDONLU_Task.posp: ('premise', 'hypothesis'),
-    INDONLU_Task.bapos: ('question', 'sentence'),
-    INDONLU_Task.terma: ('sentence1', 'sentence2'),
-    INDONLU_Task.keps: ('sentence1', 'sentence2'),
-    INDONLU_Task.nergrit: ('question', 'sentence'),
-    INDONLU_Task.nerp: ('sentence1', 'sentence2'),
-    INDONLU_Task.facqa: ('sentence1', 'sentence2')
+    INDONLU_Task.emot: ('tweet', None),
+    INDONLU_Task.smsa: ('text', None),
+    INDONLU_Task.casa: ('sentence', None),
+    INDONLU_Task.hoasa: ('sentence', None),
+    INDONLU_Task.wrete: ('premise', 'hypothesis'),
+    INDONLU_Task.posp: ('tokens', None),
+    INDONLU_Task.bapos: ('tokens', None),
+    INDONLU_Task.terma: ('tokens', None),
+    INDONLU_Task.keps: ('tokens', None),
+    INDONLU_Task.nergrit: ('tokens', None),
+    INDONLU_Task.nerp: ('tokens', None),
+    INDONLU_Task.facqa: ('question', 'passage')
 }
 
 

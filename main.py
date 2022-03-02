@@ -169,7 +169,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     )
 
     train_dataset = datasets['train']
-    eval_dataset = datasets['validation_matched' if task == GLUE_Task.mnli else 'validation']
+    eval_dataset = datasets['validation_matched' if task == INDONLU_Task.wrete else 'validation'] ##NEED TO ADJUST
 
     if model_enum in (
         HF_Models.bert_base_uncased,
