@@ -129,14 +129,13 @@ def make_compute_metric_fn_indonlu(task: INDONLU_Task):
         result = {}
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         preds = np.squeeze(preds) if task == INDONLU_Task.wrete else np.argmax(preds, axis=1) ##NEED TO BE ADJUSTED LATER
-        metric_f1 = load_metric('f1')
-        metric_acc = load_metric('accuracy')
-        metric_prec = load_metric('precision')
-        metric_rec = load_metric('recall')
-        result = metric_f1.compute(predictions=preds, references=p.label_ids, average="macro")
-        result = metric_acc.compute(predictions=preds, references=p.label_ids)
-        result = metric_prec.compute(predictions=preds, references=p.label_ids, average="macro")
-        result = metric_rec.compute(predictions=preds, references=p.label_ids, average="macro")
+        list_metric = ['f1', 'accuracy', 'precision', 'recall']
+        for metric in list_metric:
+            metric_loader = load_metric(metric)
+            if (metric == 'accuracy'):
+                result[metric] = metric_loader.compute(predictions=preds, references=p.label_ids)
+            else:
+                result[metric] = metric_loader.compute(predictions=preds, references=p.label_ids, average="macro")
         return result
 
     return fn
