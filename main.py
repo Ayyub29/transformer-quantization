@@ -698,7 +698,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     subtask_names = [task.name]
     eval_datasets = [eval_dataset]
     logger.info(eval_datasets)
-    
+
     if task == INDONLU_Task.wrete:
         subtask_names.append('mnli-mm')
         eval_datasets.append(datasets['validation_mismatched'])
@@ -713,8 +713,9 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
 
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
-        for key, value in eval_result.items():
-            logger.info(f'\t{key} = {value:.4f}')
+        logger.info(eval_result)
+        # for key, value in eval_result.items():
+        #     logger.info(f'\t{key} = {value:.4f}')
 
         final_score = eval_result[f'{TASK_TO_FINAL_METRIC_INDONLU[task]}']
         subtask_final_scores.append(final_score)
@@ -723,8 +724,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
             # save eval results to files
             subtask_eval_fpath = os.path.join(config.base.output_dir, f'eval_results_{subtask}.txt')
             with open(subtask_eval_fpath, 'w') as f:
-                for key, value in eval_result.items():
-                    f.write(f'{key} = {value}\n')
+                f.write(f'{eval_result}\n')
 
         if config.data.num_val_samples is not None:
             break
