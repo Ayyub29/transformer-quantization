@@ -125,16 +125,20 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
 
 
 def make_compute_metric_fn_indonlu(task: INDONLU_Task):
-    metric = load_metric('f1', task.name)
-    logger.info('Metric:')
-    logger.info(metric)
+    result = {}
 
     def fn(p: EvalPrediction):
+        logger.info(p)
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         preds = np.squeeze(preds) if task == INDONLU_Task.wrete else np.argmax(preds, axis=1) ##NEED TO BE ADJUSTED LATER
-        result = metric.compute(predictions=preds, references=p.label_ids)
-        if len(result) > 1:
-            result['combined_score'] = np.mean(list(result.values())).item()
+        metric_f1 = load_metric('f1')
+        metric_acc = load_metric('accuracy')
+        metric_prec = load_metric('precision')
+        metric_rec = load_metric('recall')
+        result["f1"] = metric_f1.compute(predictions=preds, references=p.label_ids)
+        result["acc"] = metric_acc.compute(predictions=preds, references=p.label_ids)
+        result["prec"] = metric_prec.compute(predictions=preds, references=p.label_ids)
+        result["rec"] = metric_rec.compute(predictions=preds, references=p.label_ids)
         return result
 
     return fn
