@@ -189,7 +189,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        # compute_metrics=compute_metrics,
+        compute_metrics=compute_metrics,
         tokenizer=tokenizer,
         # data collator will default to DataCollatorWithPadding,
         # so we change it if we already did the padding:
@@ -677,69 +677,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     if config.training.do_eval:
         logger.info('*** Evaluation ***')
 
-        # if AdaRound, evaluate with multiple range settings for activations
-        if config.get('adaround', {}).get('layers', None) is not None:
-            # I. FP activations
-            model.full_precision_acts()
-            trainer, datasets, train_dataset, eval_dataset = _make_datasets_and_trainer(
-                config, model, model_enum, tokenizer, task, task_data, compute_metrics,
-                training_args,
-            )
-
-            score_fp_acts = _eval_task(config, task, trainer, eval_dataset, datasets)
-            logger.info(f'Score (FP32 acts) {task.name} -> {100. * score_fp_acts:.2f}')
-
-            # II. quantized activations
-            if config.adaround.act_quant_mode == AdaRoundActQuantMode.no_act_quant:
-                final_score = score_fp_acts
-            else:
-
-                model.quantized_acts()
-                config.quant.act_quant = True
-
-                scores = {}
-                for batch_size in (1, 4, 16):
-                    # reset act ranges
-                    model.reset_act_ranges()
-
-                    # (re-)estimate act ranges
-                    model.estimate_act_ranges()
-                    config_ = deepcopy(config)
-                    config_.training.batch_size = batch_size
-                    training_args_ = _make_huggingface_training_args(config_)
-                    trainer_range_est, _, _, _ = _make_datasets_and_trainer(
-                        config, model, model_enum, tokenizer, task, task_data, compute_metrics,
-                        training_args_, padding=config.quant.est_ranges_pad,
-                    )
-
-                    pass_data_for_range_estimation(
-                        loader=trainer_range_est.get_train_dataloader(),
-                        model=model,
-                        act_quant=config.quant.act_quant,
-                        weight_quant=config.quant.weight_quant,
-                        max_num_batches=config.act_quant.num_batches,
-                        cross_entropy_layer=config.act_quant.cross_entropy_layer,
-                    )
-                    model.fix_act_ranges()
-
-                    # eval
-                    trainer, datasets, train_dataset, eval_dataset = _make_datasets_and_trainer(
-                        config, model, model_enum, tokenizer, task, task_data, compute_metrics,
-                        training_args,
-                    )
-
-                    scores[batch_size] = sc = _eval_task(
-                        config, task, trainer, eval_dataset, datasets
-                    )
-                    logger.info(f'Score (bs={batch_size}) {task.name} -> {100. * sc:.2f}')
-
-                logger.info(f'Score (FP32 acts) {task.name} -> {100. * score_fp_acts:.2f}')
-                for k, v in scores.items():
-                    logger.info(f'Score (bs={k}) {task.name} -> {100. * v:.2f}')
-
-                final_score = np.max(list(scores.values()))
-        else:
-            final_score = _eval_task(config, task, trainer, eval_dataset, datasets)
+        final_score = _eval_task(config, task, trainer, eval_dataset, datasets)
 
         logger.info(f'Final score {task.name} -> {100. * final_score:.2f}')
 
@@ -760,6 +698,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     subtask_names = [task.name]
     eval_datasets = [eval_dataset]
     logger.info(eval_datasets)
+    
     if task == INDONLU_Task.wrete:
         subtask_names.append('mnli-mm')
         eval_datasets.append(datasets['validation_mismatched'])
@@ -777,7 +716,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
         for key, value in eval_result.items():
             logger.info(f'\t{key} = {value:.4f}')
 
-        final_score = eval_result[f'eval_{TASK_TO_FINAL_METRIC_INDONLU[task]}']
+        final_score = eval_result[f'{TASK_TO_FINAL_METRIC_INDONLU[task]}']
         subtask_final_scores.append(final_score)
 
         if config.training.do_train:
