@@ -594,6 +594,8 @@ def _run_task(config, task: GLUE_Task, task_data, model_data):
                 trainer_range_est.save_model()  # saves the tokenizer too
                 path = Path(config.base.output_dir)
                 torch.save(model.state_dict(), path / 'state_dict_adaround.pth')  # contains alpha
+    
+    logger.info('TASK DATA:', task_data)
 
     # make datasets and Trainer
     trainer, datasets, train_dataset, eval_dataset = _make_datasets_and_trainer(
