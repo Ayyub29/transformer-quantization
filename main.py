@@ -51,10 +51,11 @@ from utils import (
 
     # pipeline
     load_model_and_tokenizer,
-    load_task_data,
-    make_compute_metric_fn,
+    load_task_data_indonlu,
+    make_compute_metric_fn_indonlu,
     HF_Models,
     GLUE_Task,
+    INDONLU_Task,
     TASK_TO_FINAL_METRIC,
 
     # misc
@@ -203,7 +204,7 @@ def _log_results(task_scores_map):
         for task, score in task_scores_map.items():
             logger.info(f'\t{task.name} -> {100. * score:.2f}')
             all_scores.append(score)
-            if task != GLUE_Task.wnli:
+            if task != INDONLU_Task.wrete:
                 all_scores_excluding_wnli.append(score)
 
         logger.info(f'Macro-avg (incl. WNLI) = {100. * np.mean(all_scores):.2f}')
@@ -335,7 +336,7 @@ def _run_task(config, task: GLUE_Task, task_data, model_data):
             f.write(pformat(config) + '\n')
 
     # get metric
-    compute_metrics = make_compute_metric_fn(task)
+    compute_metrics = make_compute_metric_fn_indonlu(task)
 
     # prepare training arguments for huggingface Trainer
     training_args = _make_huggingface_training_args(config)
@@ -795,7 +796,7 @@ def _run(config):
     logger.info(f'{mode_str} with options:\n' + pformat(config))
 
     # parse tasks
-    task_flag = GLUE_Task.from_str(*config.glue.task)
+    task_flag = INDONLU_Task.from_str(*config.indonlu.task)
     logger.info(f'{mode_str} on tasks: {list(task_flag.iter_names())}')
 
     # main task loop
@@ -832,7 +833,7 @@ def _run(config):
                 task_config.model.model_path = task_out_dirpath
 
         # load data
-        task_data = load_task_data(task=task, data_dir=task_config.glue.data_dir)
+        task_data = load_task_data_indonlu(task=task, data_dir=task_config.indonlu.data_dir)
 
         # load model and tokenizer
         model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels)

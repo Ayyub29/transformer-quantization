@@ -10,6 +10,7 @@ from transformers.trainer_utils import EvaluationStrategy
 
 from utils.hf_models import HF_Models
 from utils.glue_tasks import GLUE_Task
+from utils.indonlu_task import INDONLU_Task
 from utils.quant_click_options import split_dict
 from utils.utils import seed_all
 
@@ -118,6 +119,29 @@ def glue_options(func):
         attrs = ['task', 'data_dir']
 
         config.glue, other_kw = split_dict(kwargs, attrs)
+        return func(config, *args, **other_kw)
+
+    return func_wrapper
+
+def indonlu_options(func):
+    @click.option(
+        '--task',
+        type=click.Choice(INDONLU_Task.list_names(), case_sensitive=False),
+        default=(INDONLU_Task.smsa.name,),
+        multiple=True,
+        help='The name of the task to train on.',
+    )
+    @click.option(
+        '--data-dir',
+        default=str(Path.home() / '.indonlu_data'),
+        type=click.Path(file_okay=False, writable=True, resolve_path=True),
+        help='Directory where both raw and preprocessed INDONLU datasets are stored.',
+    )
+    @wraps(func)
+    def func_wrapper(config, *args, **kwargs):
+        attrs = ['task', 'data_dir']
+
+        config.indonlu, other_kw = split_dict(kwargs, attrs)
         return func(config, *args, **other_kw)
 
     return func_wrapper
