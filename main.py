@@ -839,7 +839,7 @@ def _run(config):
 
         # load data
         task_data = load_task_data_indonlu(task=task, data_dir=task_config.indonlu.data_dir)
-
+        logger.info(task_data)
         # load model and tokenizer
         model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels)
 
