@@ -3,6 +3,7 @@
 
 from utils.adaround_utils import apply_adaround_to_model
 from utils.glue_tasks import GLUE_Task, TASK_TO_FINAL_METRIC, load_task_data, make_compute_metric_fn
+from utils.indonlu_task import INDONLU_Task, TASK_TO_FINAL_METRIC_INDONLU, load_task_data_indonlu, make_compute_metric_fn_indonlu
 from utils.hf_models import HF_Models, load_model_and_tokenizer
 from utils.per_embd_quant_utils import (
     hijack_act_quant,

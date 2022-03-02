@@ -7,6 +7,8 @@ import os
 import random
 import warnings
 
+from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
+
 warnings.filterwarnings('ignore')  # ignore TF warnings
 from copy import deepcopy
 from functools import partial
@@ -57,7 +59,7 @@ from utils import (
     GLUE_Task,
     INDONLU_Task,
     TASK_TO_FINAL_METRIC,
-
+    TASK_TO_FINAL_METRIC_INDONLU,
     # misc
     DotDict,
     Stopwatch,
@@ -771,7 +773,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
         for key, value in eval_result.items():
             logger.info(f'\t{key} = {value:.4f}')
 
-        final_score = eval_result[f'eval_{TASK_TO_FINAL_METRIC[task]}']
+        final_score = eval_result[f'eval_{TASK_TO_FINAL_METRIC_INDONLU[task]}']
         subtask_final_scores.append(final_score)
 
         if config.training.do_train:

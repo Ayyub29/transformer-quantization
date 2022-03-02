@@ -74,7 +74,7 @@ TASK_TO_SENTENCE_KEYS = {
 }
 
 
-TASK_TO_FINAL_METRIC = {
+TASK_TO_FINAL_METRIC_INDONLU = {
     INDONLU_Task.emot: 'f1',
     INDONLU_Task.smsa: 'f1',
     INDONLU_Task.casa: 'f1',
@@ -101,7 +101,6 @@ TASK_TO_FINAL_METRIC = {
 #     GLUE_Task.rte: 2490,
 #     GLUE_Task.wnli: 635,
 # }
-
 
 def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     out = DotDict()
