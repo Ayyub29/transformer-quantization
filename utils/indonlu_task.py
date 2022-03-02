@@ -125,7 +125,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
 
 
 def make_compute_metric_fn_indonlu(task: INDONLU_Task):
-    metric = load_metric('indonlu', task.name)
+    metric = load_metric('f1', task.name)
     logger.info('Metric:')
     logger.info(metric)
 
