@@ -35,6 +35,7 @@ from utils import (
     adaround_options,
     make_qparams,
     glue_options,
+    indonlu_options,
     transformer_base_options,
     transformer_data_options,
     transformer_model_options,
@@ -926,7 +927,7 @@ def validate_quantized(config):
 
 @indonlu.command()
 @pass_config
-@glue_options
+@indonlu_options
 @transformer_base_options
 @transformer_data_options
 @transformer_model_options

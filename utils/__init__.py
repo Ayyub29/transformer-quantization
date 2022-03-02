@@ -23,6 +23,7 @@ from utils.quant_click_options import (
 from utils.tb_utils import _tb_advance_global_step, _tb_advance_token_counters, _tb_hist
 from utils.transformer_click_options import (
     glue_options,
+    indonlu_options,
     transformer_base_options,
     transformer_data_options,
     transformer_model_options,
