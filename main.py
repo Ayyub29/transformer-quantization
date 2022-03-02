@@ -594,69 +594,11 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
                 trainer_range_est.save_model()  # saves the tokenizer too
                 path = Path(config.base.output_dir)
                 torch.save(model.state_dict(), path / 'state_dict_adaround.pth')  # contains alpha
-    
-    logger.info('TASK DATA:', task_data)
 
     # make datasets and Trainer
     trainer, datasets, train_dataset, eval_dataset = _make_datasets_and_trainer(
         config, model, model_enum, tokenizer, task, task_data, compute_metrics, training_args
     )
-
-    # log a few random samples from the training set
-    for index in random.sample(range(len(train_dataset)), 3):
-        logger.info(f'Sample {index} of the training set: {train_dataset[index]}.\n')
-
-    ## TensorBoard
-    tb_writer = None
-    if config.progress.tb:
-        # attach callback
-        from torch.utils.tensorboard import SummaryWriter
-
-        tb_writer = SummaryWriter(log_dir=training_args.logging_dir)
-        tb_callback = TensorBoardCallback(tb_writer=tb_writer)
-        trainer.add_callback(tb_callback)
-
-        # make tb_writer available for all (desired) modules
-        for m in model.modules():
-            m.tb_writer = tb_writer
-
-        # logging computational graph
-        if config.progress.tb_graph:
-            logger.info('Logging computational graph ...')
-
-            # prepare data
-            x_dict = next(iter(trainer.get_train_dataloader()))
-            x_dict = {k: v.cuda() for k, v in x_dict.items()}
-            inp_tuple = (x_dict['input_ids'], x_dict['attention_mask'])
-            if 'token_type_ids' in x_dict:
-                inp_tuple = inp_tuple + (x_dict['token_type_ids'],)
-
-            # log graph
-            tb_writer.add_graph(model, inp_tuple, verbose=False)
-
-    ## attach some helper attributes for TB, saving, logging etc.
-    # TB counters
-    for m in model.modules():
-        m.global_step = 0
-        m.tb_token_count = DotDict({'total': 0, 'sample_idx': 0, 'last': 0})
-
-    # task name
-    for m in model.modules():
-        m.task = task.name
-
-    # layer number
-    backbone_attr = model_data.backbone_attr
-    if backbone_attr is None:
-        raise NotImplementedError(
-            f'Model {config.model.model_name} not yet supported for ' f'TensorBoard visualization.'
-        )
-    layers = getattr(model, backbone_attr).encoder.layer
-    num_layers = len(layers)
-    for layer_idx, layer in enumerate(layers):
-        for m in layer.modules():
-            m.layer_idx = layer_idx
-            m.num_layers = num_layers
-
     # Training!
     model_name_or_path = model_data.model_name_or_path
     if config.training.do_train:
@@ -686,10 +628,6 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
             with open(os.path.join(config.base.output_dir, 'final_score.txt'), 'w') as f:
                 f.write(f'{final_score}\n')
 
-    # close tb writer
-    if tb_writer is not None:
-        tb_writer.close()
-
     return final_score
 
 
@@ -697,7 +635,6 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     # loop to handle MNLI double evaluation (matched and mis-matched accuracy)
     subtask_names = [task.name]
     eval_datasets = [eval_dataset]
-    logger.info(eval_datasets)
 
     if task == INDONLU_Task.wrete:
         subtask_names.append('mnli-mm')
@@ -713,18 +650,18 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
 
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
-        logger.info(eval_result)
-        # for key, value in eval_result.items():
-        #     logger.info(f'\t{key} = {value:.4f}')
+        for key, value in eval_result.items():
+            logger.info(f'\t{key} = {value:.4f}')
 
-        final_score = eval_result[f'{TASK_TO_FINAL_METRIC_INDONLU[task]}']
+        final_score = eval_result[f'eval_{TASK_TO_FINAL_METRIC_INDONLU[task]}']
         subtask_final_scores.append(final_score)
 
         if config.training.do_train:
             # save eval results to files
             subtask_eval_fpath = os.path.join(config.base.output_dir, f'eval_results_{subtask}.txt')
             with open(subtask_eval_fpath, 'w') as f:
-                f.write(f'{eval_result}\n')
+                for key, value in eval_result.items():
+                    f.write(f'\t{key} = {value:.4f}')
 
         if config.data.num_val_samples is not None:
             break
@@ -732,7 +669,6 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     # compute and log final score
     final_score = np.mean(subtask_final_scores)
     return final_score
-
 
 def _run(config):
     """Common routine to run training/validation on a set of tasks."""
@@ -787,7 +723,7 @@ def _run(config):
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)
 
     # log task results
-    _log_results(task_scores_map)
+    # _log_results(task_scores_map)
 
     # log elapsed time
     logger.info(s.format())
