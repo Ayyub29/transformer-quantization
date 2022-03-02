@@ -107,7 +107,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
 
     # download and load data
     logger.info(f'Getting {task.name} dataset ...\n')
-    out.datasets = load_dataset('glue', task.name, cache_dir=data_dir)
+    out.datasets = load_dataset('indonlu', task.name, cache_dir=data_dir)
 
     # determine number of labels
     logger.info('Determine labels ...\n')
