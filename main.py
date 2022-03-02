@@ -321,7 +321,7 @@ def adaround_get_samples_fn(data_loader, num_samples):
     return train_data
 
 
-def _run_task(config, task: GLUE_Task, task_data, model_data):
+def _run_task(config, task: INDONLU_Task, task_data, model_data):
     """Common routine to run training/validation on a signle task."""
     model = model_data.model
     model_enum = model_data.model_enum
