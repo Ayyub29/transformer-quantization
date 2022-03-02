@@ -34,7 +34,9 @@ class HF_Models(Enum):
     albert_base_v2 = 'albert-base-v2'
     albert_large_v2 = 'albert-large-v2'
 
-    
+    # IndoBERT - Indonesian BERT
+    indobert_base_v1 = 'indobenchmark/indobert-base-p1'
+    indobert_base_v2 = 'indobenchmark/indobert-base-p2'
 
     @classmethod
     def list_names(cls):
@@ -45,9 +47,11 @@ MODEL_TO_BACKBONE_ATTR = {  # model.<backbone attr>.<layers etc.>
     HF_Models.bert_base_uncased: 'bert',
     HF_Models.bert_large_uncased: 'bert',
     HF_Models.bert_base_cased: 'bert',
+    HF_Models.indobert_base_v1: 'bert',
+    HF_Models.indobert_base_v2: 'bert',
     HF_Models.distilroberta_base: 'roberta',
     HF_Models.roberta_base: 'roberta',
-    HF_Models.mobilebert_uncased: 'mobilebert',
+    HF_Models.mobilebert_uncased: 'mobilebert'
 }
 
 
