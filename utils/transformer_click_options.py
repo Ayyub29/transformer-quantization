@@ -342,24 +342,24 @@ def transformer_progress_options(func):
     @click.option(
         '--eval-steps', type=int, default=None, help='Run an evaluation every `eval_steps` steps.'
     )
-    # @click.option(
-    #     '--tb-logging-dir',
-    #     default=None,
-    #     type=click.Path(exists=False, writable=True, resolve_path=True),
-    #     help='Tensorboard log dir.',
-    # )
-    # @click.option(
-    #     '--tb',
-    #     is_flag=True,
-    #     default=False,
-    #     help='Whether to create and log (additional) stuff to the TensorBoard writer',
-    # )
-    # @click.option(
-    #     '--tb-graph',
-    #     is_flag=True,
-    #     default=False,
-    #     help='Whether to log computational graph into the TensorBoard writer',
-    # )
+    @click.option(
+        '--tb-logging-dir',
+        default=None,
+        type=click.Path(exists=False, writable=True, resolve_path=True),
+        help='Tensorboard log dir.',
+    )
+    @click.option(
+        '--tb',
+        is_flag=True,
+        default=False,
+        help='Whether to create and log (additional) stuff to the TensorBoard writer',
+    )
+    @click.option(
+        '--tb-graph',
+        is_flag=True,
+        default=False,
+        help='Whether to log computational graph into the TensorBoard writer',
+    )
     @click.option(
         '--logging-first-step',
         is_flag=True,
@@ -420,9 +420,9 @@ def transformer_progress_options(func):
             'eval_during_training',
             'eval_strategy',
             'eval_steps',
-            # 'tb_logging_dir',
-            # 'tb',
-            # 'tb_graph',
+            'tb_logging_dir',
+            'tb',
+            'tb_graph',
             'logging_first_step',
             'logging_steps',
             'save_steps',
