@@ -86,7 +86,6 @@ def glue():
 
 @click.group()
 def indonlu():
-    logger.info("testing....")
     logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
 
 # show default values for all options
@@ -700,6 +699,8 @@ def _run(config):
                 task_dirpath = Path(config.model.model_path) / task.name
                 task_out_dirpaths = task_dirpath.glob('**/out')
                 non_empty_task_out_dirpaths = list(filter(_is_non_empty_dir, task_out_dirpaths))
+                logger.info(non_empty_task_out_dirpaths)
+                logger.info(task_out_dirpaths)
                 if not len(non_empty_task_out_dirpaths):
                     raise RuntimeError(f'Task directory ({task_dirpath}) is empty.')
                 if len(non_empty_task_out_dirpaths) > 1:
@@ -724,7 +725,7 @@ def _run(config):
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)
 
     # log task results
-    # _log_results(task_scores_map)
+    _log_results(task_scores_map)
 
     # log elapsed time
     logger.info(s.format())
@@ -756,6 +757,9 @@ def _validate(config):
 @transformer_training_options
 @transformer_progress_options
 def train_baseline_indonlu(config):
+    """
+    Fine tuning Base model from Huggingface
+    """
     _train(config)
 
 @indonlu.command()

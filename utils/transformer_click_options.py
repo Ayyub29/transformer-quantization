@@ -16,6 +16,9 @@ from utils.utils import seed_all
 
 
 def transformer_base_options(func):
+    """
+    Basic option for training or validating transformers model, including GPU usage, seed, workers, output and overwrite output
+    """
     @click.option(
         '--cuda/--no-cuda', is_flag=True, default=torch.cuda.is_available(), help='Use GPU'
     )
@@ -54,6 +57,9 @@ def transformer_base_options(func):
 
 
 def transformer_data_options(func):
+    """
+    Basic options for database used, including squences length, padding, sample used, 
+    """
     @click.option(
         '--max-seq-length',
         type=int,
@@ -124,6 +130,9 @@ def glue_options(func):
     return func_wrapper
 
 def indonlu_options(func):
+    """
+    Options for INDONLU parameter, including task and where dataset stored
+    """
     @click.option(
         '--task',
         type=click.Choice(INDONLU_Task.list_names(), case_sensitive=False),
@@ -148,11 +157,13 @@ def indonlu_options(func):
 
 
 def transformer_model_options(func):
-    # GLUE
+    """
+    Options for Model parameter, including model used, path, tokenizer used, dropout and caching
+    """
     @click.option(
         '--model-name',
         type=click.Choice(HF_Models.list_names(), case_sensitive=False),
-        default=HF_Models.bert_base_uncased.name,
+        default=HF_Models.indobert_base_v1.name,
         help='Model identifier from huggingface.co/models.',
     )
     @click.option(
@@ -209,7 +220,9 @@ def transformer_model_options(func):
 
 
 def transformer_training_options(func):
-    # standard settings
+    """
+    Basic configuration for training model, including evaluation, learning rate, lr scheduler type, epoch, batch size
+    """
     @click.option(
         '--do-eval/--no-eval',
         is_flag=True,
@@ -310,6 +323,9 @@ def transformer_training_options(func):
 
 
 def transformer_progress_options(func):
+    """
+    Basic configuration on how the progress on the training used, including using progress bar, evaluation during training, strategy, etc
+    """
     @click.option('--tqdm/--no-tqdm', default=True)
     @click.option(
         '--eval-during-training',
@@ -326,24 +342,24 @@ def transformer_progress_options(func):
     @click.option(
         '--eval-steps', type=int, default=None, help='Run an evaluation every `eval_steps` steps.'
     )
-    @click.option(
-        '--tb-logging-dir',
-        default=None,
-        type=click.Path(exists=False, writable=True, resolve_path=True),
-        help='Tensorboard log dir.',
-    )
-    @click.option(
-        '--tb',
-        is_flag=True,
-        default=False,
-        help='Whether to create and log (additional) stuff to the TensorBoard writer',
-    )
-    @click.option(
-        '--tb-graph',
-        is_flag=True,
-        default=False,
-        help='Whether to log computational graph into the TensorBoard writer',
-    )
+    # @click.option(
+    #     '--tb-logging-dir',
+    #     default=None,
+    #     type=click.Path(exists=False, writable=True, resolve_path=True),
+    #     help='Tensorboard log dir.',
+    # )
+    # @click.option(
+    #     '--tb',
+    #     is_flag=True,
+    #     default=False,
+    #     help='Whether to create and log (additional) stuff to the TensorBoard writer',
+    # )
+    # @click.option(
+    #     '--tb-graph',
+    #     is_flag=True,
+    #     default=False,
+    #     help='Whether to log computational graph into the TensorBoard writer',
+    # )
     @click.option(
         '--logging-first-step',
         is_flag=True,

@@ -23,21 +23,17 @@ def seed_all(seed=1029):
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
-
 def count_params(module):
     return len(nn.utils.parameters_to_vector(module.parameters()))
 
-
 def count_embedding_params(model):
     return sum(count_params(m) for m in model.modules() if isinstance(m, nn.Embedding))
-
 
 def get_layer_by_name(model, layer_name):
     for name, module in model.named_modules():
         if name == layer_name:
             return module
     return None
-
 
 class StopForwardException(Exception):
     """Used to throw and catch an exception to stop traversing the graph."""

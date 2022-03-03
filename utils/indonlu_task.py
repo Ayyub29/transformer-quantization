@@ -133,9 +133,10 @@ def make_compute_metric_fn_indonlu(task: INDONLU_Task):
         for metric in list_metric:
             metric_loader = load_metric(metric)
             if (metric == 'accuracy'):
-                result[metric] = metric_loader.compute(predictions=preds, references=p.label_ids)
+                value = metric_loader.compute(predictions=preds, references=p.label_ids)[metric]
             else:
-                result[metric] = metric_loader.compute(predictions=preds, references=p.label_ids, average="macro")
+                value = metric_loader.compute(predictions=preds, references=p.label_ids, average="macro")[metric]
+            result[metric] = value
         return result
 
     return fn
