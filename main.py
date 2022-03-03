@@ -782,7 +782,7 @@ def validate_baseline_indonlu(config):
 @qat_options
 @adaround_options
 @transformer_quant_options
-def train_quantized(config):
+def train_quantized_indonlu(config):
     _train(config)
 
 @indonlu.command()
