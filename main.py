@@ -221,7 +221,7 @@ def _quantize_model(config, model, model_enum):
     qparams = make_qparams(config)
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
 
-    if model_enum in (HF_Models.bert_base_uncased, HF_Models.bert_large_uncased):
+    if model_enum in (HF_Models.bert_base_uncased, HF_Models.bert_large_uncased, HF_Models.indobert_base_v1, HF_Models.indobert_base_v2):
         model = QuantizedBertForSequenceClassification(model, **qparams)
     elif model_enum == HF_Models.mobilebert_uncased:
         model = QuantizedMobileBertForSequenceClassification(model, **qparams)
