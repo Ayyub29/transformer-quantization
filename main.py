@@ -747,63 +747,6 @@ def _validate(config):
 
     _run(config)
 
-
-@glue.command()
-@pass_config
-@glue_options
-@transformer_base_options
-@transformer_data_options
-@transformer_model_options
-@transformer_training_options
-@transformer_progress_options
-def train_baseline(config):
-    _train(config)
-
-
-@glue.command()
-@pass_config
-@glue_options
-@transformer_base_options
-@transformer_data_options
-@transformer_model_options
-@transformer_training_options
-@transformer_progress_options
-@quantization_options
-@activation_quantization_options
-@qat_options
-@adaround_options
-@transformer_quant_options
-def train_quantized(config):
-    _train(config)
-
-
-@glue.command()
-@pass_config
-@glue_options
-@transformer_base_options
-@transformer_data_options
-@transformer_model_options
-@transformer_training_options
-@transformer_progress_options
-def validate_baseline(config):
-    _validate(config)
-
-
-@glue.command()
-@pass_config
-@glue_options
-@transformer_base_options
-@transformer_data_options
-@transformer_model_options
-@transformer_training_options
-@transformer_progress_options
-@quantization_options
-@activation_quantization_options
-@adaround_options
-@transformer_quant_options
-def validate_quantized(config):
-    _validate(config)
-
 @indonlu.command()
 @pass_config
 @indonlu_options
@@ -824,6 +767,37 @@ def train_baseline_indonlu(config):
 @transformer_training_options
 @transformer_progress_options
 def validate_baseline_indonlu(config):
+    _validate(config)
+
+@indonlu.command()
+@pass_config
+@indonlu_options
+@transformer_base_options
+@transformer_data_options
+@transformer_model_options
+@transformer_training_options
+@transformer_progress_options
+@quantization_options
+@activation_quantization_options
+@qat_options
+@adaround_options
+@transformer_quant_options
+def train_quantized(config):
+    _train(config)
+
+@indonlu.command()
+@pass_config
+@indonlu_options
+@transformer_base_options
+@transformer_data_options
+@transformer_model_options
+@transformer_training_options
+@transformer_progress_options
+@quantization_options
+@activation_quantization_options
+@adaround_options
+@transformer_quant_options
+def validate_quantized_indonlu(config):
     _validate(config)
 
 if __name__ == '__main__':
