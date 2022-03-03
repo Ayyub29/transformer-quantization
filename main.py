@@ -815,5 +815,16 @@ def validate_quantized(config):
 def train_baseline_indonlu(config):
     _train(config)
 
+@indonlu.command()
+@pass_config
+@indonlu_options
+@transformer_base_options
+@transformer_data_options
+@transformer_model_options
+@transformer_training_options
+@transformer_progress_options
+def validate_baseline_indonlu(config):
+    _validate(config)
+
 if __name__ == '__main__':
     indonlu()
