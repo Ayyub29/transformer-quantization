@@ -699,8 +699,6 @@ def _run(config):
                 task_dirpath = Path(config.model.model_path) / task.name
                 task_out_dirpaths = task_dirpath.glob('**/out')
                 non_empty_task_out_dirpaths = list(filter(_is_non_empty_dir, task_out_dirpaths))
-                logger.info(non_empty_task_out_dirpaths)
-                logger.info(task_out_dirpaths)
                 if not len(non_empty_task_out_dirpaths):
                     raise RuntimeError(f'Task directory ({task_dirpath}) is empty.')
                 if len(non_empty_task_out_dirpaths) > 1:
@@ -717,9 +715,9 @@ def _run(config):
 
         # load data
         task_data = load_task_data_indonlu(task=task, data_dir=task_config.indonlu.data_dir)
-        logger.info(task_data)
         # load model and tokenizer
         model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels)
+        logger.info(model_data)
 
         # run on a task
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)

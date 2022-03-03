@@ -103,6 +103,9 @@ TASK_TO_FINAL_METRIC_INDONLU = {
 # }
 
 def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
+    """
+    Loading dataset task on INDONLU, including determining labels length and column name on dataset
+    """
     out = DotDict()
 
     # download and load data

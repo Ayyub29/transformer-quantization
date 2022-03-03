@@ -57,6 +57,9 @@ MODEL_TO_BACKBONE_ATTR = {  # model.<backbone attr>.<layers etc.>
 
 def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_dir, attn_dropout,
                              hidden_dropout, num_labels, **kw):
+    """
+    Loading the model and tokenizer
+    """
     del kw  # unused
 
     out = DotDict()
@@ -67,6 +70,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
     else:
         model_name_or_path = HF_Models[model_name].value  # use HF identifier
 
+    # Creating model config
     config = AutoConfig.from_pretrained(
         model_name_or_path,
         num_labels=num_labels,
