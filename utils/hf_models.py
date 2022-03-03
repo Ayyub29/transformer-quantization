@@ -9,7 +9,7 @@ from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTok
 from utils.utils import count_embedding_params, count_params, DotDict
 
 
-logger = logging.getLogger('GLUE')
+logger = logging.getLogger('INDO_NLU')
 logger.setLevel(logging.ERROR)
 
 
