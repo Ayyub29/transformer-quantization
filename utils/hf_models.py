@@ -76,7 +76,6 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
         num_labels=num_labels,
         cache_dir=cache_dir,
     )
-    config.num_labels_list = num_labels_list
 
     logger.info(f'Adding config :{config.num_labels_list}')
 
@@ -115,6 +114,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
             cache_dir=cache_dir,
         )
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa:
+        print(num_labels_list)
         model = BertForMultiLabelClassification.from_pretrained(
             model_name_or_path,
             from_tf=False,
