@@ -119,6 +119,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     if task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete:  # sequence classification
         label_list = out.datasets["train"].features[TASK_LABELS[task]].names
         out.num_labels = n_labels = len(label_list)
+        out.num_labels_list  = None #Dummy
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa: #aspect based sentimend analysis
         out.num_labels = max(TASK_LABELS[task])
@@ -130,6 +131,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
     else:
         label_list = out.datasets["train"].features[TASK_LABELS[task]].features.names
+        out.num_labels_list  = None #Dummy
         out.num_labels = n_labels = out.datasets["train"].features[TASK_LABELS[task]].num_classes
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
 
