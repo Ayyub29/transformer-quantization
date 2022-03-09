@@ -77,8 +77,6 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
         cache_dir=cache_dir,
     )
 
-    logger.info(f'Adding config :{config.num_labels_list}')
-
     # set dropout rates
     if attn_dropout is not None:
         logger.info(f'Setting attn dropout to {attn_dropout}')
