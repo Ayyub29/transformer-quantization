@@ -89,18 +89,20 @@ TASK_TO_FINAL_METRIC_INDONLU = {
     INDONLU_Task.facqa: 'f1'
 }
 
-
-# TASK_N = {
-#     GLUE_Task.mnli: 392702,
-#     GLUE_Task.qqp: 363846,
-#     GLUE_Task.qnli: 104743,
-#     GLUE_Task.sst2: 67349,
-#     GLUE_Task.cola: 8551,
-#     GLUE_Task.stsb: 5749,
-#     GLUE_Task.mrpc: 3665,
-#     GLUE_Task.rte: 2490,
-#     GLUE_Task.wnli: 635,
-# }
+TASK_LABELS = {
+    INDONLU_Task.emot: 'label',
+    INDONLU_Task.smsa: 'label',
+    INDONLU_Task.casa: [3, 3, 3, 3, 3, 3],
+    INDONLU_Task.hoasa: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    INDONLU_Task.wrete: 'label',
+    INDONLU_Task.posp: 'pos_tags',
+    INDONLU_Task.bapos: 'pos_tags',
+    INDONLU_Task.terma: 'seq_label',
+    INDONLU_Task.keps: 'seq_label',
+    INDONLU_Task.nergrit: 'ner_tags',
+    INDONLU_Task.nerp: 'ner_tags',
+    INDONLU_Task.facqa: 'seq_label'
+}
 
 def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     """
@@ -114,12 +116,21 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
 
     # determine number of labels
     logger.info('Determine labels ...\n')
-    if task == INDONLU_Task.wrete:  # need to be adjusted later
-        out.num_labels = 1
-        logger.info(f'{task.name}: 1 label -- <Regression>')
-    else:
-        label_list = out.datasets["train"].features["label"].names
+    if task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete:  # sequence classification
+        label_list = out.datasets["train"].features[TASK_LABELS[task]].names
         out.num_labels = n_labels = len(label_list)
+        logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
+    elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa: #aspect based sentimend analysis
+        out.num_labels = max(TASK_LABELS[task])
+        out.num_labels_list  = TASK_LABELS[task]
+        label_list = []
+        for feature in out.datasets['train'].column_names:
+            if (feature != 'sentence'):
+                label_list = label_list.append(feature)
+        logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
+    else:
+        label_list = out.datasets["train"].features[TASK_LABELS[task]].features.names
+        out.num_labels = n_labels = out.datasets["train"].features[TASK_LABELS[task]].num_classes
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
 
     # store sentence keys

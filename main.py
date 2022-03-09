@@ -71,18 +71,11 @@ from utils import (
 logger = logging.getLogger('main')
 logger.setLevel(os.environ.get('LOGLEVEL', 'INFO'))
 
-
 # setup stuff
 class Config(DotDict):
     pass
 
-
 pass_config = click.make_pass_decorator(Config, ensure=True)
-
-
-@click.group()
-def glue():
-    logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'))
 
 @click.group()
 def indonlu():
@@ -168,13 +161,11 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     )
 
     train_dataset = datasets['train']
-    eval_dataset = datasets['validation_matched' if task == INDONLU_Task.wrete else 'validation'] ##NEED TO ADJUST
+    eval_dataset = datasets['validation'] ##NEED TO ADJUST
 
     if model_enum in (
-        HF_Models.bert_base_uncased,
-        HF_Models.bert_large_uncased,
-        HF_Models.bert_base_cased,
-        HF_Models.mobilebert_uncased,
+        HF_Models.indobert_base_v1,
+        HF_Models.indobert_base_v2
     ):
         logger.info('First ten examples tokenized: (#, [SEP] idx, length):')
         for i in range(10):
@@ -569,35 +560,11 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
             config, model, loader=trainer_range_est.get_train_dataloader()
         )
 
-        # Apply AdaRound
-        if (
-            not config.training.do_train
-            and config.quant.weight_quant
-            and config.adaround.layers is not None
-        ):
-
-            trainer_weight_opt, _, _, _ = _make_datasets_and_trainer(
-                config, model, model_enum, tokenizer, task, task_data, compute_metrics,
-                training_args_, padding=True,
-            )
-
-            apply_adaround_to_model(
-                config, model, data_loader=trainer_weight_opt.get_train_dataloader(),
-                range_est_data_loader=trainer_range_est.get_train_dataloader(),
-                batch_size=config.training.batch_size,
-                get_samples_fn=adaround_get_samples_fn,
-            )
-
-            if config.progress.save_model:
-                trainer_range_est.model = model
-                trainer_range_est.save_model()  # saves the tokenizer too
-                path = Path(config.base.output_dir)
-                torch.save(model.state_dict(), path / 'state_dict_adaround.pth')  # contains alpha
-
     # make datasets and Trainer
     trainer, datasets, train_dataset, eval_dataset = _make_datasets_and_trainer(
         config, model, model_enum, tokenizer, task, task_data, compute_metrics, training_args
     )
+
     # Training!
     model_name_or_path = model_data.model_name_or_path
     if config.training.do_train:
@@ -716,9 +683,11 @@ def _run(config):
         # load data
         task_data = load_task_data_indonlu(task=task, data_dir=task_config.indonlu.data_dir)
         # load model and tokenizer
-        model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels)
+        if task_data.list_labels:
+            model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task, list_labels=task_data.list_labels)
+        else:
+            model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task)
         logger.info(model_data)
-
         # run on a task
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)
 
