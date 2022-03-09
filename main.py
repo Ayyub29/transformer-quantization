@@ -682,11 +682,10 @@ def _run(config):
 
         # load data
         task_data = load_task_data_indonlu(task=task, data_dir=task_config.indonlu.data_dir)
+        
         # load model and tokenizer
-        if task_data.num_labels_list != None:
-            model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task, list_labels=task_data.num_labels_list)
-        else:
-            model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task)
+        model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task, list_labels=task_data.num_labels_list)
+        
         logger.info(model_data)
         # run on a task
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)
