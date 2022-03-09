@@ -127,7 +127,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         label_list = []
         for feature in out.datasets['train'].column_names:
             if (feature != 'sentence'):
-                label_list = label_list.append(feature)
+                label_list = label_list + [feature]
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
     else:
         label_list = out.datasets["train"].features[TASK_LABELS[task]].features.names
