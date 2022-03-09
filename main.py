@@ -685,7 +685,7 @@ def _run(config):
         logger.info(task_data)
         # load model and tokenizer
         if task_data.num_labels_list != None:
-            model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task, list_labels=task_data.list_labels)
+            model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task, list_labels=task_data.num_labels_list)
         else:
             model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task)
         logger.info(model_data)

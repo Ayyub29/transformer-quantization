@@ -56,7 +56,7 @@ MODEL_TO_BACKBONE_ATTR = {  # model.<backbone attr>.<layers etc.>
 }
 
 def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_dir, attn_dropout,
-                             hidden_dropout, num_labels, task: INDONLU_Task, list_labels = None, **kw):
+                             hidden_dropout, num_labels, task: INDONLU_Task, num_labels_list = None, **kw):
     """
     Loading the model and tokenizer
     """
@@ -77,8 +77,8 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
         cache_dir=cache_dir,
     )
 
-    if list_labels != None:
-        config.list_labels = list_labels
+    if num_labels_list != None:
+        config.num_labels_list = num_labels_list
 
     # set dropout rates
     if attn_dropout is not None:
