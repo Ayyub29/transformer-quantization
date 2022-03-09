@@ -76,9 +76,9 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
         num_labels=num_labels,
         cache_dir=cache_dir,
     )
+    config.num_labels_list = num_labels_list
 
-    if num_labels_list != None:
-        config.num_labels_list = num_labels_list
+    logger.info(f'Adding config :{config.num_labels_list}')
 
     # set dropout rates
     if attn_dropout is not None:
