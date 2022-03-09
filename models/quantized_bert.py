@@ -20,7 +20,7 @@ from quantization.autoquant_utils import quantize_model
 from quantization.base_quantized_classes import QuantizedActivation, FP32Acts
 from quantization.base_quantized_model import QuantizedModel
 from quantization.range_estimators import RangeEstimators, OptMethod
-from utils import _tb_advance_global_step, _tb_advance_token_counters, _tb_hist
+from utils.tb_utils import _tb_advance_global_step, _tb_advance_token_counters, _tb_hist
 
 
 class QuantizedBertEmbeddings(QuantizedModel):
