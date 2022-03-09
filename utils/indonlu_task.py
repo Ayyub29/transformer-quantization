@@ -132,7 +132,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     else:
         label_list = out.datasets["train"].features[TASK_LABELS[task]].feature.names
         out.num_labels_list  = None #Dummy
-        out.num_labels = n_labels = out.datasets["train"].features[TASK_LABELS[task]].num_classes
+        out.num_labels = n_labels = out.datasets["train"].features[TASK_LABELS[task]].feature.num_classes
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
 
     # store sentence keys
