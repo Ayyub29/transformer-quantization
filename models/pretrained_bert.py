@@ -6,8 +6,9 @@ from transformers import  BertPreTrainedModel,  BertModel
 class BertForMultiLabelClassification(BertPreTrainedModel):
     def __init__(self, config, num_labels_list):
         super().__init__(config)
+        print(num_labels_list)
         self.num_labels = num_labels_list
-
+        print(self.num_labels)
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifiers = nn.ModuleList([nn.Linear(config.hidden_size, num_label) for num_label in self.num_labels])
