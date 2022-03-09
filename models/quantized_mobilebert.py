@@ -25,7 +25,8 @@ from quantization.base_quantized_classes import QuantizedActivation, FP32Acts
 from quantization.base_quantized_model import QuantizedModel
 from quantization.hijacker import QuantizationHijacker
 from quantization.range_estimators import RangeEstimators, OptMethod
-from utils.tb_utils import DotDict, _tb_advance_global_step, _tb_advance_token_counters, _tb_hist
+from utils.tb_utils import _tb_advance_global_step, _tb_advance_token_counters, _tb_hist
+from utils.utils import DotDict
 
 
 DEFAULT_QUANT_DICT = {
