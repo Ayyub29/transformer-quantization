@@ -120,6 +120,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
             from_tf=False,
             config=config,
             cache_dir=cache_dir,
+            num_labels_list=num_labels_list
         )
     else:
         model = BertForWordClassification.from_pretrained(

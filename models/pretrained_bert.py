@@ -4,9 +4,9 @@ from torch.nn import CrossEntropyLoss
 from transformers import  BertPreTrainedModel,  BertModel
 
 class BertForMultiLabelClassification(BertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config, num_labels_list):
         super().__init__(config)
-        self.num_labels = config.num_labels_list
+        self.num_labels = num_labels_list
 
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
