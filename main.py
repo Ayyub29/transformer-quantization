@@ -155,9 +155,10 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         )
         result = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
         return result
-
+    
+    is_batched = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete or task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
     datasets = task_data.datasets.map(
-        preprocess_fn, batched=True, load_from_cache_file=not config.data.overwrite_cache
+        preprocess_fn, batched=is_batched, load_from_cache_file=not config.data.overwrite_cache
     )
 
     train_dataset = datasets['train']
