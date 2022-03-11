@@ -171,7 +171,6 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             previous_word_idx = None
             label_ids = []
             for word_idx in word_ids:
-                logger.info(word_idx)
                 # Special tokens have a word id that is None. We set the label to -100 so they are automatically
                 # ignored in the loss function.
                 if word_idx is None:
