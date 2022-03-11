@@ -215,6 +215,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             len_ = len(tokens)
             logger.info(f'{i + 1}, {sep_pos_idx}, {len_}, {tokens}')
 
+    word_data_collator = DataCollatorForTokenClassification(tokenizer)
     trainer = Trainer(
         model=model,
         args=training_args,
@@ -224,7 +225,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         tokenizer=tokenizer,
         # data collator will default to DataCollatorWithPadding,
         # so we change it if we already did the padding:
-        data_collator=default_data_collator if padding else None,
+        data_collator=default_data_collator if padding and is_text_class_task else word_data_collator if padding else None,
     )
     return trainer, datasets, train_dataset, eval_dataset
 
