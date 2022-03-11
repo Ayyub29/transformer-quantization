@@ -153,7 +153,6 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             if task_data.sentence2_key is not None:
                 text_two = examples[task_data.sentence2_key]
         else:
-            logger.info(f"{task_data.sentence1_key} - {examples[task_data.sentence1_key]}")
             text_one = ' '.join(examples[task_data.sentence1_key])
             if task_data.sentence2_key is not None:
                 text_two = ' '.join(examples[task_data.sentence2_key])
