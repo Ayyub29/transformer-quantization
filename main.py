@@ -55,7 +55,8 @@ from utils import (
     # pipeline
     load_model_and_tokenizer,
     load_task_data_indonlu,
-    make_compute_metric_fn_indonlu,
+    make_compute_metric_fn_text,
+    make_compute_metric_fn_word,
     HF_Models,
     GLUE_Task,
     INDONLU_Task,
@@ -216,31 +217,17 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             logger.info(f'{i + 1}, {sep_pos_idx}, {len_}, {tokens}')
 
     word_data_collator = DataCollatorForTokenClassification(tokenizer)
-    
-    if is_text_class_task:
-        trainer = Trainer(
-            model=model,
-            args=training_args,
-            train_dataset=train_dataset,
-            eval_dataset=eval_dataset,
-            compute_metrics=compute_metrics,
-            tokenizer=tokenizer,
-            # data collator will default to DataCollatorWithPadding,
-            # so we change it if we already did the padding:
-            data_collator=default_data_collator if padding else None,
-        )
-    else:
-        trainer = Trainer(
-            model=model,
-            args=training_args,
-            train_dataset=train_dataset,
-            eval_dataset=eval_dataset,
-            compute_metrics=compute_metrics,
-            tokenizer=tokenizer,
-            # data collator will default to DataCollatorWithPadding,
-            # so we change it if we already did the padding:
-            data_collator=word_data_collator if padding else None,
-        )
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        compute_metrics=compute_metrics,
+        tokenizer=tokenizer,
+        # data collator will default to DataCollatorWithPadding,
+        # so we change it if we already did the padding:
+        data_collator=default_data_collator if padding and is_text_class_task else word_data_collator if padding else None,
+    )
     return trainer, datasets, train_dataset, eval_dataset
 
 
@@ -385,7 +372,9 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
             f.write(pformat(config) + '\n')
 
     # get metric
-    compute_metrics = make_compute_metric_fn_indonlu(task)
+    is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete or task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
+
+    compute_metrics = make_compute_metric_fn_text(task) if is_text_class_task else make_compute_metric_fn_word(task)
 
     # prepare training arguments for huggingface Trainer
     training_args = _make_huggingface_training_args(config)
