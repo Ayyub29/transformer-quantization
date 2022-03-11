@@ -148,13 +148,16 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
 
     # tokenize text and define datasets
     def preprocess_fn(examples):
+        text_one = examples[task_data.sentence1_key]
+        text_two = examples[task_data.sentence2_key]
         if not (task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete or task == INDONLU_Task.casa or task == INDONLU_Task.hoasa):
-            examples = ' '.join(examples)
+            text_one = ' '.join(examples[task_data.sentence1_key])
+            text_two = ' '.join(examples[task_data.sentence2_key])
         # tokenize the texts
         args = (
-            (examples[task_data.sentence1_key],)
+            (text_one,)
             if task_data.sentence2_key is None
-            else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
+            else (text_one, text_two)
         )
         result = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
         return result
