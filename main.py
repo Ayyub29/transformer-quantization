@@ -166,11 +166,12 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         for i, label in enumerate(examples[TASK_LABELS[task]]):
             word_ids = tokenized_inputs.word_ids(batch_index=i)
             logger.info(tokenized_inputs)
-            logger.info(examples[TASK_LABELS[task]][i])
             logger.info(word_ids)
+            logger.info(label)
             previous_word_idx = None
             label_ids = []
             for word_idx in word_ids:
+                logger.info(word_idx)
                 # Special tokens have a word id that is None. We set the label to -100 so they are automatically
                 # ignored in the loss function.
                 if word_idx is None:
@@ -193,7 +194,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         )
     else: 
         datasets = task_data.datasets.map(
-            preprocess_fn_word, batched=False, load_from_cache_file=not config.data.overwrite_cache
+            preprocess_fn_word, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
 
     train_dataset = datasets['train']
