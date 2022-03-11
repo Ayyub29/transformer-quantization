@@ -161,7 +161,8 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     )
 
     train_dataset = datasets['train']
-    logger.info(f'dataset: {train_dataset}')
+    for features in train_dataset.features:
+        logger.info(f"{features} => {train_dataset[2][features]}")
     eval_dataset = datasets['validation'] ##NEED TO ADJUST
 
     if model_enum in (
