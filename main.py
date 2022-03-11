@@ -18,7 +18,7 @@ from pprint import pformat
 import click
 import numpy as np
 import torch
-from transformers import Trainer, TrainingArguments, default_data_collator
+from transformers import Trainer, TrainingArguments, default_data_collator, DataCollatorForTokenClassification
 from transformers.integrations import TensorBoardCallback
 
 from models import (
@@ -195,7 +195,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         tokenizer=tokenizer,
         # data collator will default to DataCollatorWithPadding,
         # so we change it if we already did the padding:
-        data_collator=default_data_collator if padding else None,
+        data_collator=DataCollatorForTokenClassification,
     )
     return trainer, datasets, train_dataset, eval_dataset
 
