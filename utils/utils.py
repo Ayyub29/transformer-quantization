@@ -173,3 +173,27 @@ class Stopwatch:
         if self._is_running:
             self._update_state()
         return self._total_duration
+
+def word_collator_fn(batch):
+        batch_size = len(batch)
+        max_seq_len = max(map(lambda x: len(x[0]), batch))
+        max_tgt_len = max(map(lambda x: len(x[2]), batch))
+        
+        subword_batch = np.zeros((batch_size, max_seq_len), dtype=np.int64)
+        mask_batch = np.zeros((batch_size, max_seq_len), dtype=np.float32)
+        subword_to_word_indices_batch = np.full((batch_size, max_seq_len), -1, dtype=np.int64)
+        seq_label_batch = np.full((batch_size, max_tgt_len), -100, dtype=np.int64)
+        
+        seq_list = []
+        for i, (subwords, subword_to_word_indices, seq_label, raw_seq) in enumerate(batch):
+            subwords = subwords[:max_seq_len]
+            subword_to_word_indices = subword_to_word_indices[:max_seq_len]
+
+            subword_batch[i,:len(subwords)] = subwords
+            mask_batch[i,:len(subwords)] = 1
+            subword_to_word_indices_batch[i,:len(subwords)] = subword_to_word_indices
+            seq_label_batch[i,:len(seq_label)] = seq_label
+
+            seq_list.append(raw_seq)
+            
+        return subword_batch, mask_batch, subword_to_word_indices_batch, seq_label_batch, seq_list

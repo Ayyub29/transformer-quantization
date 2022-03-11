@@ -144,32 +144,54 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         # to the max sequence length in each batch
 
     max_length = config.data.max_seq_length
+    is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete or task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
 
-
-    # tokenize text and define datasets
-    def preprocess_fn(examples):
-        if (task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete or task == INDONLU_Task.casa or task == INDONLU_Task.hoasa):
-            text_one = examples[task_data.sentence1_key]
-            if task_data.sentence2_key is not None:
-                text_two = examples[task_data.sentence2_key]
-        else:
-            text_one = ' '.join(examples[task_data.sentence1_key])
-            if task_data.sentence2_key is not None:
-                text_two = ' '.join(examples[task_data.sentence2_key])
+    # tokenize text and define datasets for text classification
+    def preprocess_fn_text(examples):
         # tokenize the texts
         args = (
-            (text_one,)
+            (examples[task_data.sentence1_key],)
             if task_data.sentence2_key is None
-            else (text_one, text_two)
+            else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
         )
-        result = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
+        result = tokenizer(*args, padding=padding, max_length=max_length, truncation=True, is_split_into_words=not is_text_class_task)
         return result
     
-    is_batched = (task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete or task == INDONLU_Task.casa or task == INDONLU_Task.hoasa)
-    datasets = task_data.datasets.map(
-        preprocess_fn, batched=is_batched, load_from_cache_file=not config.data.overwrite_cache
-    )
+    # tokenize text and define datasets for word classification
+    def preprocess_fn_word(examples):
+        tokenized_inputs = tokenizer(examples["tokens"], truncation=True, is_split_into_words=True)
+        label_all_tokens = True
+        labels = []
+        for i, label in enumerate(examples[f"{task}_tags"]):
+            word_ids = tokenized_inputs.word_ids(batch_index=i)
+            previous_word_idx = None
+            label_ids = []
+            for word_idx in word_ids:
+                # Special tokens have a word id that is None. We set the label to -100 so they are automatically
+                # ignored in the loss function.
+                if word_idx is None:
+                    label_ids.append(-100)
+                # We set the label for the first token of each word.
+                elif word_idx != previous_word_idx:
+                    label_ids.append(label[word_idx])
+                # For the other tokens in a word, we set the label to either the current label or -100, depending on
+                # the label_all_tokens flag.
+                else:
+                    label_ids.append(label[word_idx] if label_all_tokens else -100)
+                previous_word_idx = word_idx
+            labels.append(label_ids)
+        tokenized_inputs["labels"] = labels
+        return tokenized_inputs
 
+    if is_text_class_task:
+        datasets = task_data.datasets.map(
+            preprocess_fn_text, batched=True, load_from_cache_file=not config.data.overwrite_cache
+        )
+    else: 
+        datasets = task_data.datasets.map(
+            preprocess_fn_word, batched=True, load_from_cache_file=not config.data.overwrite_cache
+        )
+        
     train_dataset = datasets['train']
     for features in train_dataset.features:
         logger.info(f"{features} => {train_dataset[2][features]}")
@@ -195,7 +217,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         tokenizer=tokenizer,
         # data collator will default to DataCollatorWithPadding,
         # so we change it if we already did the padding:
-        data_collator=DataCollatorForTokenClassification,
+        data_collator=default_data_collator if padding else None,
     )
     return trainer, datasets, train_dataset, eval_dataset
 
