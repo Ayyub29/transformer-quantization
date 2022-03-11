@@ -61,6 +61,7 @@ from utils import (
     INDONLU_Task,
     TASK_TO_FINAL_METRIC,
     TASK_TO_FINAL_METRIC_INDONLU,
+    TASK_LABELS,
     # misc
     DotDict,
     Stopwatch,
@@ -159,10 +160,10 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     
     # tokenize text and define datasets for word classification
     def preprocess_fn_word(examples):
-        tokenized_inputs = tokenizer(examples["tokens"], truncation=True, is_split_into_words=True)
+        tokenized_inputs = tokenizer(examples[task_data.sentence1_key], truncation=True, is_split_into_words=True)
         label_all_tokens = True
         labels = []
-        for i, label in enumerate(examples[f"{task}_tags"]):
+        for i, label in enumerate(examples[TASK_LABELS[task]]):
             word_ids = tokenized_inputs.word_ids(batch_index=i)
             previous_word_idx = None
             label_ids = []
@@ -191,7 +192,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         datasets = task_data.datasets.map(
             preprocess_fn_word, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
-        
+
     train_dataset = datasets['train']
     for features in train_dataset.features:
         logger.info(f"{features} => {train_dataset[2][features]}")
