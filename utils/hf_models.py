@@ -4,7 +4,7 @@
 import logging
 from enum import Enum
 
-from transformers import BertTokenizer, BertConfig, BertForSequenceClassification
+from transformers import BertTokenizer, BertConfig, BertForSequenceClassification, PreTrainedTokenizerFast
 from models.pretrained_bert import BertForMultiLabelClassification, BertForWordClassification
 from utils.indonlu_task import INDONLU_Task
 
@@ -101,6 +101,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
         use_fast=use_fast_tokenizer,
         cache_dir=cache_dir,
     )
+    assert isinstance(tokenizer, PreTrainedTokenizerFast)
     logger.info('Tokenizer:')
     logger.info(tokenizer)
     out.tokenizer = tokenizer

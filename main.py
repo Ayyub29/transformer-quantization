@@ -155,7 +155,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             if task_data.sentence2_key is None
             else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
         )
-        result = tokenizer(*args, padding=padding, max_length=max_length, truncation=True, is_split_into_words=not is_text_class_task)
+        result = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
         return result
     
     # tokenize text and define datasets for word classification
@@ -190,7 +190,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         )
     else: 
         datasets = task_data.datasets.map(
-            preprocess_fn_word, batched=True, load_from_cache_file=not config.data.overwrite_cache
+            preprocess_fn_word, batched=False, load_from_cache_file=not config.data.overwrite_cache
         )
 
     train_dataset = datasets['train']
