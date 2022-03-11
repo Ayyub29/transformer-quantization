@@ -24,6 +24,9 @@ from utils.tb_utils import _tb_advance_global_step, _tb_advance_token_counters, 
 
 
 class QuantizedBertEmbeddings(QuantizedModel):
+    """
+    Class of quantized BERT embeddings
+    """
     def __init__(self, org_model, **quant_params):
         self.quant_dict = quant_params['quant_dict']
 
