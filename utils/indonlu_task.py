@@ -10,7 +10,7 @@ import numpy as np
 from datasets import load_dataset, load_metric
 from transformers import EvalPrediction
 
-from utils.utils import DotDict
+from utils.utils import DotDict, Stopwatch
 
 
 # setup logger
@@ -142,6 +142,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
 
 def make_compute_metric_fn_text(task: INDONLU_Task):
     def fn(p: EvalPrediction):
+        s = Stopwatch().start()
         result = {}
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         preds = np.squeeze(preds) if task == INDONLU_Task.wrete else np.argmax(preds, axis=1) ##NEED TO BE ADJUSTED LATER
@@ -153,8 +154,8 @@ def make_compute_metric_fn_text(task: INDONLU_Task):
             else:
                 value = metric_loader.compute(predictions=preds, references=p.label_ids, average="macro")[metric]
             result[metric] = value
+        print(s.format())
         return result
-
     return fn
 
 def make_compute_metric_fn_word(task: INDONLU_Task):
