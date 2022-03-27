@@ -381,12 +381,12 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     logger.info(f'Training/evaluation parameters for Trainer: {training_args}')
 
     ## attach layer number
-    backbone_attr = model_data.backbone_attr
+    backbone_attr = model_data.backbone_attr # in this case -> berts
     if backbone_attr is None:
         raise NotImplementedError(
             f'Model {config.model.model_name} not yet supported for ' f'TensorBoard visualization.'
         )
-    layers = getattr(model, backbone_attr).encoder.layer
+    layers = getattr(model, backbone_attr).encoder.layer 
     num_layers = len(layers)
     for layer_idx, layer in enumerate(layers):
         for m in layer.modules():
