@@ -354,6 +354,9 @@ def adaround_options(func):
 
 
 def make_qparams(config):
+    """
+    Creating parameter for quantizing : quantization method, num_candidates
+    """
     weight_range_options = {}
     if config.quant.weight_quant_method in ['MSE', 'cross_entropy']:
         weight_range_options = dict(opt_method=OptMethod[config.quant.weight_opt_method])

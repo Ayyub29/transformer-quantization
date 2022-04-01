@@ -251,6 +251,10 @@ def _log_results(task_scores_map):
 
 
 def _quantize_model(config, model, model_enum):
+    """
+        Changing Model into quantized one
+    """
+    #
     qparams = make_qparams(config)
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
 

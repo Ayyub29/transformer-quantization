@@ -623,3 +623,103 @@ class QuantizedBertForSequenceClassification(QuantizedModel):
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
+
+
+class QuantizedBertForTokenClassification(QuantizedModel):
+    def __init__(self, org_model, quant_setup=None, **quant_params):
+        super().__init__()
+
+        self.num_labels = org_model.num_labels
+        self.config = org_model.config
+
+        if hasattr(org_model, 'bert'):
+            self.bert = QuantizedBertModel(org_model=org_model.bert, **quant_params)
+        if hasattr(org_model, 'dropout'):
+            self.dropout = org_model.dropout
+
+        quant_params_ = quant_params.copy()
+
+        if quant_setup == 'MSE_logits':
+            quant_params_['act_range_method'] = RangeEstimators.MSE
+            quant_params_['act_range_options'] = dict(opt_method=OptMethod.golden_section)
+            self.classifier = quantize_model(org_model.classifier, **quant_params_)
+
+        elif quant_setup == 'FP_logits':
+            print('Do not quantize output of FC layer')
+
+            self.classifier = quantize_model(org_model.classifier, **quant_params_)
+            # no activation quantization of logits:
+            self.classifier.activation_quantizer = FP32Acts()
+
+        elif quant_setup == 'all':
+            self.classifier = quantize_model(org_model.classifier, **quant_params_)
+
+        else:
+            raise ValueError("Quantization setup '{}' not supported.".format(quant_setup))
+
+    def forward(
+        self,
+        input_ids=None,
+        attention_mask=None,
+        token_type_ids=None,
+        position_ids=None,
+        head_mask=None,
+        inputs_embeds=None,
+        labels=None,
+        output_attentions=None,
+        output_hidden_states=None,
+        return_dict=None,
+    ):
+        if isinstance(input_ids, tuple):
+            if len(input_ids) == 2:
+                input_ids, attention_mask = input_ids
+            elif len(input_ids) == 3:
+                input_ids, attention_mask, token_type_ids = input_ids
+            elif len(input_ids) == 4:
+                input_ids, attention_mask, token_type_ids, labels = input_ids
+            else:
+                raise ValueError('cannot interpret input tuple, use dict instead')
+
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
+        outputs = self.bert(
+            input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+            inputs_embeds=inputs_embeds,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
+        )
+
+        pooled_output = outputs[1]
+        pooled_output = self.dropout(pooled_output)
+
+        logits = self.classifier(pooled_output)
+
+        if self.num_labels == 1:
+            logits = torch.clamp(logits, 0.0, 5.0)
+
+        loss = None
+        if labels is not None:
+            if self.num_labels == 1:
+                #  We are doing regression
+                loss_fct = MSELoss()
+                loss = loss_fct(logits.view(-1), labels.view(-1))
+            else:
+                loss_fct = CrossEntropyLoss()
+                loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+
+        if not return_dict:
+            output = (logits,) + outputs[2:]
+            return ((loss,) + output) if loss is not None else output
+
+        _tb_advance_global_step(self)
+        return SequenceClassifierOutput(
+            loss=loss,
+            logits=logits,
+            hidden_states=outputs.hidden_states,
+            attentions=outputs.attentions,
+        )
