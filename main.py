@@ -217,6 +217,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             logger.info(f'{i + 1}, {sep_pos_idx}, {len_}, {tokens}')
 
     word_data_collator = DataCollatorForTokenClassification(tokenizer)
+    print(word_data_collator)
     trainer = Trainer(
         model=model,
         args=training_args,

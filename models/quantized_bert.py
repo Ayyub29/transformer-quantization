@@ -625,7 +625,7 @@ class QuantizedBertForSequenceClassification(QuantizedModel):
         )
 
 
-class QuantizedBertForTokenClassification(QuantizedModel):
+class QuantizedBertForWordClassification(QuantizedModel):
     def __init__(self, org_model, quant_setup=None, **quant_params):
         super().__init__()
 
