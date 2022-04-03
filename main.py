@@ -191,7 +191,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         except Exception as err:
             print(err)
 
-    if is_text_class_task:
+    if is_text_class_task:  
         datasets = task_data.datasets.map(
             preprocess_fn_text, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
@@ -203,8 +203,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     train_dataset = datasets['train']
     for features in train_dataset.features:
         logger.info(f"{features} => {train_dataset[2][features]}")
-    eval_dataset = datasets['validation'] ##NEED TO ADJUST
-    print(eval_dataset)
+    eval_dataset = datasets['validation']
 
     if model_enum in (
         HF_Models.indobert_base_v1,
@@ -218,7 +217,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             logger.info(f'{i + 1}, {sep_pos_idx}, {len_}, {tokens}')
 
     word_data_collator = DataCollatorForTokenClassification(tokenizer)
-    print(word_data_collator)
+    
     trainer = Trainer(
         model=model,
         args=training_args,
