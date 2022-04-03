@@ -174,11 +174,11 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
                 previous_word_idx = None
                 label_ids = []
-                for word_idx in word_ids:
+                for idx, word_idx in enumerate(word_ids):
                     # Special tokens have a word id that is None. We set the label to -100 so they are automatically
                     # ignored in the loss function.
                     if word_idx is None:
-                        word_idx = -1
+                        word_ids[idx] = -1
                         label_ids.append(-100)
                     # We set the label for the first token of each word.
                     elif word_idx != previous_word_idx:
