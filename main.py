@@ -186,14 +186,12 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             labels = []
             subwords = [tokenizer.cls_token_id]
             subword_to_word_indices = [-1] # For CLS
-            flag = False
+
             for i, label in enumerate(examples[TASK_LABELS[task]]):
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
-                if flag == False:
-                    logger.info(tokenized_inputs)
-                    logger.info(word_ids)
-                    logger.info(label)
-                    flag = True
+                subword_list = tokenizer.encode(label, add_special_tokens=False)
+                subword_to_word_indices += [i for i in range(len(subword_list))]
+                subwords += subword_list
                 previous_word_idx = None
                 label_ids = []
                 for word_idx in word_ids:
@@ -210,8 +208,11 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                         label_ids.append(label[word_idx] if label_all_tokens else -100)
                     previous_word_idx = word_idx
                 labels.append(label_ids)
+                
+            subwords += [tokenizer.sep_token_id]
+            subword_to_word_indices += [-1]
             tokenized_inputs["labels"] = labels
-            tokenized_inputs["subword_to_word_ids"]
+            tokenized_inputs["subword_to_word_ids"] = subword_to_word_indices
             return tokenized_inputs
         except Exception as err:
             print(err)
