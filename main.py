@@ -189,7 +189,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
 
             for i, label in enumerate(examples[TASK_LABELS[task]]):
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
-                subword_list = tokenizer.encode(label, add_special_tokens=False)
+                subword_list = tokenizer.encode(examples[i][TASK_LABELS[task]], add_special_tokens=False)
                 subword_to_word_indices += [i for i in range(len(subword_list))]
                 subwords += subword_list
                 previous_word_idx = None
