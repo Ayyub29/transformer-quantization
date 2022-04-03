@@ -2,6 +2,7 @@
 # Copyright (c) 2021 Qualcomm Technologies, Inc.
 # All Rights Reserved.
 
+from enum import Flag
 from lib2to3.pgen2.tokenize import tokenize
 import logging
 import os
@@ -185,11 +186,14 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             labels = []
             subwords = [tokenizer.cls_token_id]
             subword_to_word_indices = [-1] # For CLS
+            flag = False
             for i, label in enumerate(examples[TASK_LABELS[task]]):
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
-                logger.info(tokenized_inputs)
-                logger.info(word_ids)
-                logger.info(label)
+                if flag == False:
+                    logger.info(tokenized_inputs)
+                    logger.info(word_ids)
+                    logger.info(label)
+                    flag = True
                 previous_word_idx = None
                 label_ids = []
                 for word_idx in word_ids:
