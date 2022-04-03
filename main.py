@@ -161,22 +161,6 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         result = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
         return result
 
-    def word_subword_tokenize(sentence, tokenizer):
-        # Add CLS token
-        subwords = [tokenizer.cls_token_id]
-        subword_to_word_indices = [-1] # For CLS
-
-        # Add subwords
-        for word_idx, word in enumerate(sentence):
-            subword_list = tokenizer.encode(word, add_special_tokens=False)
-            subword_to_word_indices += [word_idx for i in range(len(subword_list))]
-            subwords += subword_list
-
-        # Add last SEP token
-        subwords += [tokenizer.sep_token_id]
-        subword_to_word_indices += [-1]
-
-        return subwords, subword_to_word_indices
     
     # tokenize text and define datasets for word classification
     def preprocess_fn_word(examples):
@@ -184,19 +168,16 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             tokenized_inputs = tokenizer(examples[task_data.sentence1_key], truncation=True, is_split_into_words=True)
             label_all_tokens = True
             labels = []
-            subwords = [tokenizer.cls_token_id]
-            subword_to_word_indices = [-1] # For CLS
 
             for i, label in enumerate(examples[TASK_LABELS[task]]):
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
-                if (i == 1):
-                    print(label, word_ids)
                 previous_word_idx = None
                 label_ids = []
                 for word_idx in word_ids:
                     # Special tokens have a word id that is None. We set the label to -100 so they are automatically
                     # ignored in the loss function.
                     if word_idx is None:
+                        word_idx = -1
                         label_ids.append(-100)
                     # We set the label for the first token of each word.
                     elif word_idx != previous_word_idx:
@@ -208,10 +189,8 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                     previous_word_idx = word_idx
                 labels.append(label_ids)
                 
-            subwords += [tokenizer.sep_token_id]
-            subword_to_word_indices += [-1]
             tokenized_inputs["labels"] = labels
-            # tokenized_inputs["subword_to_word_ids"] = subword_to_word_indices
+            tokenized_inputs["subword_to_word_ids"] = word_ids
             return tokenized_inputs
         except Exception as err:
             print(err)
