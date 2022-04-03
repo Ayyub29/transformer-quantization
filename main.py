@@ -211,7 +211,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             subwords += [tokenizer.sep_token_id]
             subword_to_word_indices += [-1]
             tokenized_inputs["labels"] = labels
-            tokenized_inputs["subword_to_word_ids"] = subword_to_word_indices
+            # tokenized_inputs["subword_to_word_ids"] = subword_to_word_indices
             return tokenized_inputs
         except Exception as err:
             print(err)
