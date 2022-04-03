@@ -96,7 +96,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
     out.model_name_or_path = model_name_or_path
 
     # Tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(
+    tokenizer = BertTokenizer.from_pretrained(
         model_name_or_path,
         use_fast=use_fast_tokenizer,
         cache_dir=cache_dir,
