@@ -168,6 +168,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             tokenized_inputs = tokenizer(examples[task_data.sentence1_key], truncation=True, is_split_into_words=True)
             label_all_tokens = True
             labels = []
+            subword_to_word_ids = []
 
             for i, label in enumerate(examples[TASK_LABELS[task]]):
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
@@ -188,9 +189,10 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                         label_ids.append(label[word_idx] if label_all_tokens else -100)
                     previous_word_idx = word_idx
                 labels.append(label_ids)
+                subword_to_word_ids.append(word_ids)
                 
             tokenized_inputs["labels"] = labels
-            tokenized_inputs["subword_to_word_ids"] = word_ids
+            tokenized_inputs["subword_to_word_ids"] = subword_to_word_ids
             return tokenized_inputs
         except Exception as err:
             print(err)
