@@ -708,8 +708,8 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
         print_summary(eval_result)
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
-        logger.info(f'{eval_result}')
-        trainer.log_metrics(eval_log_result)
+        # logger.info(f'{eval_result}')
+        # trainer.log_metrics(eval_log_result)
         # for key, value in eval_result.items():
         #     logger.info(f'\t{key} = {value:.4f}')
 
