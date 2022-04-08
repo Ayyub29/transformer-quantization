@@ -165,7 +165,6 @@ def make_compute_metric_fn_text(task: INDONLU_Task):
             else:
                 value = metric_loader.compute(predictions=preds, references=p.label_ids, average="macro")[metric]
             result[metric] = value
-        print(s.format())
         return result
     return fn
 

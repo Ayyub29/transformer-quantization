@@ -23,6 +23,7 @@ import torch
 import torch.nn.functional as F
 from transformers import Trainer, TrainingArguments, default_data_collator, DataCollatorForTokenClassification
 from transformers.integrations import TensorBoardCallback
+from datasets import load_dataset, load_metric
 
 from models import (
     QuantizedBertForSequenceClassification,
@@ -645,10 +646,14 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     # Training!
     model_name_or_path = model_data.model_name_or_path
+    metrics = {}
+    for metric in ['f1', 'accuracy', 'precision', 'recall']:
+        metrics[metric] = load_metric(metric,'mrpc')
+
     if config.training.do_train:
         logger.info('*** Training ***')
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
-        trainer.log_metrics("train")
+        trainer.log_metrics("train", metrics)
         if config.progress.save_model:
             trainer.save_model()  # saves the tokenizer too
 
@@ -665,8 +670,8 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         logger.info('*** Evaluation ***')
 
         final_score = _eval_task(config, task, trainer, eval_dataset, datasets)
-
-        logger.info(f'Final score {task.name} -> {100. * final_score:.2f}')
+        trainer.log_metrics("eval", metrics)
+        # logger.info(f'Final score {task.name} -> {100. * final_score:.2f}')
 
         # save final score to file
         if config.training.do_train:
@@ -694,11 +699,11 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
             eval_dataset = eval_dataset.select(range(n))
 
         eval_result = trainer.evaluate(eval_dataset=eval_dataset)
-
+        eval_log_result = trainer.log_metrics("eval")
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
         logger.info(f'{eval_result}')
-        trainer.log_metrics("eval")
+        trainer.log_metrics(eval_log_result)
         # for key, value in eval_result.items():
         #     logger.info(f'\t{key} = {value:.4f}')
 
