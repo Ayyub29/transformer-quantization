@@ -100,13 +100,15 @@ def _show_model_on_task(model, tokenizer, task):
     text = ['Budi pergi ke pondok indah mall membeli cakwe',
             'Dasar anak sialan!! Kurang ajar!!',
             'Bahagia hatiku melihat pernikahan putri sulungku yang cantik jelita']
+            
+    logger.info(f'Running task {task}...')
     for sentence in text:
         subwords = tokenizer.encode(sentence)
         subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
 
         logits = model(subwords)[0]
         index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
-        logger.info(f'Running task {task}...')
+    
         logger.info(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
 
 
