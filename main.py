@@ -705,7 +705,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
             eval_dataset = eval_dataset.select(range(n))
 
         eval_result = trainer.evaluate(eval_dataset=eval_dataset)
-        print_summary(eval_result)
+        # print_summary(eval_result)
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
         # logger.info(f'{eval_result}')
