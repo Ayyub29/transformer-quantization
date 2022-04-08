@@ -24,6 +24,7 @@ import torch.nn.functional as F
 from transformers import Trainer, TrainingArguments, default_data_collator, DataCollatorForTokenClassification
 from transformers.integrations import TensorBoardCallback
 from datasets import load_dataset, load_metric
+from pynvml import *
 
 from models import (
     QuantizedBertForSequenceClassification,
@@ -74,7 +75,6 @@ from utils import (
     Stopwatch,
 )
 
-
 # setup logger
 logger = logging.getLogger('main')
 logger.setLevel(os.environ.get('LOGLEVEL', 'INFO'))
@@ -92,6 +92,16 @@ def indonlu():
 # show default values for all options
 click.option = partial(click.option, show_default=True)
 
+def print_gpu_utilization():
+    nvmlInit()
+    handle = nvmlDeviceGetHandleByIndex(0)
+    info = nvmlDeviceGetMemoryInfo(handle)
+    print(f"GPU memory occupied: {info.used//1024**2} MB.")
+
+def print_summary(result):
+    print(f"Time: {result.metrics['train_runtime']:.2f}")
+    print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
+    print_gpu_utilization()
 
 def _is_non_empty_dir(path):
     return path.exists() and len(list(path.iterdir()))
@@ -646,14 +656,11 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     # Training!
     model_name_or_path = model_data.model_name_or_path
-    metrics = {}
-    for metric in ['f1', 'accuracy', 'precision', 'recall']:
-        metrics[metric] = load_metric(metric,'mrpc')
 
     if config.training.do_train:
         logger.info('*** Training ***')
-        trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
-        trainer.log_metrics("train", metrics)
+        result = trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
+        print_summary(result)
         if config.progress.save_model:
             trainer.save_model()  # saves the tokenizer too
 
@@ -670,7 +677,6 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         logger.info('*** Evaluation ***')
 
         final_score = _eval_task(config, task, trainer, eval_dataset, datasets)
-        trainer.log_metrics("eval", metrics)
         # logger.info(f'Final score {task.name} -> {100. * final_score:.2f}')
 
         # save final score to file
@@ -699,7 +705,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
             eval_dataset = eval_dataset.select(range(n))
 
         eval_result = trainer.evaluate(eval_dataset=eval_dataset)
-        eval_log_result = trainer.log_metrics("eval")
+        print_summary(eval_result)
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
         logger.info(f'{eval_result}')
