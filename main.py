@@ -65,6 +65,8 @@ from utils import (
     INDONLU_Task,
     TASK_TO_FINAL_METRIC,
     TASK_TO_FINAL_METRIC_INDONLU,
+    TASK_INDEX2LABEL,
+    TASK_LABEL2INDEX,
     TASK_LABELS,
     # misc
     DotDict,
@@ -94,14 +96,15 @@ def _is_non_empty_dir(path):
     return path.exists() and len(list(path.iterdir()))
 
 
-def _show_model_on_task(model, tokenizer):
+def _show_model_on_task(model, tokenizer, task):
     text = 'Budi pergi ke pondok indah mall membeli cakwe'
     subwords = tokenizer.encode(text)
     subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
 
     logits = model(subwords)[0]
-    label = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
-    logger.info(f'Text: {text} | Label : {label} ({F.softmax(logits, dim=-1).squeeze()[label] * 100:.3f}%)')
+    index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+    logger.info(f'Running task {task}...')
+    logger.info(f'Text: {text} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
 
 
 def _make_huggingface_training_args(config):
@@ -383,7 +386,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     model_enum = model_data.model_enum
     tokenizer = model_data.tokenizer
 
-    _show_model_on_task(model, tokenizer)
+    _show_model_on_task(model, tokenizer, task)
 
     # log options
     logger.info(f'Running task {task.name} with options:\n' + pformat(config))
@@ -663,8 +666,8 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         if config.training.do_train:
             with open(os.path.join(config.base.output_dir, 'final_score.txt'), 'w') as f:
                 f.write(f'{final_score}\n')
-                
-    _show_model_on_task(model, tokenizer)
+
+    _show_model_on_task(model, tokenizer, task)
 
     return final_score
 

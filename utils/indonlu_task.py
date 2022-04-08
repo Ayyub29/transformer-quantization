@@ -104,6 +104,17 @@ TASK_LABELS = {
     INDONLU_Task.facqa: 'seq_label'
 }
 
+TASK_LABEL2INDEX = {
+    INDONLU_Task.emot: {'sadness': 0, 'anger': 1, 'love': 2, 'fear': 3, 'happy': 4},
+    INDONLU_Task.smsa: {'positive': 0, 'neutral': 1, 'negative': 2}
+}
+
+TASK_INDEX2LABEL = {
+    INDONLU_Task.emot: {0: 'sadness', 1: 'anger', 2: 'love', 3: 'fear', 4: 'happy'},
+    INDONLU_Task.smsa: {0: 'positive', 1: 'neutral', 2: 'negative'}
+}
+
+
 def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     """
     Loading dataset task on INDONLU, including determining labels length and column name on dataset
