@@ -100,7 +100,7 @@ def _show_model_on_task(model, tokenizer, task):
     text = ['Budi pergi ke pondok indah mall membeli cakwe',
             'Dasar anak sialan!! Kurang ajar!!',
             'Bahagia hatiku melihat pernikahan putri sulungku yang cantik jelita']
-            
+
     logger.info(f'Running task {task}...')
     for sentence in text:
         subwords = tokenizer.encode(sentence)
@@ -648,6 +648,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     if config.training.do_train:
         logger.info('*** Training ***')
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
+        trainer.log_metrics("train")
         if config.progress.save_model:
             trainer.save_model()  # saves the tokenizer too
 
@@ -697,6 +698,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
         logger.info(f'{eval_result}')
+        trainer.log_metrics("eval")
         # for key, value in eval_result.items():
         #     logger.info(f'\t{key} = {value:.4f}')
 
