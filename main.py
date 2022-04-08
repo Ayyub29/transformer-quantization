@@ -20,6 +20,7 @@ from pprint import pformat
 import click
 import numpy as np
 import torch
+import torch.nn.functional as F
 from transformers import Trainer, TrainingArguments, default_data_collator, DataCollatorForTokenClassification
 from transformers.integrations import TensorBoardCallback
 
@@ -91,6 +92,16 @@ click.option = partial(click.option, show_default=True)
 
 def _is_non_empty_dir(path):
     return path.exists() and len(list(path.iterdir()))
+
+
+def _show_model_on_task(model, tokenizer):
+    text = 'Budi pergi ke pondok indah mall membeli cakwe'
+    subwords = tokenizer.encode(text)
+    subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+
+    logits = model(subwords)[0]
+    label = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+    logger.info(f'Text: {text} | Label : {label} ({F.softmax(logits, dim=-1).squeeze()[label] * 100:.3f}%)')
 
 
 def _make_huggingface_training_args(config):
@@ -207,6 +218,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         )
 
     train_dataset = datasets['train']
+    logger.info('Example of dataset to be trained..: {features => dataset }')
     for features in train_dataset.features:
         logger.info(f"{features} => {train_dataset[2][features]}")
     eval_dataset = datasets['validation']
@@ -370,6 +382,8 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     model = model_data.model
     model_enum = model_data.model_enum
     tokenizer = model_data.tokenizer
+
+    _show_model_on_task(model, tokenizer)
 
     # log options
     logger.info(f'Running task {task.name} with options:\n' + pformat(config))
@@ -649,6 +663,8 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         if config.training.do_train:
             with open(os.path.join(config.base.output_dir, 'final_score.txt'), 'w') as f:
                 f.write(f'{final_score}\n')
+                
+    _show_model_on_task(model, tokenizer)
 
     return final_score
 
@@ -743,12 +759,12 @@ def _run(config):
             model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task, num_labels_list=task_data.num_labels_list)
         else:
             model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task)
-        logger.info(model_data)
+        logger.info(f'{mode_str} with model configuration: {model_data}')
         # run on a task
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)
 
     # log task results
-    _log_results(task_scores_map)
+    # _log_results(task_scores_map)
 
     # log elapsed time
     logger.info(s.format())

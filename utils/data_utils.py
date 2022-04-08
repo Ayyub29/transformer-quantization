@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, NewType, Optional, Tuple, Union
 from transformers import BertTokenizer
+
 class DataCollatorMixin:
     def __call__(self, features, return_tensors=None):
         if return_tensors is None:
