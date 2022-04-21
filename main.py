@@ -112,7 +112,7 @@ def _show_model_on_task(model, tokenizer, task):
             'Dasar anak sialan!! Kurang ajar!!',
             'Bahagia hatiku melihat pernikahan putri sulungku yang cantik jelita']
 
-    logger.info(f'Running task {task}...')
+    # logger.info(f'Running task {task}...')
     for sentence in text:
         subwords = tokenizer.encode(sentence)
         subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
@@ -405,7 +405,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     _show_model_on_task(model, tokenizer, task)
 
     # log options
-    logger.info(f'Running task {task.name} with options:\n' + pformat(config))
+    # logger.info(f'Running task {task.name} with options:\n' + pformat(config))
 
     if config.training.do_train:
         # create dirpath if not exist
