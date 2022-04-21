@@ -734,7 +734,7 @@ def _run(config):
     """Common routine to run training/validation on a set of tasks."""
     do_train = config.training.do_train
     mode_str = 'Training' if do_train else 'Validating'
-    logger.info(f'{mode_str} with options:\n' + pformat(config))
+    # logger.info(f'{mode_str} with options:\n' + pformat(config))
 
     # parse tasks
     task_flag = INDONLU_Task.from_str(*config.indonlu.task)
@@ -780,7 +780,7 @@ def _run(config):
             model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task, num_labels_list=task_data.num_labels_list)
         else:
             model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task)
-        logger.info(f'{mode_str} with model configuration: {model_data}')
+        # logger.info(f'{mode_str} with model configuration: {model_data}')
         # run on a task
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)
 
