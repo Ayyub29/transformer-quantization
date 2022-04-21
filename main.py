@@ -782,6 +782,7 @@ def _run(config):
             model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task)
         # logger.info(f'{mode_str} with model configuration: {model_data}')
         # run on a task
+        logger.info(f'test ...')
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)
 
     # log task results
