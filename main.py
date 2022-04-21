@@ -402,7 +402,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     model_enum = model_data.model_enum
     tokenizer = model_data.tokenizer
 
-    _show_model_on_task(model, tokenizer, task)
+    # _show_model_on_task(model, tokenizer, task)
 
     # log options
     # logger.info(f'Running task {task.name} with options:\n' + pformat(config))
@@ -422,7 +422,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     # prepare training arguments for huggingface Trainer
     training_args = _make_huggingface_training_args(config)
-    logger.info(f'Training/evaluation parameters for Trainer: {training_args}')
+    # logger.info(f'Training/evaluation parameters for Trainer: {training_args}')
 
     ## attach layer number
     backbone_attr = model_data.backbone_attr # in this case -> berts
@@ -684,7 +684,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
             with open(os.path.join(config.base.output_dir, 'final_score.txt'), 'w') as f:
                 f.write(f'{final_score}\n')
 
-    _show_model_on_task(model, tokenizer, task)
+    # _show_model_on_task(model, tokenizer, task)
 
     return final_score
 
@@ -782,7 +782,6 @@ def _run(config):
             model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task)
         # logger.info(f'{mode_str} with model configuration: {model_data}')
         # run on a task
-        logger.info(f'test ...')
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)
 
     # log task results
