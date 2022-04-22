@@ -73,6 +73,7 @@ from utils import (
     # misc
     DotDict,
     Stopwatch,
+    DataCollatorForWordClassification
 )
 
 # setup logger
@@ -253,7 +254,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             len_ = len(tokens)
             logger.info(f'{i + 1}, {sep_pos_idx}, {len_}, {tokens}')
 
-    word_data_collator = DataCollatorForTokenClassification(tokenizer)
+    word_data_collator = DataCollatorForWordClassification(tokenizer)
     
     trainer = Trainer(
         model=model,
