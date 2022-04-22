@@ -80,7 +80,6 @@ class DataCollatorForWordClassification(DataCollatorMixin):
 
         sequence_length = torch.tensor(batch["input_ids"]).shape[1]
         padding_side = self.tokenizer.padding_side
-        print(sequence_length)
 
         if padding_side == "right":
             batch[label_name] = [
@@ -90,7 +89,8 @@ class DataCollatorForWordClassification(DataCollatorMixin):
             batch[label_name] = [
                 [self.label_pad_token_id] * (sequence_length - len(label)) + list(label) for label in labels
             ]
-        for k, v in batch.items:
+
+        for k, v in batch.items():
             print(k, len(v))
         
         batch = {k: torch.tensor(v, dtype=torch.int64) for k, v in batch.items()}
