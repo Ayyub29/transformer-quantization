@@ -1,6 +1,20 @@
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, NewType, Optional, Tuple, Union
 from transformers import BertTokenizer
+from enum import Enum
+
+class ExplicitEnum(Enum):
+    @classmethod
+    def _missing_(cls, value):
+        raise ValueError(
+            f"{value} is not a valid {cls.__name__}, please select one of {list(cls._value2member_map_.keys())}"
+        )
+
+class PaddingStrategy(ExplicitEnum):
+    # Possible values for the `padding` argument in [`PreTrainedTokenizerBase.__call__`].
+    LONGEST = "longest"
+    MAX_LENGTH = "max_length"
+    DO_NOT_PAD = "do_not_pad"
 
 class DataCollatorMixin:
     def __call__(self, features, return_tensors=None):
@@ -10,7 +24,6 @@ class DataCollatorMixin:
             return self.torch_call(features)
         else:
             raise ValueError(f"Framework '{return_tensors}' not recognized!")
-
 
 @dataclass
 class DataCollatorForWordClassification(DataCollatorMixin):
@@ -41,7 +54,7 @@ class DataCollatorForWordClassification(DataCollatorMixin):
     """
 
     tokenizer: BertTokenizer
-    padding: True
+    padding: Union[bool, str, PaddingStrategy] = True
     max_length: Optional[int] = None
     pad_to_multiple_of: Optional[int] = None
     label_pad_token_id: int = -100
