@@ -64,7 +64,7 @@ class DataCollatorForWordClassification(DataCollatorMixin):
         import torch
 
         label_name = "label" if "label" in features[0].keys() else "labels"
-        print(features)
+        print(features[0].keys())
         labels = [feature[label_name] for feature in features] if label_name in features[0].keys() else None
         batch = self.tokenizer.pad(
             features,
