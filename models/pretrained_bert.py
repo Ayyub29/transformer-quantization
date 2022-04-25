@@ -144,8 +144,9 @@ class BertForWordClassification(BertPreTrainedModel):
         logits = self.classifier(sequence_output)
 
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
+        print(labels.view(-1))
         if labels is not None:
-            print(len(labels))
+            
             loss_fct = CrossEntropyLoss()
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             outputs = (loss,) + outputs
