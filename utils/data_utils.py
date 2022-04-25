@@ -90,6 +90,7 @@ class DataCollatorForWordClassification(DataCollatorMixin):
                 [self.label_pad_token_id] * (sequence_length - len(label)) + list(label) for label in labels
             ]
 
+        print(type(batch))
         for k, v in batch.items():
             print(k, len(v))
             for col in v:
