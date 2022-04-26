@@ -139,11 +139,12 @@ class BertForWordClassification(BertPreTrainedModel):
             mask = (subword_to_word_ids == i).unsqueeze(dim=-1)
             word_latents.append((sequence_output * mask).sum(dim=1) / mask.sum())
         word_batch = torch.stack(word_latents, dim=1)
-        print(word_batch)
-        
+
         sequence_output = self.dropout(word_batch)
         logits = self.classifier(sequence_output)
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
+        print(len(outputs))
+        
         if labels is not None:
             loss_fct = CrossEntropyLoss()
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
