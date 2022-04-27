@@ -145,7 +145,6 @@ class BertForWordClassification(BertPreTrainedModel):
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
         print("logits: ", len(logits.view(-1, self.num_labels)), self.num_labels)
         print(logits.view(-1, self.num_labels))
-        print(logits)
         
         print("labels: ", len(labels.view(-1)))
         print(labels.view(-1))

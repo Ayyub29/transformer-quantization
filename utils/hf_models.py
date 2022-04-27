@@ -4,7 +4,7 @@
 import logging
 from enum import Enum
 
-from transformers import AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertForSequenceClassification, BertTokenizer, PreTrainedTokenizerFast
+from transformers import AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertForSequenceClassification, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
 from models.pretrained_bert import BertForMultiLabelClassification, BertForWordClassification
 from utils.indonlu_task import INDONLU_Task
 
@@ -122,7 +122,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
             cache_dir=cache_dir,
         )
     else:
-        model = BertForWordClassification.from_pretrained(
+        model = BertForTokenClassification.from_pretrained(
             model_name_or_path,
             from_tf=False,
             config=config,
