@@ -100,5 +100,6 @@ class DataCollatorForWordClassification(DataCollatorMixin):
                 ]
         
         batch = {k: torch.tensor(v, dtype=torch.int64) for k, v in batch.items()}
-        
+        for k, v in batch.items():
+            print(k, len(v))
         return batch
