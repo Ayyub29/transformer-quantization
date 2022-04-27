@@ -143,10 +143,12 @@ class BertForWordClassification(BertPreTrainedModel):
         sequence_output = self.dropout(word_batch)
         logits = self.classifier(sequence_output)
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
-        print("logits: ", len(logits.view(-1, self.num_labels)))
+        print("logits: ", len(logits.view(-1, self.num_labels)), self.num_labels)
         print(logits.view(-1, self.num_labels))
-        print(labels.view(-1))
+        
         print("labels: ", len(labels.view(-1)))
+        print(labels.view(-1))
+
         if labels is not None:
             loss_fct = CrossEntropyLoss()
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))

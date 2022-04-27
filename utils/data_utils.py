@@ -100,8 +100,4 @@ class DataCollatorForWordClassification(DataCollatorMixin):
                 ]
         
         batch = {k: torch.tensor(v, dtype=torch.int64) for k, v in batch.items()}
-        for k, v in batch.items():
-            for i in v:
-                if (k == "labels"):
-                    print(v)
         return batch
