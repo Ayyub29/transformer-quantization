@@ -133,15 +133,14 @@ class BertForWordClassification(BertPreTrainedModel):
         sequence_output = outputs[0]
 
         # average the token-level outputs to compute word-level representations
-        max_seq_len = subword_to_word_ids.max() + 1
-        word_latents = []
-        for i in range(max_seq_len):
-            mask = (subword_to_word_ids == i).unsqueeze(dim=-1)
-            print(mask)
-            word_latents.append((sequence_output * mask).sum(dim=1) / mask.sum())
-        word_batch = torch.stack(word_latents, dim=1)
+        # max_seq_len = subword_to_word_ids.max() + 1
+        # word_latents = []
+        # for i in range(max_seq_len):
+        #     mask = (subword_to_word_ids == i).unsqueeze(dim=-1)
+        #     word_latents.append((sequence_output * mask).sum(dim=1) / mask.sum())
+        # word_batch = torch.stack(word_latents, dim=1)
 
-        sequence_output = self.dropout(word_batch)
+        sequence_output = self.dropout(sequence_output)
         logits = self.classifier(sequence_output)
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
         print("logits: ", len(logits.view(-1, self.num_labels)), self.num_labels)
