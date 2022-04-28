@@ -132,6 +132,8 @@ class BertForWordClassification(BertPreTrainedModel):
 
         sequence_output = outputs[0]
         print(sequence_output)
+        for i in sequence_output:
+            print(len(i))
 
         # average the token-level outputs to compute word-level representations
         max_seq_len = subword_to_word_ids.max() + 1
