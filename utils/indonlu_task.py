@@ -139,7 +139,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         for feature in out.datasets['train'].column_names:
             if (feature != 'sentence'):
                 label_list = label_list + [feature]
-        logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
+        logger.info(f'{task.name}: { max(TASK_LABELS[task])} labels -- {label_list}')
     else:
         label_list = out.datasets["train"].features[TASK_LABELS[task]].feature.names
         out.num_labels_list  = None #Dummy
