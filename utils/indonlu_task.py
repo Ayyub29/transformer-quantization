@@ -133,7 +133,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         out.num_labels_list  = None #Dummy
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa: #aspect based sentiment analysis
-        out.num_labels = n_labels = max(TASK_LABELS[task])
+        out.num_labels = TASK_LABELS[task]
         out.num_labels_list  = TASK_LABELS[task]
         label_list = []
         for feature in out.datasets['train'].column_names:
