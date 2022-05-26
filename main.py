@@ -266,7 +266,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         tokenizer=tokenizer,
         # data collator will default to DataCollatorWithPadding,
         # so we change it if we already did the padding:
-        data_collator=default_data_collator if is_text_class_task else word_data_collator,
+        data_collator=default_data_collator if padding and is_text_class_task else word_data_collator if padding else None,
     )
     return trainer, datasets, train_dataset, eval_dataset
 
@@ -708,7 +708,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
         # print_summary(eval_result)
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
-        # logger.info(f'{eval_result}')
+        logger.info(f'{eval_result}')
         # trainer.log_metrics(eval_log_result)
         # for key, value in eval_result.items():
         #     logger.info(f'\t{key} = {value:.4f}')
