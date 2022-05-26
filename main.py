@@ -30,6 +30,7 @@ from models import (
     QuantizedBertForSequenceClassification,
     QuantizedMobileBertForSequenceClassification,
     QuantizedRobertaForSequenceClassification,
+    QuantizedBertForWordClassification
 )
 from quantization.adaround import AdaRoundActQuantMode
 from utils import (
@@ -289,7 +290,7 @@ def _log_results(task_scores_map):
             )
 
 
-def _quantize_model(config, model, model_enum):
+def _quantize_model(config, model, model_enum, task):
     """
         Changing Model into quantized one
     """
@@ -297,12 +298,10 @@ def _quantize_model(config, model, model_enum):
     qparams = make_qparams(config)
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
 
-    if model_enum in (HF_Models.bert_base_uncased, HF_Models.bert_large_uncased, HF_Models.indobert_base_v1, HF_Models.indobert_base_v2):
+    if task in (INDONLU_Task.emot, INDONLU_Task.smsa):
         model = QuantizedBertForSequenceClassification(model, **qparams)
-    elif model_enum == HF_Models.mobilebert_uncased:
-        model = QuantizedMobileBertForSequenceClassification(model, **qparams)
-    elif model_enum in (HF_Models.distilroberta_base, HF_Models.roberta_base):
-        model = QuantizedRobertaForSequenceClassification(model, **qparams)
+    elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma, INDONLU_Task.wrete):
+        model = QuantizedBertForWordClassification(model, **qparams)
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
