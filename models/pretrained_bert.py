@@ -139,7 +139,7 @@ class BertForWordClassification(BertPreTrainedModel):
         #     mask = (subword_to_word_ids == i).unsqueeze(dim=-1)
         #     word_latents.append((sequence_output * mask).sum(dim=1) / mask.sum())
         # word_batch = torch.stack(word_latents, dim=1)
-        print("haloo")
+        # print("haloo")
         sequence_output = self.dropout(outputs[0])
         logits = self.classifier(sequence_output)
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
