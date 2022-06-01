@@ -207,8 +207,10 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
 
             label_ids = []
             for i, item in enumerate(examples):
+                label_id = []
                 for feature in TASK_MULTILABELS[task]:
-                    label_ids = label_ids + [item[feature]]
+                    label_id = label_id + [examples[feature][i]]
+                label_ids = label_ids + [label_id]
             
             tokenized_inputs['label_ids'] = label_ids
             
