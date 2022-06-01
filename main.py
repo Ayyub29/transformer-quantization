@@ -212,7 +212,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 for feature in label_list:
                     label_ids = label_ids + [item[feature]]
             tokenized_inputs['label_ids'] = label_ids
-
+            print(examples, tokenized_inputs)
             return tokenized_inputs
         except Exception as err:
             print(err)
