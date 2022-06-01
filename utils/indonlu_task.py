@@ -92,8 +92,8 @@ TASK_TO_FINAL_METRIC_INDONLU = {
 TASK_LABELS = {
     INDONLU_Task.emot: 'label',
     INDONLU_Task.smsa: 'label',
-    INDONLU_Task.casa: 'multilabel',
-    INDONLU_Task.hoasa: 'multilabel',
+    INDONLU_Task.casa: 'label_ids',
+    INDONLU_Task.hoasa: 'label_ids',
     INDONLU_Task.wrete: 'label',
     INDONLU_Task.posp: 'pos_tags',
     INDONLU_Task.bapos: 'pos_tags',
@@ -119,7 +119,6 @@ TASK_MULTILABELS = {
     INDONLU_Task.hoasa: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
 }
 
-
 def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     """
     Loading dataset task on INDONLU, including determining labels length and column name on dataset
@@ -143,7 +142,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         for feature in out.datasets['train'].column_names:
             if (feature != 'sentence'):
                 label_list = label_list + [feature]
-        logger.info(f'{task.name}: { max(TASK_LABELS[task])} labels -- {label_list}')
+        print(f'{task.name}: { max(TASK_LABELS[task])} labels -- {label_list}')
     else:
         label_list = out.datasets["train"].features[TASK_LABELS[task]].feature.names
         out.num_labels = n_labels = out.datasets["train"].features[TASK_LABELS[task]].feature.num_classes
