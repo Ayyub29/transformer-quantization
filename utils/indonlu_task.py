@@ -130,21 +130,6 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     logger.info(f'Getting {task.name} dataset ...\n')
     out.datasets = load_dataset('indonlu', task.name, cache_dir=data_dir)
 
-    def multilabel_combine(datasets):
-        label_list = []
-        for feature in datasets['train'].column_names:
-            if (feature != 'sentence'):
-                label_list = label_list + [feature]
-        data_type = ['train', 'validation', 'test']
-        for type in data_type:
-            datasets[type].features = datasets[type].features + ['label_ids']
-            for idx,item in enumerate(datasets[type]):
-                labels = []
-                for feature in label_list:
-                    labels = labels + [item[feature]]
-                datasets[type][idx]['label_ids'] = labels
-        return datasets
-
     # determine number of labels
     logger.info('Determine labels ...\n')
     if task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete:  # sequence classification
@@ -153,8 +138,6 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa: #aspect based sentiment analysis
         out.num_labels = len(TASK_MULTILABELS[task])
-        out.datasets = multilabel_combine(out.datasets)
-        print(out.datasets["train"])
         # out.num_labels_list  = TASK_MULTILABELS[task]
         label_list = []
         for feature in out.datasets['train'].column_names:

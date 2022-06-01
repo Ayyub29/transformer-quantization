@@ -180,7 +180,8 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         # to the max sequence length in each batch
 
     max_length = config.data.max_seq_length
-    is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete or task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
+    is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
+    is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
 
     # tokenize text and define datasets for text classification
     def preprocess_fn_text(examples):
@@ -193,6 +194,28 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         result = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
         return result
 
+    def preprocess_fn_multilabel(examples):
+        try:
+            args = (
+                (examples[task_data.sentence1_key],)
+                if task_data.sentence2_key is None
+                else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
+            )
+            tokenized_inputs = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
+            label_list = []
+            for feature in examples.column_names:
+                if (feature != 'sentence'):
+                    label_list = label_list + [feature]
+
+            label_ids = []
+            for i, item in enumerate(examples):
+                for feature in label_list:
+                    label_ids = label_ids + [item[feature]]
+            tokenized_inputs['label_ids'] = label_ids
+
+            return tokenized_inputs
+        except Exception as err:
+            print(err)
     
     # tokenize text and define datasets for word classification
     def preprocess_fn_word(examples):
@@ -202,7 +225,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             labels = []
             subword_to_word_ids = []
 
-            for i, label in enumerate(examples[TASK_LABELS[task]]):
+            for i, label in enumerate(examples):
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
                 previous_word_idx = None
                 label_ids = []
@@ -232,6 +255,10 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     if is_text_class_task:  
         datasets = task_data.datasets.map(
             preprocess_fn_text, batched=True, load_from_cache_file=not config.data.overwrite_cache
+        )
+    elif is_multilabel_class_task:
+        datasets = task_data.datasets.map(
+            preprocess_fn_multilabel, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
     else: 
         datasets = task_data.datasets.map(
@@ -266,7 +293,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         tokenizer=tokenizer,
         # data collator will default to DataCollatorWithPadding,
         # so we change it if we already did the padding:
-        data_collator=default_data_collator if padding and is_text_class_task else word_data_collator if padding else None,
+        data_collator=default_data_collator if padding and (is_text_class_task or is_multilabel_class_task) else word_data_collator if padding else None,
     )
     return trainer, datasets, train_dataset, eval_dataset
 
