@@ -9,6 +9,8 @@ import os
 import random
 import warnings
 
+from sqlalchemy import false
+
 from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
 
 warnings.filterwarnings('ignore')  # ignore TF warnings
@@ -260,11 +262,10 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             preprocess_fn_text, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
     elif is_multilabel_class_task:
-        print("dataset is multibale")
         datasets = task_data.datasets.map(
-            preprocess_fn_multilabel, batched=True, load_from_cache_file=not config.data.overwrite_cache
+            preprocess_fn_multilabel, batched=True, load_from_cache_file=not True
         )
-        print(datasets['train'][2])
+        print(datasets['train'].features)
     else: 
         datasets = task_data.datasets.map(
             preprocess_fn_word, batched=True, load_from_cache_file=not config.data.overwrite_cache
