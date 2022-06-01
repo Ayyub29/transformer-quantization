@@ -137,8 +137,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
                 label_list = label_list + [feature]
         data_type = ['train', 'validation', 'test']
         for type in data_type:
-            print(len(datasets['train']))
-            for idx,item in enumerate(datasets['train']):
+            for idx,item in enumerate(datasets[type]):
                 print(idx)
                 labels = []
                 for feature in label_list:
