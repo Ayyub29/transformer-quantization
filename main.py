@@ -197,7 +197,6 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
 
     def preprocess_fn_multilabel(examples):
         try:
-            print(len(examples))
             args = (
                 (examples[task_data.sentence1_key],)
                 if task_data.sentence2_key is None
@@ -210,12 +209,9 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 label_id = []
                 for feature in TASK_MULTILABELS[task]:
                     label_id = label_id + [examples[feature][i]]
-                # print(label_id)
                 label_ids = label_ids + [label_id]
-            print(label_ids)
-
             tokenized_inputs['label_ids'] = label_ids
-            
+
             return tokenized_inputs
         except Exception as err:
             print(examples, err)
@@ -266,7 +262,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     elif is_multilabel_class_task:
         print("dataset is multilabel")
         datasets = task_data.datasets.map(
-            preprocess_fn_multilabel, batched=False, load_from_cache_file=not config.data.overwrite_cache
+            preprocess_fn_multilabel, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
         print(datasets['train'][2])
     else: 
