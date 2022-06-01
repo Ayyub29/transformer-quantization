@@ -204,12 +204,12 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             )
             tokenized_inputs = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
 
-            # label_ids = []
-            # for i, item in enumerate(examples):
-            #     for feature in TASK_MULTILABELS[task]:
-            #         label_ids = label_ids + [item[feature]]
-
-            # tokenized_inputs['label_ids'] = label_ids
+            label_ids = []
+            for i, item in enumerate(examples):
+                for feature in TASK_MULTILABELS[task]:
+                    label_ids = label_ids + [item[feature]]
+            print(label_ids)
+            tokenized_inputs['label_ids'] = label_ids
             
             return tokenized_inputs
         except Exception as err:
