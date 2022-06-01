@@ -214,7 +214,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             
             return tokenized_inputs
         except Exception as err:
-            print(err)
+            print(examples, err)
     
     # tokenize text and define datasets for word classification
     def preprocess_fn_word(examples):
