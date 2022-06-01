@@ -56,7 +56,7 @@ MODEL_TO_BACKBONE_ATTR = {  # model.<backbone attr>.<layers etc.>
 }
 
 def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_dir, attn_dropout,
-                             hidden_dropout, num_labels, task: INDONLU_Task **kw):
+                             hidden_dropout, num_labels, task: INDONLU_Task, **kw):
     """
     Loading the model and tokenizer
     """
