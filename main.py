@@ -196,23 +196,22 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
 
     def preprocess_fn_multilabel(examples):
         try:
-            print(examples)
             args = (
                 (examples[task_data.sentence1_key],)
                 if task_data.sentence2_key is None
                 else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
             )
             tokenized_inputs = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
-            label_list = []
-            for feature in examples.column_names:
-                if (feature != 'sentence'):
-                    label_list = label_list + [feature]
+            # label_list = []
+            # for feature in examples.column_names:
+            #     if (feature != 'sentence'):
+            #         label_list = label_list + [feature]
 
-            label_ids = []
-            for i, item in enumerate(examples):
-                for feature in label_list:
-                    label_ids = label_ids + [item[feature]]
-            tokenized_inputs['label_ids'] = label_ids
+            # label_ids = []
+            # for i, item in enumerate(examples):
+            #     for feature in label_list:
+            #         label_ids = label_ids + [item[feature]]
+            tokenized_inputs['label_ids'] = 'test'
             
             return tokenized_inputs
         except Exception as err:
