@@ -197,7 +197,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
 
     def preprocess_fn_multilabel(examples):
         try:
-            # print(examples)
+            print(len(examples))
             args = (
                 (examples[task_data.sentence1_key],)
                 if task_data.sentence2_key is None
@@ -211,7 +211,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 for feature in TASK_MULTILABELS[task]:
                     label_id = label_id + [examples[feature][i]]
                 # print(label_id)
-                label_ids = label_ids + label_id
+                label_ids = label_ids + [label_id]
             print(label_ids)
 
             tokenized_inputs['label_ids'] = label_ids
