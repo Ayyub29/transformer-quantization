@@ -252,8 +252,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                         label_ids.append(label[word_idx] if label_all_tokens else -100)
                     previous_word_idx = word_idx
                 labels.append(label_ids)
-                subword_to_word_ids.append(word_ids)
-            print(examples)    
+                subword_to_word_ids.append(word_ids)   
             tokenized_inputs["labels"] = labels
             tokenized_inputs["subword_to_word_ids"] = subword_to_word_ids
             return tokenized_inputs
@@ -265,9 +264,9 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             preprocess_fn_text, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
     elif is_multilabel_class_task:
-        print("dataset is multibale")
+        print("dataset is multilabel")
         datasets = task_data.datasets.map(
-            preprocess_fn_multilabel, batched=True, load_from_cache_file=not config.data.overwrite_cache
+            preprocess_fn_multilabel, batched=False, load_from_cache_file=not config.data.overwrite_cache
         )
         print(datasets['train'][2])
     else: 
