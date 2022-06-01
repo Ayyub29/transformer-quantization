@@ -202,15 +202,17 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 if task_data.sentence2_key is None
                 else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
             )
+            tokenized_inputs = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
 
             label_ids = []
             for i, item in enumerate(examples):
+                print(i, item)
                 label_id = []
                 for feature in TASK_MULTILABELS[task]:
                     label_id = label_id + [examples[feature][i]]
                 label_ids = label_ids + [label_id]
+
             tokenized_inputs['label_ids'] = label_ids
-            tokenized_inputs = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
 
             return tokenized_inputs
         except Exception as err:
