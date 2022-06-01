@@ -1,6 +1,7 @@
 # Copyright (c) 2021 Qualcomm Technologies, Inc.
 # All Rights Reserved.
 
+from cProfile import label
 import logging
 from enum import Flag, auto
 from functools import reduce
@@ -129,6 +130,19 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     logger.info(f'Getting {task.name} dataset ...\n')
     out.datasets = load_dataset('indonlu', task.name, cache_dir=data_dir)
 
+    def multilabel_combine(datasets):
+        label_list = []
+        for feature in datasets['train'].column_names:
+            if (feature != 'sentence'):
+                label_list = label_list + [feature]
+        data_type = ['train', 'validation', 'test']
+        for type in data_type:
+            for idx,item in enumerate(datasets['train']):
+                labels = []
+                for feature in label_list:
+                    labels = labels + item[feature]
+                datasets[type][idx]['label_ids'] = labels
+
     # determine number of labels
     logger.info('Determine labels ...\n')
     if task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete:  # sequence classification
@@ -137,12 +151,13 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa: #aspect based sentiment analysis
         out.num_labels = len(TASK_MULTILABELS[task])
+        multilabel_combine(out.datasets)
         # out.num_labels_list  = TASK_MULTILABELS[task]
         label_list = []
         for feature in out.datasets['train'].column_names:
             if (feature != 'sentence'):
                 label_list = label_list + [feature]
-        print(f'{task.name}: { max(TASK_LABELS[task])} labels -- {label_list}')
+        print(f'{task.name}: { TASK_MULTILABELS[task]} labels -- {label_list}')
     else:
         label_list = out.datasets["train"].features[TASK_LABELS[task]].feature.names
         out.num_labels = n_labels = out.datasets["train"].features[TASK_LABELS[task]].feature.num_classes
