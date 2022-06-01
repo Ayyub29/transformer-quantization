@@ -9,7 +9,7 @@ import os
 import random
 import warnings
 
-from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU, TASK_MULTILABELS
+from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
 
 warnings.filterwarnings('ignore')  # ignore TF warnings
 from copy import deepcopy
@@ -69,6 +69,7 @@ from utils import (
     TASK_TO_FINAL_METRIC,
     TASK_TO_FINAL_METRIC_INDONLU,
     TASK_INDEX2LABEL,
+    TASK_MULTILABELS,
     TASK_LABEL2INDEX,
     TASK_LABELS,
     # misc
