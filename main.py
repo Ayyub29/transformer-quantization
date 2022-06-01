@@ -257,6 +257,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             preprocess_fn_text, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
     elif is_multilabel_class_task:
+        print("dataset is multibale")
         datasets = task_data.datasets.map(
             preprocess_fn_multilabel, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
