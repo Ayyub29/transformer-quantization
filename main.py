@@ -202,16 +202,17 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
             )
             tokenized_inputs = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
-            # label_list = []
-            # for feature in examples.column_names:
-            #     if (feature != 'sentence'):
-            #         label_list = label_list + [feature]
+            label_list = []
+            for feature in examples.column_names:
+                if (feature != 'sentence'):
+                    label_list = label_list + [feature]
 
-            # label_ids = []
-            # for i, item in enumerate(examples):
-            #     for feature in label_list:
-            #         label_ids = label_ids + [item[feature]]
-            tokenized_inputs['label_ids'] = 'test'
+            label_ids = []
+            for i, item in enumerate(examples):
+                for feature in label_list:
+                    label_ids = label_ids + [item[feature]]
+
+            tokenized_inputs['label_ids'] = label_ids
             
             return tokenized_inputs
         except Exception as err:
@@ -266,6 +267,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         datasets = task_data.datasets.map(
             preprocess_fn_multilabel, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
+        print(datasets['train'][2])
     else: 
         datasets = task_data.datasets.map(
             preprocess_fn_word, batched=True, load_from_cache_file=not config.data.overwrite_cache
