@@ -142,6 +142,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
                 for feature in label_list:
                     labels = labels + [item[feature]]
                 datasets[type][idx]['label_ids'] = labels
+        return datasets
 
     # determine number of labels
     logger.info('Determine labels ...\n')
@@ -151,7 +152,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa: #aspect based sentiment analysis
         out.num_labels = len(TASK_MULTILABELS[task])
-        multilabel_combine(out.datasets)
+        out.datasets = multilabel_combine(out.datasets)
         # out.num_labels_list  = TASK_MULTILABELS[task]
         label_list = []
         for feature in out.datasets['train'].column_names:
