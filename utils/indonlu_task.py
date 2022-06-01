@@ -116,8 +116,8 @@ TASK_INDEX2LABEL = {
 }
 
 TASK_MULTILABELS = {
-    INDONLU_Task.casa: [3, 3, 3, 3, 3, 3],
-    INDONLU_Task.hoasa: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    INDONLU_Task.casa: ['fuel', 'machine', 'others', 'part', 'price', 'service'],
+    INDONLU_Task.hoasa: ['ac', 'air_panas', 'bau', 'general', 'kebersihan', 'linen', 'service', 'sunrise_meal', 'tv', 'wifi']
 }
 
 def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):

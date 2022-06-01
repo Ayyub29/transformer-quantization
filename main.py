@@ -9,7 +9,7 @@ import os
 import random
 import warnings
 
-from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
+from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU, TASK_MULTILABELS
 
 warnings.filterwarnings('ignore')  # ignore TF warnings
 from copy import deepcopy
@@ -202,14 +202,10 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
             )
             tokenized_inputs = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
-            label_list = []
-            for feature in examples.column_names:
-                if (feature != 'sentence'):
-                    label_list = label_list + [feature]
 
             label_ids = []
             for i, item in enumerate(examples):
-                for feature in label_list:
+                for feature in TASK_MULTILABELS[task]:
                     label_ids = label_ids + [item[feature]]
 
             tokenized_inputs['label_ids'] = label_ids
