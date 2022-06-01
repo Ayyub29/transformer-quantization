@@ -197,7 +197,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
 
     def preprocess_fn_multilabel(examples):
         try:
-            print(examples)
+            # print(examples)
             args = (
                 (examples[task_data.sentence1_key],)
                 if task_data.sentence2_key is None
