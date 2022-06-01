@@ -92,8 +92,8 @@ TASK_TO_FINAL_METRIC_INDONLU = {
 TASK_LABELS = {
     INDONLU_Task.emot: 'label',
     INDONLU_Task.smsa: 'label',
-    INDONLU_Task.casa: [3, 3, 3, 3, 3, 3],
-    INDONLU_Task.hoasa: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    INDONLU_Task.casa: 'multilabel',
+    INDONLU_Task.hoasa: 'multilabel',
     INDONLU_Task.wrete: 'label',
     INDONLU_Task.posp: 'pos_tags',
     INDONLU_Task.bapos: 'pos_tags',
@@ -114,6 +114,11 @@ TASK_INDEX2LABEL = {
     INDONLU_Task.smsa: {0: 'positive', 1: 'neutral', 2: 'negative'}
 }
 
+TASK_MULTILABELS = {
+    INDONLU_Task.casa: [3, 3, 3, 3, 3, 3],
+    INDONLU_Task.hoasa: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+}
+
 
 def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     """
@@ -130,11 +135,10 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     if task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete:  # sequence classification
         label_list = out.datasets["train"].features[TASK_LABELS[task]].names
         out.num_labels = n_labels = len(label_list)
-        out.num_labels_list  = None #Dummy
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa: #aspect based sentiment analysis
-        out.num_labels = TASK_LABELS[task]
-        out.num_labels_list  = TASK_LABELS[task]
+        out.num_labels = len(TASK_MULTILABELS[task])
+        # out.num_labels_list  = TASK_MULTILABELS[task]
         label_list = []
         for feature in out.datasets['train'].column_names:
             if (feature != 'sentence'):
@@ -142,7 +146,6 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         logger.info(f'{task.name}: { max(TASK_LABELS[task])} labels -- {label_list}')
     else:
         label_list = out.datasets["train"].features[TASK_LABELS[task]].feature.names
-        out.num_labels_list  = None #Dummy
         out.num_labels = n_labels = out.datasets["train"].features[TASK_LABELS[task]].feature.num_classes
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
 

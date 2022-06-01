@@ -56,7 +56,7 @@ MODEL_TO_BACKBONE_ATTR = {  # model.<backbone attr>.<layers etc.>
 }
 
 def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_dir, attn_dropout,
-                             hidden_dropout, num_labels, task: INDONLU_Task, num_labels_list = None, **kw):
+                             hidden_dropout, num_labels, task: INDONLU_Task **kw):
     """
     Loading the model and tokenizer
     """
@@ -76,8 +76,6 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
         num_labels=num_labels,
         cache_dir=cache_dir,
     )
-    config.num_labels_list = num_labels_list
-    logger.info(f'Adding label {num_labels_list}')
 
     # set dropout rates
     if attn_dropout is not None:
@@ -114,7 +112,6 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
             cache_dir=cache_dir,
         )
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa:
-        print(f'number_list {num_labels_list}')
         model = BertForSequenceClassification.from_pretrained(
             model_name_or_path,
             from_tf=False,
