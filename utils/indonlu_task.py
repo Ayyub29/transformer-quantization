@@ -140,7 +140,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
             for idx,item in enumerate(datasets['train']):
                 labels = []
                 for feature in label_list:
-                    labels = labels + item[feature]
+                    labels = labels + [item[feature]]
                 datasets[type][idx]['label_ids'] = labels
 
     # determine number of labels
