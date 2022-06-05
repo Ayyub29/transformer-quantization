@@ -214,10 +214,17 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
     def fn(p: EvalPrediction):
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         print(preds)
+        
+        hyp = []
+        for pred in preds:
+            hy = []
+            for item in pred:
+                hy.append(np.amax(item))
+            hyp.append(hy)
+        print(hyp)
+
         list_hyp = []
         list_label = []
-        hyp = [pred[np.argpartition(pred, -1)[-1:]] for pred in preds] # list<tensor(bs)>
-        print(hyp)
         batch_size = p.label_ids.shape[0]
         num_label = len(hyp)
         for i in range(batch_size):
@@ -225,8 +232,8 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
             labels = p.label_ids[i,:]
             for j in range(num_label):
                 hyps.append(hyp[j][i])
-            list_hyp.append([TASK_INDEX2LABEL[task][hyp] for hyp in hyps])
-            list_label.append([TASK_INDEX2LABEL[task][label] for label in labels])
+            list_hyp.append([TASK_INDEX2LABEL[task][i] for i in hyps])
+            list_label.append([TASK_INDEX2LABEL[task][j] for j in labels])
         list_hyp = list(itertools.chain.from_iterable(list_hyp))
         list_label = list(itertools.chain.from_iterable(list_label))
 
