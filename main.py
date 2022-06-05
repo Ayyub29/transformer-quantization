@@ -450,7 +450,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     # get metric
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete or task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
-
+    
     compute_metrics = make_compute_metric_fn_text(task) if is_text_class_task else make_compute_metric_fn_word(task)
 
     # prepare training arguments for huggingface Trainer

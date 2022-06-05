@@ -102,7 +102,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
     logger.info('Tokenizer:')
     logger.info(tokenizer)
     out.tokenizer = tokenizer
-
+    config.problem_type = None
     # Model
     if task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete:
         model = BertForSequenceClassification.from_pretrained(
