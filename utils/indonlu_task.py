@@ -213,7 +213,7 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
 def make_compute_metric_fn_multilable(task: INDONLU_Task):
     def fn(p: EvalPrediction):
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
-
+        print(preds)
         list_hyp = []
         list_label = []
         hyp = [pred[np.argpartition(pred, -1)[-1:]] for pred in preds] # list<tensor(bs)>
