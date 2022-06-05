@@ -56,7 +56,7 @@ MODEL_TO_BACKBONE_ATTR = {  # model.<backbone attr>.<layers etc.>
 }
 
 def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_dir, attn_dropout,
-                             hidden_dropout, num_labels, task: INDONLU_Task, **kw):
+                             hidden_dropout, num_labels, task: INDONLU_Task, task_data, **kw):
     """
     Loading the model and tokenizer
     """
@@ -112,6 +112,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
             cache_dir=cache_dir,
         )
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa:
+        config.num_labels_list = task_data.num_labels_list
         config.problem_type = "multi_label_classification"
         model = BertForMultiLabelClassification.from_pretrained(
             model_name_or_path,
