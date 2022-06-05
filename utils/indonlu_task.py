@@ -157,6 +157,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
 def make_compute_metric_fn_text(task: INDONLU_Task):
     def fn(p: EvalPrediction):
         s = Stopwatch().start()
+        print(p)
         result = {}
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         preds = np.squeeze(preds) if task == INDONLU_Task.wrete else np.argmax(preds, axis=1) ##NEED TO BE ADJUSTED LATER
