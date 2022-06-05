@@ -8,11 +8,12 @@ from functools import reduce
 from operator import or_
 
 import numpy as np
+import torch
 from datasets import load_dataset, load_metric
 from transformers import EvalPrediction
 
 from utils.utils import DotDict, Stopwatch
-
+from sklearn.metrics import f1_score, roc_auc_score, accuracy_score, precision_score, recall_score
 
 # setup logger
 logger = logging.getLogger('INDO_NLU')
@@ -200,3 +201,34 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
         }
 
     return fn
+
+def make_compute_metric_fn_multilable(task: INDONLU_Task):
+    def fn(p: EvalPrediction):
+        preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
+        # result = multi_label_metrics(predictions=preds, labels=p.label_ids)
+        sigmoid = torch.nn.Sigmoid()
+        probs = sigmoid(torch.Tensor(preds))
+        print(probs)
+        # next, use threshold to turn them into integer predictions
+        y_pred = np.zeros(probs.shape)
+        y_pred[np.where(probs >= 0.5)] = 1
+        # finally, compute metrics
+        y_true = p.label_ids
+        f1_micro_average = f1_score(y_true=y_true, y_pred=y_pred, average='micro')
+        roc_auc = roc_auc_score(y_true, y_pred, average = 'micro')
+        accuracy = accuracy_score(y_true, y_pred)
+        precision = precision_score(y_true, y_pred)
+        recall = recall_score(y_true, y_pred)
+        # return as dictionary
+        metrics = {'f1': f1_micro_average,
+                'roc_auc': roc_auc,
+                'accuracy': accuracy,
+                'precision': precision,
+                'recall': recall}
+        return metrics
+    return fn
+
+def compute_metrics(p: EvalPrediction):
+    
+    
+    return result

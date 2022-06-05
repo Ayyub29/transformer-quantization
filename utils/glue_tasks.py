@@ -124,7 +124,7 @@ def make_compute_metric_fn(task: GLUE_Task):
 
     def fn(p: EvalPrediction):
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
-        preds = np.squeeze(preds) if task == GLUE_Task.stsb else np.argmax(preds, axis=1)
+        preds = np.argmax(preds, axis=1)
         result = metric.compute(predictions=preds, references=p.label_ids)
         if len(result) > 1:
             result['combined_score'] = np.mean(list(result.values())).item()
