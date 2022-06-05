@@ -208,7 +208,7 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
         # result = multi_label_metrics(predictions=preds, labels=p.label_ids)
         sigmoid = torch.nn.Sigmoid()
         probs = sigmoid(torch.Tensor(preds))
-        print(probs)
+        print(preds)
         # next, use threshold to turn them into integer predictions
         y_pred = np.zeros(probs.shape)
         y_pred[np.where(probs >= 0.5)] = 1
