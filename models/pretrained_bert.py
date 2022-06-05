@@ -71,9 +71,6 @@ class BertForSequenceClassification(BertPreTrainedModel):
         logits = self.classifier(pooled_output)
 
         loss = None
-        # print("num labels:" , self.num_labels)
-        # print("labels:" , labels.dtype)
-        # print("labels:" , labels)
         if labels is not None:
             if self.config.problem_type is None:
                 if self.num_labels == 1:
@@ -97,7 +94,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
             elif self.config.problem_type == "multi_label_classification":
                 print("Its Multilabel")
                 loss_fct = BCEWithLogitsLoss()
-                loss = loss_fct(logits, labels)
+                loss = loss_fct(logits, labels.float())
         if not return_dict:
             output = (logits,) + outputs[2:]
             return ((loss,) + output) if loss is not None else output
