@@ -114,7 +114,9 @@ TASK_LABEL2INDEX = {
 
 TASK_INDEX2LABEL = {
     INDONLU_Task.emot: {0: 'sadness', 1: 'anger', 2: 'love', 3: 'fear', 4: 'happy'},
-    INDONLU_Task.smsa: {0: 'positive', 1: 'neutral', 2: 'negative'}
+    INDONLU_Task.smsa: {0: 'positive', 1: 'neutral', 2: 'negative'},
+    INDONLU_Task.casa: {0: 'negative', 1: 'neutral', 2: 'positive'},
+    INDONLU_Task.hoasa: {0: 'neg', 1: 'neut', 2: 'pos', 3: 'neg_pos'}
 }
 
 TASK_MULTILABELS = {
@@ -210,19 +212,23 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
 
 def make_compute_metric_fn_multilable(task: INDONLU_Task):
     def fn(p: EvalPrediction):
-        print(p)
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
-        # result = multi_label_metrics(predictions=preds, labels=p.label_ids)
-        list_hyp = list(itertools.chain.from_iterable(preds))
-        list_label = list(itertools.chain.from_iterable(p.label_ids))
-        # sigmoid = torch.nn.Sigmoid()
-        # probs = sigmoid(torch.Tensor(preds))
-        # print(preds[0])
-        # # next, use threshold to turn them into integer predictions
-        # y_pred = np.zeros(probs.shape)
-        # y_pred[np.where(probs >= 0.5)] = 1
-        # # finally, compute metrics
-        # y_true = p.label_ids
+
+        list_hyp = []
+        list_label = []
+        hyp = [torch.topk(logit, 1)[1] for logit in preds] # list<tensor(bs)>
+        batch_size = p.input_ids.shape[0]
+        num_label = len(hyp)
+        for i in range(batch_size):
+            hyps = []
+            labels = p.input_ids[i,:].cpu().numpy().tolist()
+            for j in range(num_label):
+                hyps.append(hyp[j][i].item())
+            list_hyp.append([TASK_INDEX2LABEL[task][hyp] for hyp in hyps])
+            list_label.append([TASK_INDEX2LABEL[task][label] for label in labels])
+        list_hyp = list(itertools.chain.from_iterable(list_hyp))
+        list_label = list(itertools.chain.from_iterable(list_label))
+
         f1_micro_average = f1_score(list_hyp, y_pred=list_label, average='micro')
         roc_auc = roc_auc_score(list_hyp, list_label, average = 'micro')
         accuracy = accuracy_score(list_hyp, list_label)
