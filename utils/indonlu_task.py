@@ -219,7 +219,7 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
         for pred in preds:
             hy = []
             for item in pred:
-                hy.append(np.argmin(np.amax(item)))
+                hy.append(np.argmin(item))
             hyp.append(hy)
         print(hyp)
 
