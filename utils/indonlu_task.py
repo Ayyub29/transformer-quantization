@@ -216,7 +216,7 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
 
         list_hyp = []
         list_label = []
-        hyp = [torch.topk(logit, 1)[1] for logit in preds] # list<tensor(bs)>
+        hyp = [pred[np.argpartition(pred, -1)[-1:]] for pred in preds] # list<tensor(bs)>
         batch_size = p.input_ids.shape[0]
         num_label = len(hyp)
         for i in range(batch_size):
