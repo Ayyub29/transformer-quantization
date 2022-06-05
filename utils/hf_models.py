@@ -112,6 +112,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
             cache_dir=cache_dir,
         )
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa:
+        config.problem_type = "multi_label_classification"
         model = BertForSequenceClassification.from_pretrained(
             model_name_or_path,
             from_tf=False,
