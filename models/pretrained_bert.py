@@ -71,9 +71,9 @@ class BertForSequenceClassification(BertPreTrainedModel):
         logits = self.classifier(pooled_output)
 
         loss = None
-        print("num labels:" , self.num_labels)
-        print("labels:" , labels.dtype)
-        print("labels:" , labels)
+        # print("num labels:" , self.num_labels)
+        # print("labels:" , labels.dtype)
+        # print("labels:" , labels)
         if labels is not None:
             if self.config.problem_type is None:
                 if self.num_labels == 1:
