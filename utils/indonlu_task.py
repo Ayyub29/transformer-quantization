@@ -121,6 +121,11 @@ TASK_MULTILABELS = {
     INDONLU_Task.hoasa: ['ac', 'air_panas', 'bau', 'general', 'kebersihan', 'linen', 'service', 'sunrise_meal', 'tv', 'wifi']
 }
 
+TASK_MULTILABEL_NUM = {
+    INDONLU_Task.casa: [3,3,3,3,3,3],
+    INDONLU_Task.hoasa: [4,4,4,4,4,4,4,4]
+}
+
 def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     """
     Loading dataset task on INDONLU, including determining labels length and column name on dataset
@@ -140,7 +145,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa: #aspect based sentiment analysis
         out.num_labels = 3 if task == INDONLU_Task.casa else 4
         # out.num_labels = len(TASK_MULTILABELS[task])
-        # out.num_labels_list  = TASK_MULTILABELS[task]
+        out.num_labels_list  = TASK_MULTILABEL_NUM[task]
         label_list = []
         for feature in out.datasets['train'].column_names:
             if (feature != 'sentence'):
