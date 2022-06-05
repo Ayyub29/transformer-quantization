@@ -451,10 +451,8 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     # get metric
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
-    
-    compute_metrics = make_compute_metric_fn_text(task) if is_text_class_task else make_compute_metric_fn_word(task)
-    if task == INDONLU_Task.casa or task == INDONLU_Task.hoasa:
-        compute_metrics = make_compute_metric_fn_multilable(task)
+    is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
+    compute_metrics = make_compute_metric_fn_text(task) if is_text_class_task else make_compute_metric_fn_multilable(task) if is_multilabel_class_task else make_compute_metric_fn_word(task)
     # prepare training arguments for huggingface Trainer
     training_args = _make_huggingface_training_args(config)
     # logger.info(f'Training/evaluation parameters for Trainer: {training_args}')
