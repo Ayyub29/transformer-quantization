@@ -213,7 +213,7 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
 def make_compute_metric_fn_multilable(task: INDONLU_Task):
     def fn(p: EvalPrediction):
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
-        print(preds)
+        # print(preds)
         
         hyp = []
         for pred in preds:
@@ -232,10 +232,11 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
             labels = p.label_ids[i,:]
             for j in range(num_label):
                 hyps.append(hyp[j][i])
-            list_hyp.append([TASK_INDEX2LABEL[task][i] for i in hyps])
-            list_label.append([TASK_INDEX2LABEL[task][j] for j in labels])
+            list_hyp.append([i for i in hyps])
+            list_label.append([j for j in labels])
         list_hyp = list(itertools.chain.from_iterable(list_hyp))
         list_label = list(itertools.chain.from_iterable(list_label))
+        print(list_hyp, list_label)
 
         f1_micro_average = f1_score(list_hyp, y_pred=list_label, average='micro')
         roc_auc = roc_auc_score(list_hyp, list_label, average = 'micro')
