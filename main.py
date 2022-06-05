@@ -63,6 +63,7 @@ from utils import (
     load_task_data_indonlu,
     make_compute_metric_fn_text,
     make_compute_metric_fn_word,
+    make_compute_metric_fn_multilable,
     HF_Models,
     GLUE_Task,
     INDONLU_Task,
@@ -449,10 +450,11 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
             f.write(pformat(config) + '\n')
 
     # get metric
-    is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete or task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
+    is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
     
     compute_metrics = make_compute_metric_fn_text(task) if is_text_class_task else make_compute_metric_fn_word(task)
-
+    if task == INDONLU_Task.casa or task == INDONLU_Task.hoasa:
+        compute_metrics = make_compute_metric_fn_multilable(task)
     # prepare training arguments for huggingface Trainer
     training_args = _make_huggingface_training_args(config)
     # logger.info(f'Training/evaluation parameters for Trainer: {training_args}')
