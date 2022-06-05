@@ -143,7 +143,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
         out.num_labels = n_labels = len(label_list)
         logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa: #aspect based sentiment analysis
-        out.num_labels = 3 if task == INDONLU_Task.casa else 4
+        out.num_labels = max(TASK_MULTILABEL_NUM[task])
         # out.num_labels = len(TASK_MULTILABELS[task])
         out.num_labels_list  = TASK_MULTILABEL_NUM[task]
         label_list = []
@@ -164,7 +164,6 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
 def make_compute_metric_fn_text(task: INDONLU_Task):
     def fn(p: EvalPrediction):
         s = Stopwatch().start()
-        print(p)
         result = {}
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         preds = np.squeeze(preds) if task == INDONLU_Task.wrete else np.argmax(preds, axis=1) ##NEED TO BE ADJUSTED LATER
@@ -210,6 +209,7 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
 
 def make_compute_metric_fn_multilable(task: INDONLU_Task):
     def fn(p: EvalPrediction):
+        print(p)
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         # result = multi_label_metrics(predictions=preds, labels=p.label_ids)
         sigmoid = torch.nn.Sigmoid()
@@ -233,8 +233,3 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
                 'recall': recall}
         return metrics
     return fn
-
-def compute_metrics(p: EvalPrediction):
-    
-    
-    return result
