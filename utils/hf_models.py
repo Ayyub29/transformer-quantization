@@ -5,7 +5,7 @@ import logging
 from enum import Enum
 
 from transformers import AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
-from models.pretrained_bert import BertForSequenceClassification, BertForWordClassification
+from models.pretrained_bert import BertForSequenceClassification, BertForWordClassification, BertForMultiLabelClassification
 from utils.indonlu_task import INDONLU_Task
 
 from utils.utils import count_embedding_params, count_params, DotDict
@@ -113,7 +113,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
         )
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa:
         config.problem_type = "multi_label_classification"
-        model = BertForSequenceClassification.from_pretrained(
+        model = BertForMultiLabelClassification.from_pretrained(
             model_name_or_path,
             from_tf=False,
             config=config,
