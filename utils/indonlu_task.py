@@ -7,6 +7,7 @@ from enum import Flag, auto
 from functools import reduce
 from operator import or_
 
+import itertools
 import numpy as np
 import torch
 from datasets import load_dataset, load_metric
@@ -212,19 +213,21 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
         print(p)
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
         # result = multi_label_metrics(predictions=preds, labels=p.label_ids)
-        sigmoid = torch.nn.Sigmoid()
-        probs = sigmoid(torch.Tensor(preds))
-        print(preds[0])
-        # next, use threshold to turn them into integer predictions
-        y_pred = np.zeros(probs.shape)
-        y_pred[np.where(probs >= 0.5)] = 1
-        # finally, compute metrics
-        y_true = p.label_ids
-        f1_micro_average = f1_score(y_true=y_true, y_pred=y_pred, average='micro')
-        roc_auc = roc_auc_score(y_true, y_pred, average = 'micro')
-        accuracy = accuracy_score(y_true, y_pred)
-        precision = precision_score(y_true, y_pred)
-        recall = recall_score(y_true, y_pred)
+        list_hyp = list(itertools.chain.from_iterable(preds))
+        list_label = list(itertools.chain.from_iterable(p.label_ids))
+        # sigmoid = torch.nn.Sigmoid()
+        # probs = sigmoid(torch.Tensor(preds))
+        # print(preds[0])
+        # # next, use threshold to turn them into integer predictions
+        # y_pred = np.zeros(probs.shape)
+        # y_pred[np.where(probs >= 0.5)] = 1
+        # # finally, compute metrics
+        # y_true = p.label_ids
+        f1_micro_average = f1_score(list_hyp, y_pred=list_label, average='micro')
+        roc_auc = roc_auc_score(list_hyp, list_label, average = 'micro')
+        accuracy = accuracy_score(list_hyp, list_label)
+        precision = precision_score(list_hyp, list_label)
+        recall = recall_score(list_hyp, list_label)
         # return as dictionary
         metrics = {'f1': f1_micro_average,
                 'roc_auc': roc_auc,
