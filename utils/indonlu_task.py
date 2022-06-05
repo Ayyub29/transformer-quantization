@@ -221,7 +221,7 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
         num_label = len(hyp)
         for i in range(batch_size):
             hyps = []
-            labels = p.label_ids[i,:].cpu().numpy().tolist()
+            labels = p.label_ids[i,:]
             for j in range(num_label):
                 hyps.append(hyp[j][i].item())
             list_hyp.append([TASK_INDEX2LABEL[task][hyp] for hyp in hyps])
