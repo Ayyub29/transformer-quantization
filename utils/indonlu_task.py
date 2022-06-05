@@ -241,8 +241,8 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
         f1_micro_average = f1_score(list_hyp, y_pred=list_label, average='micro')
         # roc_auc = roc_auc_score(list_hyp, list_label, average = 'micro')
         accuracy = accuracy_score(list_hyp, list_label)
-        precision = precision_score(list_hyp, list_label)
-        recall = recall_score(list_hyp, list_label)
+        precision = precision_score(list_hyp, list_label, average='micro')
+        recall = recall_score(list_hyp, list_label, average='micro')
         # return as dictionary
         metrics = {'f1': f1_micro_average,
                 'accuracy': accuracy,
