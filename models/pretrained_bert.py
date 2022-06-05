@@ -81,18 +81,15 @@ class BertForSequenceClassification(BertPreTrainedModel):
                     self.config.problem_type = "multi_label_classification"
 
             if self.config.problem_type == "regression":
-                print("Its Regression")
                 loss_fct = MSELoss()
                 if self.num_labels == 1:
                     loss = loss_fct(logits.squeeze(), labels.squeeze())
                 else:
                     loss = loss_fct(logits, labels)
             elif self.config.problem_type == "single_label_classification":
-                print("Its Single")
                 loss_fct = CrossEntropyLoss()
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
-                print("Its Multilabel")
                 loss_fct = BCEWithLogitsLoss()
                 loss = loss_fct(logits, labels.float())
         if not return_dict:
