@@ -238,11 +238,11 @@ def make_compute_metric_fn_multilable(task: INDONLU_Task):
         list_label = list(itertools.chain.from_iterable(list_label))
         print(list_hyp, list_label)
 
-        f1_micro_average = f1_score(list_hyp, y_pred=list_label, average='micro')
+        f1_micro_average = f1_score(list_hyp, y_pred=list_label, average='macro')
         # roc_auc = roc_auc_score(list_hyp, list_label, average = 'micro')
         accuracy = accuracy_score(list_hyp, list_label)
-        precision = precision_score(list_hyp, list_label, average='micro')
-        recall = recall_score(list_hyp, list_label, average='micro')
+        precision = precision_score(list_hyp, list_label, average='macro')
+        recall = recall_score(list_hyp, list_label, average='macro')
         # return as dictionary
         metrics = {'f1': f1_micro_average,
                 'accuracy': accuracy,
