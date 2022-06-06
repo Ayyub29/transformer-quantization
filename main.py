@@ -253,6 +253,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 subword_to_word_ids.append(word_ids)   
             tokenized_inputs["labels"] = labels
             tokenized_inputs["subword_to_word_ids"] = subword_to_word_ids
+            print(tokenized_inputs)
             return tokenized_inputs
         except Exception as err:
             print(err)
