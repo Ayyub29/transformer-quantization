@@ -731,17 +731,17 @@ class QuantizedBertForMultiLabelClassification(QuantizedModel):
         if quant_setup == 'MSE_logits':
             quant_params_['act_range_method'] = RangeEstimators.MSE
             quant_params_['act_range_options'] = dict(opt_method=OptMethod.golden_section)
-            self.classifier = quantize_model(org_model.classifier, **quant_params_)
+            self.classifiers = quantize_model(org_model.classifiers, **quant_params_)
 
         elif quant_setup == 'FP_logits':
             print('Do not quantize output of FC layer')
 
-            self.classifier = quantize_model(org_model.classifier, **quant_params_)
+            self.classifiers = quantize_model(org_model.classifiers, **quant_params_)
             # no activation quantization of logits:
-            self.classifier.activation_quantizer = FP32Acts()
+            self.classifiers.activation_quantizer = FP32Acts()
 
         elif quant_setup == 'all':
-            self.classifier = quantize_model(org_model.classifier, **quant_params_)
+            self.classifiers = quantize_model(org_model.classifiers, **quant_params_)
 
         else:
             raise ValueError("Quantization setup '{}' not supported.".format(quant_setup))
