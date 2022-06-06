@@ -8,6 +8,7 @@ import logging
 import os
 import random
 import warnings
+from models.quantized_bert import QuantizedBertForMultiLabelClassification
 
 from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
 
@@ -28,8 +29,7 @@ from pynvml import *
 
 from models import (
     QuantizedBertForSequenceClassification,
-    QuantizedMobileBertForSequenceClassification,
-    QuantizedRobertaForSequenceClassification,
+    QuantizedBertForMultiLabelClassification,
     QuantizedBertForWordClassification
 )
 from quantization.adaround import AdaRoundActQuantMode
@@ -96,16 +96,16 @@ def indonlu():
 # show default values for all options
 click.option = partial(click.option, show_default=True)
 
-def print_gpu_utilization():
-    nvmlInit()
-    handle = nvmlDeviceGetHandleByIndex(0)
-    info = nvmlDeviceGetMemoryInfo(handle)
-    print(f"GPU memory occupied: {info.used//1024**2} MB.")
+# def print_gpu_utilization():
+#     nvmlInit()
+#     handle = nvmlDeviceGetHandleByIndex(0)
+#     info = nvmlDeviceGetMemoryInfo(handle)
+#     print(f"GPU memory occupied: {info.used//1024**2} MB.")
 
-def print_summary(result):
-    print(f"Time: {result.metrics['train_runtime']:.2f}")
-    print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
-    print_gpu_utilization()
+# def print_summary(result):
+#     print(f"Time: {result.metrics['train_runtime']:.2f}")
+#     print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
+#     print_gpu_utilization()
 
 def _is_non_empty_dir(path):
     return path.exists() and len(list(path.iterdir()))
@@ -336,6 +336,8 @@ def _quantize_model(config, model, task):
         model = QuantizedBertForSequenceClassification(model, **qparams)
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma, INDONLU_Task.wrete):
         model = QuantizedBertForWordClassification(model, **qparams)
+    elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
+        model = QuantizedBertForMultiLabelClassification(model, **qparams)
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
