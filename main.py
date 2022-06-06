@@ -275,7 +275,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     for features in train_dataset.features:
         logger.info(f"{features} => {train_dataset[2][features]}")
     eval_dataset = datasets['validation']
-
+    print(eval_dataset)
     if model_enum in (
         HF_Models.indobert_base_v1,
         HF_Models.indobert_base_v2
