@@ -269,14 +269,14 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         datasets = task_data.datasets.map(
             preprocess_fn_word, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
-        print(datasets)
+        print("word" , datasets)
 
     train_dataset = datasets['train']
     logger.info('Example of dataset to be trained..: {features => dataset }')
     for features in train_dataset.features:
         logger.info(f"{features} => {train_dataset[2][features]}")
     eval_dataset = datasets['validation']
-    print(datasets)
+    
     if model_enum in (
         HF_Models.indobert_base_v1,
         HF_Models.indobert_base_v2
