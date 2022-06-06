@@ -718,7 +718,7 @@ class QuantizedBertForMultiLabelClassification(QuantizedModel):
     def __init__(self, org_model, quant_setup=None, **quant_params):
         super().__init__()
 
-        self.num_labels = org_model.num_labels_list
+        self.num_labels = org_model.num_labels
         self.config = org_model.config
 
         if hasattr(org_model, 'bert'):
