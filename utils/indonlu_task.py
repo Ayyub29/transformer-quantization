@@ -201,6 +201,7 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
         ]
 
         results = metric.compute(predictions=true_predictions, references=true_labels)
+        print(results)
         return {
             "precision": results["overall_precision"],
             "recall": results["overall_recall"],
