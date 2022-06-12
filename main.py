@@ -8,6 +8,7 @@ import logging
 import os
 import random
 import warnings
+from models.quantized_bert import QuantizedBertForMultiLabelClassification
 
 from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
 
@@ -28,8 +29,7 @@ from pynvml import *
 
 from models import (
     QuantizedBertForSequenceClassification,
-    QuantizedMobileBertForSequenceClassification,
-    QuantizedRobertaForSequenceClassification,
+    QuantizedBertForMultiLabelClassification,
     QuantizedBertForWordClassification
 )
 from quantization.adaround import AdaRoundActQuantMode
@@ -96,16 +96,16 @@ def indonlu():
 # show default values for all options
 click.option = partial(click.option, show_default=True)
 
-def print_gpu_utilization():
-    nvmlInit()
-    handle = nvmlDeviceGetHandleByIndex(0)
-    info = nvmlDeviceGetMemoryInfo(handle)
-    print(f"GPU memory occupied: {info.used//1024**2} MB.")
+# def print_gpu_utilization():
+#     nvmlInit()
+#     handle = nvmlDeviceGetHandleByIndex(0)
+#     info = nvmlDeviceGetMemoryInfo(handle)
+#     print(f"GPU memory occupied: {info.used//1024**2} MB.")
 
-def print_summary(result):
-    print(f"Time: {result.metrics['train_runtime']:.2f}")
-    print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
-    print_gpu_utilization()
+# def print_summary(result):
+#     print(f"Time: {result.metrics['train_runtime']:.2f}")
+#     print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
+#     print_gpu_utilization()
 
 def _is_non_empty_dir(path):
     return path.exists() and len(list(path.iterdir()))
@@ -221,17 +221,12 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     # tokenize text and define datasets for word classification
     def preprocess_fn_word(examples):
         try:
-            args = (
-                (examples[task_data.sentence1_key],)
-                if task_data.sentence2_key is None
-                else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
-            )
-            tokenized_inputs = tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
+            tokenized_inputs = tokenizer(examples[task_data.sentence1_key], truncation=True, is_split_into_words=True)
             label_all_tokens = True
             labels = []
             subword_to_word_ids = []
 
-            for i, label in enumerate(examples):
+            for i, label in enumerate(examples[TASK_LABELS[task]]):
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
                 previous_word_idx = None
                 label_ids = []
@@ -250,7 +245,8 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                         label_ids.append(label[word_idx] if label_all_tokens else -100)
                     previous_word_idx = word_idx
                 labels.append(label_ids)
-                subword_to_word_ids.append(word_ids)   
+                subword_to_word_ids.append(word_ids)
+                
             tokenized_inputs["labels"] = labels
             tokenized_inputs["subword_to_word_ids"] = subword_to_word_ids
             return tokenized_inputs
@@ -262,22 +258,21 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             preprocess_fn_text, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
     elif is_multilabel_class_task:
-        print("dataset is multilabel")
         datasets = task_data.datasets.map(
             preprocess_fn_multilabel, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
-        print(datasets['train'][2])
     else: 
         datasets = task_data.datasets.map(
             preprocess_fn_word, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
+        print("word" , datasets)
 
     train_dataset = datasets['train']
     logger.info('Example of dataset to be trained..: {features => dataset }')
     for features in train_dataset.features:
         logger.info(f"{features} => {train_dataset[2][features]}")
     eval_dataset = datasets['validation']
-
+    
     if model_enum in (
         HF_Models.indobert_base_v1,
         HF_Models.indobert_base_v2
@@ -334,6 +329,8 @@ def _quantize_model(config, model, task):
         model = QuantizedBertForSequenceClassification(model, **qparams)
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
         model = QuantizedBertForWordClassification(model, **qparams)
+    elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
+        model = QuantizedBertForMultiLabelClassification(model, **qparams)
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
@@ -666,7 +663,6 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
                     source_ranges = None
                     for k, v in range_estimators.items():
-                        print(k)
                         if 'dense' in k:
                             source_ranges = v.ranges.clone()
 
