@@ -182,6 +182,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         # to the max sequence length in each batch
 
     max_length = config.data.max_seq_length
+    print("max_length :", max_length)
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
 
