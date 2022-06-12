@@ -167,7 +167,7 @@ def make_compute_metric_fn_text(task: INDONLU_Task):
         s = Stopwatch().start()
         result = {}
         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
-        preds = np.squeeze(preds) if task == INDONLU_Task.wrete else np.argmax(preds, axis=1) ##NEED TO BE ADJUSTED LATER
+        preds = np.argmax(preds, axis=1)
         list_metric = ['f1', 'accuracy', 'precision', 'recall']
         for metric in list_metric:
             metric_loader = load_metric(metric)
@@ -207,6 +207,11 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
         }
 
     return fn
+
+# def make_compute_metric_fn_word(task: INDONLU_Task):
+#     def fn(p: EvalPrediction):
+#         preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
+#         acc, pre, rec, f1, tm_pre, tm_rec, tm_f1 = conll_evaluation(list_hyp, list_label)
 
 def make_compute_metric_fn_multilable(task: INDONLU_Task):
     def fn(p: EvalPrediction):

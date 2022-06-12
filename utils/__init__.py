@@ -42,3 +42,7 @@ from utils.utils import (
     Stopwatch,
     StopForwardException,
 )
+
+from utils.conlleval import (
+    conll_evaluation
+)

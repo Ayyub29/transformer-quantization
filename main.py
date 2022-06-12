@@ -314,8 +314,6 @@ def _log_results(task_scores_map):
         for task, score in task_scores_map.items():
             logger.info(f'\t{task.name} -> {100. * score:.2f}')
             all_scores.append(score)
-            if task != INDONLU_Task.wrete:
-                all_scores_excluding_wnli.append(score)
 
         logger.info(f'Macro-avg (incl. WNLI) = {100. * np.mean(all_scores):.2f}')
         if len(all_scores_excluding_wnli):
@@ -332,9 +330,9 @@ def _quantize_model(config, model, task):
     qparams = make_qparams(config)
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
 
-    if task in (INDONLU_Task.emot, INDONLU_Task.smsa):
+    if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
         model = QuantizedBertForSequenceClassification(model, **qparams)
-    elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma, INDONLU_Task.wrete):
+    elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
         model = QuantizedBertForWordClassification(model, **qparams)
     else:
         raise NotImplementedError(
