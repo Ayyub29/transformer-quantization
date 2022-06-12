@@ -4,8 +4,8 @@
 import logging
 from enum import Enum
 
-from transformers import AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
-from models.pretrained_bert import BertForSequenceClassification, BertForWordClassification, BertForMultiLabelClassification
+from transformers import BertForSequenceClassification, AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
+from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
 from utils.indonlu_task import INDONLU_Task
 
 from utils.utils import count_embedding_params, count_params, DotDict
