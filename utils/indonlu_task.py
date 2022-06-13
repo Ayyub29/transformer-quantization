@@ -183,36 +183,6 @@ def make_compute_metric_fn_text(task: INDONLU_Task):
         return result
     return fn
 
-# def make_compute_metric_fn_word(task: INDONLU_Task):
-#     metric = load_metric("seqeval")
-#     dataset = load_dataset('indonlu', task.name)
-#     label_list = dataset["train"].features[TASK_LABELS[task]].feature.names
-
-#     def fn(p: EvalPrediction):
-#         predictions, labels = p
-#         predictions = np.argmax(predictions, axis=2)
-
-#         # Remove ignored index (special tokens)
-#         true_predictions = [
-#             [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
-#             for prediction, label in zip(predictions, labels)
-#         ]
-#         true_labels = [
-#             [label_list[l] for (p, l) in zip(prediction, label) if l != -100]
-#             for prediction, label in zip(predictions, labels)
-#         ]
-
-#         results = metric.compute(predictions=true_predictions, references=true_labels)
-        
-#         return {
-#             "precision": results["overall_precision"],
-#             "recall": results["overall_recall"],
-#             "f1": results["overall_f1"],
-#             "accuracy": results["overall_accuracy"],
-#         }
-
-#     return fn
-
 def make_compute_metric_fn_word(task: INDONLU_Task):
     dataset = load_dataset('indonlu', task.name)
     label_list = dataset["train"].features[TASK_LABELS[task]].feature.names
@@ -232,6 +202,7 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
         ]
         metrics = {}
         acc, pre, rec, f1, tm_pre, tm_rec, tm_f1 = conll_evaluation(true_predictions, true_labels)
+        print(acc, pre, rec, f1, tm_pre, tm_rec, tm_f1)
         metrics["ACC"] = acc
         metrics["F1"] = tm_f1
         metrics["REC"] = tm_rec
