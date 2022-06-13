@@ -157,7 +157,7 @@ def load_task_data_indonlu(task: INDONLU_Task, data_dir: str):
     else:
         label_list = out.datasets["train"].features[TASK_LABELS[task]].feature.names
         out.num_labels = n_labels = out.datasets["train"].features[TASK_LABELS[task]].feature.num_classes
-        logger.info(f'{task.name}: {n_labels} labels -- {label_list}')
+        print(f'{task.name}: {n_labels} labels -- {label_list}')
 
     # store sentence keys
     out.sentence1_key, out.sentence2_key = TASK_TO_SENTENCE_KEYS[task]
@@ -201,7 +201,7 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
         ]
 
         results = metric.compute(predictions=true_predictions, references=true_labels)
-        print(results)
+        
         return {
             "precision": results["overall_precision"],
             "recall": results["overall_recall"],
