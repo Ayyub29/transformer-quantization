@@ -227,7 +227,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 if task_data.sentence2_key is None
                 else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
             )
-            tokenized_inputs = tokenizer(*args, truncation=True, is_split_into_words=True)
+            tokenized_inputs = tokenizer(*args, truncation=True, max_length=max_length, is_split_into_words=True)
             label_all_tokens = True
             labels = []
             subword_to_word_ids = []
