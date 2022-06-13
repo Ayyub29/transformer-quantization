@@ -230,9 +230,14 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
             [label_list[l] for (p, l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(predictions, labels)
         ]
-        results = conll_evaluation(true_predictions, true_labels)
-        print(results)
-        return results
+        metrics = {}
+        acc, pre, rec, f1, tm_pre, tm_rec, tm_f1 = conll_evaluation(true_predictions, true_labels)
+        metrics["ACC"] = acc
+        metrics["F1"] = tm_f1
+        metrics["REC"] = tm_rec
+        metrics["PRE"] = tm_pre
+        return metrics
+
     return fn
 
 def make_compute_metric_fn_multilable(task: INDONLU_Task):
