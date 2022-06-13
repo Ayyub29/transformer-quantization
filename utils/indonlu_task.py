@@ -192,16 +192,16 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
         predictions = np.argmax(predictions, axis=2)
 
         # Remove ignored index (special tokens)
-        true_predictions = [
-            [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
-            for prediction, label in zip(predictions, labels)
-        ]
-        true_labels = [
-            [label_list[l] for (p, l) in zip(prediction, label) if l != -100]
-            for prediction, label in zip(predictions, labels)
-        ]
+        # true_predictions = [
+        #     [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
+        #     for prediction, label in zip(predictions, labels)
+        # ]
+        # true_labels = [
+        #     [label_list[l] for (p, l) in zip(prediction, label) if l != -100]
+        #     for prediction, label in zip(predictions, labels)
+        # ]
         metrics = {}
-        acc, pre, rec, f1, tm_pre, tm_rec, tm_f1 = conll_evaluation(true_predictions, true_labels)
+        acc, pre, rec, f1, tm_pre, tm_rec, tm_f1 = conll_evaluation(predictions, labels)
         print(acc, pre, rec, f1, tm_pre, tm_rec, tm_f1)
         metrics["ACC"] = acc
         metrics["F1"] = tm_f1
