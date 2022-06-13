@@ -218,12 +218,12 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
         predictions, labels = p
         predictions = np.argmax(predictions, axis=2)
         metrics = {}
-        acc, pre, rec, f1, tm_pre, tm_rec, tm_f1 = conll_evaluation(predictions, labels)
-        print(acc, pre, rec, f1, tm_pre, tm_rec, tm_f1)
-        metrics["ACC"] = acc
-        metrics["F1"] = tm_f1
-        metrics["REC"] = tm_rec
-        metrics["PRE"] = tm_pre
+        metrics = conll_evaluation(predictions, labels)
+        print(metrics)
+        # metrics["ACC"] = acc
+        # metrics["F1"] = tm_f1
+        # metrics["REC"] = tm_rec
+        # metrics["PRE"] = tm_pre
         return metrics
     return fn
 
