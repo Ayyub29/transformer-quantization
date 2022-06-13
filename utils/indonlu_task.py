@@ -217,8 +217,13 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
     def fn(p: EvalPrediction):
         predictions, labels = p
         predictions = np.argmax(predictions, axis=2)
-        results = conll_evaluation(predictions, labels)
-        return results
+        metrics = {}
+        acc, pre, rec, f1, tm_pre, tm_rec, tm_f1 = conll_evaluation(list_hyp, list_label)
+        metrics["ACC"] = acc
+        metrics["F1"] = tm_f1
+        metrics["REC"] = tm_rec
+        metrics["PRE"] = tm_pre
+        return metrics
     return fn
 
 def make_compute_metric_fn_multilable(task: INDONLU_Task):
