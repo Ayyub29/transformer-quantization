@@ -214,10 +214,22 @@ def make_compute_metric_fn_text(task: INDONLU_Task):
 #     return fn
 
 def make_compute_metric_fn_word(task: INDONLU_Task):
+    label_list = dataset["train"].features[TASK_LABELS[task]].feature.names
+
     def fn(p: EvalPrediction):
         predictions, labels = p
         predictions = np.argmax(predictions, axis=2)
-        results = conll_evaluation(predictions, labels)
+
+        # Remove ignored index (special tokens)
+        true_predictions = [
+            [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
+            for prediction, label in zip(predictions, labels)
+        ]
+        true_labels = [
+            [label_list[l] for (p, l) in zip(prediction, label) if l != -100]
+            for prediction, label in zip(predictions, labels)
+        ]
+        results = conll_evaluation(true_predictions, true_labels)
         print(results)
         return results
     return fn
