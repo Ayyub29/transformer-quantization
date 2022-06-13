@@ -214,6 +214,7 @@ def make_compute_metric_fn_text(task: INDONLU_Task):
 #     return fn
 
 def make_compute_metric_fn_word(task: INDONLU_Task):
+    dataset = load_dataset('indonlu', task.name)
     label_list = dataset["train"].features[TASK_LABELS[task]].feature.names
 
     def fn(p: EvalPrediction):
