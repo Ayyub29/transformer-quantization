@@ -200,10 +200,10 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
             [label_list[l] for (p, l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(predictions, labels)
         ]
-        # for (p,l) in zip(true_predictions, true_labels):
-        #     print(p)
-        #     print(l)
-        #     print()
+        for (p,l) in zip(true_predictions, true_labels):
+            print(p)
+            print(l)
+            print()
             
         metrics = {}
         acc, pre, rec, f1, tm_pre, tm_rec, tm_f1 = conll_evaluation(true_predictions, true_labels)
