@@ -221,50 +221,43 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     
     # tokenize text and define datasets for word classification
     def preprocess_fn_word(examples):
-        # try:
-        args = (
-            (examples[task_data.sentence1_key],)
-            if task_data.sentence2_key is None
-            else (examples[task_data.sentence2_key])
-        )
-        tokenized_inputs = tokenizer(*args, truncation=True, max_length=max_length, is_split_into_words=True)
-        label_all_tokens = True
-        labels = []
-        subword_to_word_ids = []
-        print(tokenized_inputs.keys())
-        for i, label in enumerate(examples[TASK_LABELS[task]]):
-            word_ids = tokenized_inputs.word_ids(batch_index=i)
-            previous_word_idx = None
-            label_ids = []
-            for idx, word_idx in enumerate(word_ids):
-                # Special tokens have a word id that is None. We set the label to -100 so they are automatically
-                # ignored in the loss function.
-                if word_idx is None:
-                    word_ids[idx] = -1
-                    label_ids.append(-100)
-                # We set the label for the first token of each word.
-                elif word_idx != previous_word_idx:
-                    label_ids.append(label[word_idx])
-                # For the other tokens in a word, we set the label to either the current label or -100, depending on
-                # the label_all_tokens flag.
-                else:
-                    label_ids.append(label[word_idx] if label_all_tokens else -100)
-                previous_word_idx = word_idx
-            labels.append(label_ids)
-            subword_to_word_ids.append(word_ids)
+        try:
+            args = (
+                (examples[task_data.sentence1_key],)
+                if task_data.sentence2_key is None
+                else (examples[task_data.sentence2_key],)
+            )
+            tokenized_inputs = tokenizer(*args, truncation=True, max_length=max_length, is_split_into_words=True)
+            label_all_tokens = True
+            labels = []
+            subword_to_word_ids = []
 
-        # args = (
-        #     (examples[task_data.sentence1_key],)
-        #     if task_data.sentence2_key is None
-        #     else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
-        # )
-        # results = tokenizer(*args, truncation=True, max_length=max_length, is_split_into_words=True)
-
-        tokenized_inputs["labels"] = labels
-        tokenized_inputs["subword_to_word_ids"] = subword_to_word_ids
-        return tokenized_inputs
-        # except Exception as err:
-        #     print(err)
+            for i, label in enumerate(examples[TASK_LABELS[task]]):
+                word_ids = tokenized_inputs.word_ids(batch_index=i)
+                previous_word_idx = None
+                label_ids = []
+                for idx, word_idx in enumerate(word_ids):
+                    # Special tokens have a word id that is None. We set the label to -100 so they are automatically
+                    # ignored in the loss function.
+                    if word_idx is None:
+                        word_ids[idx] = -1
+                        label_ids.append(-100)
+                    # We set the label for the first token of each word.
+                    elif word_idx != previous_word_idx:
+                        label_ids.append(label[word_idx])
+                    # For the other tokens in a word, we set the label to either the current label or -100, depending on
+                    # the label_all_tokens flag.
+                    else:
+                        label_ids.append(label[word_idx] if label_all_tokens else -100)
+                    previous_word_idx = word_idx
+                labels.append(label_ids)
+                subword_to_word_ids.append(word_ids)
+                
+            tokenized_inputs["labels"] = labels
+            tokenized_inputs["subword_to_word_ids"] = subword_to_word_ids
+            return tokenized_inputs
+        except Exception as err:
+            print(err)
 
     if is_text_class_task:  
         datasets = task_data.datasets.map(
