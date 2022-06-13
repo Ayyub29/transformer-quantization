@@ -189,7 +189,7 @@ def make_compute_metric_fn_word(task: INDONLU_Task):
 
     def fn(p: EvalPrediction):
         predictions, labels = p
-        predictions = np.argmax(predictions, axis=2)
+        predictions = np.argmax(predictions, axis=1)
 
         # Remove ignored index (special tokens)
         true_predictions = [
