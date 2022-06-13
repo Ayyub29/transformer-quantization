@@ -216,7 +216,7 @@ def make_compute_metric_fn_text(task: INDONLU_Task):
 def make_compute_metric_fn_word(task: INDONLU_Task):
     def fn(p: EvalPrediction):
         predictions, labels = p
-        predictions = np.argmax(predictions, axis=2)
+        predictions = np.argmax(predictions, axis=1)
         metrics = {}
         acc, pre, rec, f1, tm_pre, tm_rec, tm_f1 = conll_evaluation(predictions, labels)
         metrics["ACC"] = acc
