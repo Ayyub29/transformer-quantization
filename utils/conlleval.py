@@ -180,7 +180,11 @@ def metrics(counts):
 ###
 def conll_evaluation(hyps_list, labels_list):
     counts = evaluate(hyps_list, labels_list)
-    print(counts)
+    print(counts.correct_chunk,    # number of correctly identified chunks
+        counts.correct_tags,     # number of correct chunk tags
+        counts.found_correct,    # number of chunks in corpus
+        counts.found_guessed,    # number of identified chunks
+        counts.token_counter)
     overall, by_type = metrics(counts)
 
     c = counts
