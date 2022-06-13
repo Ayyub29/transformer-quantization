@@ -222,13 +222,19 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     # tokenize text and define datasets for word classification
     def preprocess_fn_word(examples):
         try:
-            tokenized_inputs = tokenizer(examples[task_data.sentence1_key], truncation=True, is_split_into_words=True, max_length=max_length)
+            args = (
+                (examples[task_data.sentence1_key],)
+                if task_data.sentence2_key is None
+                else (examples[task_data.sentence1_key], examples[task_data.sentence2_key])
+            )
+            tokenized_inputs = tokenizer(*args, truncation=True, is_split_into_words=True, max_length=max_length)
             label_all_tokens = True
             labels = []
             subword_to_word_ids = []
-
+            print(len(examples[TASK_LABELS[task]]))
             for i, label in enumerate(examples[TASK_LABELS[task]]):
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
+                print(word_ids)
                 previous_word_idx = None
                 label_ids = []
                 for idx, word_idx in enumerate(word_ids):
