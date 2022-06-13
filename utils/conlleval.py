@@ -180,6 +180,7 @@ def metrics(counts):
 ###
 def conll_evaluation(hyps_list, labels_list):
     counts = evaluate(hyps_list, labels_list)
+    print(counts)
     overall, by_type = metrics(counts)
 
     c = counts
