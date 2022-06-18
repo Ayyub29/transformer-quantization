@@ -157,7 +157,7 @@ class BertForWordClassification(BertPreTrainedModel):
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
             position_ids=position_ids,
-            # head_mask=head_mask,
+            head_mask=head_mask,
             inputs_embeds=inputs_embeds,
         )
 
@@ -175,7 +175,7 @@ class BertForWordClassification(BertPreTrainedModel):
         sequence_output = self.dropout(word_batch)
         logits = self.classifier(sequence_output)
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
-
+        print(len(logits), len(labels))
         if labels is not None:
             loss_fct = CrossEntropyLoss()
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
