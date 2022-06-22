@@ -80,7 +80,8 @@ class DataCollatorForWordClassification(DataCollatorMixin):
         if labels is None:
             return batch
         
-        print("shape: ", torch.tensor(batch["input_ids"]).shape)
+        print("shape: ", batch)
+        print("shape: ", batch["input_ids"].shape)
         sequence_length = torch.tensor(batch["input_ids"]).shape[1]
         padding_side = self.tokenizer.padding_side
         subword_to_word_ids_col = [feature["subword_to_word_ids"] for feature in features] if "subword_to_word_ids" in features[0].keys() else None
