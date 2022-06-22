@@ -82,7 +82,10 @@ class DataCollatorForWordClassification(DataCollatorMixin):
         
         for item in batch:
             print(item, "=>",batch[item])
-            print(len(batch[item]))
+            print(len(batch[item])' : ', end=" ")
+            for i in range(len(batch[item])):
+                print(len(batch[item][i]), end=" ")
+
         # print("shape: ", batch["input_ids"].shape)
         sequence_length = torch.tensor(batch["input_ids"]).shape[1]
         padding_side = self.tokenizer.padding_side
