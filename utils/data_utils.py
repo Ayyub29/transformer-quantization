@@ -82,7 +82,7 @@ class DataCollatorForWordClassification(DataCollatorMixin):
         
         for item in batch:
             print(item, "=>",batch[item])
-            print(len(batch[item])' : ', end=" ")
+            print(len(batch[item]),' : ', end=" ")
             for i in range(len(batch[item])):
                 print(len(batch[item][i]), end=" ")
 
