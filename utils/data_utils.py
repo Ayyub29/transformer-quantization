@@ -79,30 +79,27 @@ class DataCollatorForWordClassification(DataCollatorMixin):
 
         if labels is None:
             return batch
-        
-        for item in batch:
-            print(item, "=>",batch[item])
-            print(len(batch[item]),' : ', end=" ")
-            for i in range(len(batch[item])):
-                print(len(batch[item][i]), end=" ")
 
-        # print("shape: ", batch["input_ids"].shape)
         sequence_length = torch.tensor(batch["input_ids"]).shape[1]
         padding_side = self.tokenizer.padding_side
         subword_to_word_ids_col = [feature["subword_to_word_ids"] for feature in features] if "subword_to_word_ids" in features[0].keys() else None
-        
-        if ("subword_to_word_ids" in features[0].keys()):
-            batch["subword_to_word_ids"] = [
-                list(label) + [self.label_pad_token_id] * (sequence_length - len(label)) for label in subword_to_word_ids_col
+
+        if padding_side == "right":
+            batch[label_name] = [
+                list(label) + [self.label_pad_token_id] * (sequence_length - len(label)) for label in labels
             ]
-        # if padding_side == "right":
-        #     batch[label_name] = [
-        #         list(label) + [self.label_pad_token_id] * (sequence_length - len(label)) for label in labels
-        #     ]
-        # else:
-        #     batch[label_name] = [
-        #         [self.label_pad_token_id] * (sequence_length - len(label)) + list(label) for label in labels
-        #     ]
+            if ("subword_to_word_ids" in features[0].keys()):
+                batch["subword_to_word_ids"] = [
+                    list(label) + [self.label_pad_token_id] * (sequence_length - len(label)) for label in subword_to_word_ids_col
+                ]
+        else:
+            batch[label_name] = [
+                [self.label_pad_token_id] * (sequence_length - len(label)) + list(label) for label in labels
+            ]
+            if ("subword_to_word_ids" in features[0].keys()):
+                batch["subword_to_word_ids"] = [
+                    list(label) + [self.label_pad_token_id] * (sequence_length - len(label)) for label in subword_to_word_ids_col
+                ]
         
         batch = {k: torch.tensor(v, dtype=torch.int64) for k, v in batch.items()}
         return batch
