@@ -56,7 +56,7 @@ class DataCollatorForWordClassification(DataCollatorMixin):
     """
 
     tokenizer: BertTokenizer
-    padding: Union[bool, str, PaddingStrategy] = 'do_not_pad'
+    padding: Union[bool, str, PaddingStrategy] = True
     max_length: Optional[int] = None
     pad_to_multiple_of: Optional[int] = None
     label_pad_token_id: int = -100
@@ -95,14 +95,14 @@ class DataCollatorForWordClassification(DataCollatorMixin):
             batch["subword_to_word_ids"] = [
                 list(label) + [self.label_pad_token_id] * (sequence_length - len(label)) for label in subword_to_word_ids_col
             ]
-        if padding_side == "right":
-            batch[label_name] = [
-                list(label) + [self.label_pad_token_id] * (sequence_length - len(label)) for label in labels
-            ]
-        else:
-            batch[label_name] = [
-                [self.label_pad_token_id] * (sequence_length - len(label)) + list(label) for label in labels
-            ]
+        # if padding_side == "right":
+        #     batch[label_name] = [
+        #         list(label) + [self.label_pad_token_id] * (sequence_length - len(label)) for label in labels
+        #     ]
+        # else:
+        #     batch[label_name] = [
+        #         [self.label_pad_token_id] * (sequence_length - len(label)) + list(label) for label in labels
+        #     ]
         
         batch = {k: torch.tensor(v, dtype=torch.int64) for k, v in batch.items()}
         return batch
