@@ -163,8 +163,11 @@ class BertForWordClassification(BertPreTrainedModel):
 
         sequence_output = outputs[0]
         print("seq_output: ", sequence_output)
+        print("seq_output_shape: ", sequence_output.shape)
         print("subword: ",subword_to_word_ids)
+        print("subword_shape: ",subword_to_word_ids.shape)
         print("label: ",labels)
+        print("label_shape: ",labels.shape)
         print(subword_to_word_ids+"bacod")
         # average the token-level outputs to compute word-level representations
         # max_seq_len = subword_to_word_ids.max() + 1
