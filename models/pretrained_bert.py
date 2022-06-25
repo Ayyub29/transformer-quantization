@@ -166,6 +166,8 @@ class BertForWordClassification(BertPreTrainedModel):
         print("seq_output_shape: ", sequence_output.shape)
         print("subword: ",subword_to_word_ids)
         print("subword_shape: ",subword_to_word_ids.shape)
+        print("seq_output: ", sequence_output)
+        print("seq_output_shape: ", sequence_output.shape)
         print("label: ",labels)
         print("label_shape: ",labels.shape)
         # print(subword_to_word_ids+"bacod")

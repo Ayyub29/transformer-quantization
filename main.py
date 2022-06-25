@@ -276,7 +276,6 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         datasets = task_data.datasets.map(
             preprocess_fn_word, batched=True, load_from_cache_file=not config.data.overwrite_cache
         )
-        print("word" , datasets)
 
     train_dataset = datasets['train']
     logger.info('Example of dataset to be trained..: {features => dataset }')
@@ -294,6 +293,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             sep_pos_idx = tokens.index('[SEP]')
             len_ = len(tokens)
             logger.info(f'{i + 1}, {sep_pos_idx}, {len_}, {tokens}')
+
 
     word_data_collator = DataCollatorForWordClassification(tokenizer)
     
