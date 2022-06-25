@@ -92,6 +92,7 @@ class DataCollatorForWordClassification(DataCollatorMixin):
         padding_side = self.tokenizer.padding_side
         subword_to_word_ids_col = [feature["subword_to_word_ids"] for feature in features] if "subword_to_word_ids" in features[0].keys() else None
         max_label_length = max(map(lambda x: len(x), labels))
+        print("max_label_length", max_label_length)
         if padding_side == "right":
             batch[label_name] = [
                 list(label) + [self.label_pad_token_id] * (max_label_length - len(label)) for label in labels
