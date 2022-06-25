@@ -241,7 +241,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                     # ignored in the loss function.
                     if word_idx is None:
                         word_ids[idx] = -1
-                        label_ids.append(-100)
+                        # label_ids.append(-100)
                     # We set the label for the first token of each word.
                     elif word_idx != previous_word_idx:
                         label_ids.append(label[word_idx])
