@@ -69,13 +69,6 @@ class DataCollatorForWordClassification(DataCollatorMixin):
 
         label_name = "label" if "label" in features[0].keys() else "labels"
         labels = [feature[label_name] for feature in features] if label_name in features[0].keys() else None
-        
-        for item in features:
-            print(item, "=>",features[item])
-            print(len(features[item]),' : ', end=" ")
-            for i in range(len(features[item])):
-                print(len(features[item][i]), end=" ")
-            print()
 
         batch = self.tokenizer.pad(
             features,
@@ -85,6 +78,13 @@ class DataCollatorForWordClassification(DataCollatorMixin):
             # Conversion to tensors will fail if we have labels as they are not of the same length yet.
             return_tensors="pt" if labels is None else None,
         )
+
+        for item in batch:
+            print(item, "=>",batch[item])
+            print(len(batch[item]),' : ', end=" ")
+            for i in range(len(batch[item])):
+                print(len(batch[item][i]), end=" ")
+            print()
 
         if labels is None:
             return batch
