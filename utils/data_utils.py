@@ -70,6 +70,13 @@ class DataCollatorForWordClassification(DataCollatorMixin):
         label_name = "label" if "label" in features[0].keys() else "labels"
         labels = [feature[label_name] for feature in features] if label_name in features[0].keys() else None
         
+        for item in features:
+            print(item, "=>",features[item])
+            print(len(features[item]),' : ', end=" ")
+            for i in range(len(features[item])):
+                print(len(features[item][i]), end=" ")
+            print()
+
         batch = self.tokenizer.pad(
             features,
             padding=self.padding,
