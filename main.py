@@ -229,7 +229,8 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             )
             tokenized_inputs = tokenizer(*args, truncation=True, max_length=max_length, is_split_into_words=True)
 
-            sentences, seq_label = examples[task_data.sentence1_key], examples[TASK_LABELS[task]]
+            sentences = examples[task_data.sentence2_key] if task == INDONLU_Task.facqa else examples[task_data.sentence1_key]
+            seq_label = examples[TASK_LABELS[task]]
             # data['sentence'] = data['tokens']
             # data['seq_labels'] = data['ner_tags']
             # Add CLS token
