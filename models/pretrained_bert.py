@@ -171,10 +171,12 @@ class BertForWordClassification(BertPreTrainedModel):
         # print(subword_to_word_ids+"bacod")
         # average the token-level outputs to compute word-level representations
         max_seq_len = subword_to_word_ids.max() + 1
+        print(subword_to_word_ids.max())
         word_latents = []
         for i in range(max_seq_len):
             mask = (subword_to_word_ids == i).unsqueeze(dim=-1)
             word_latents.append((sequence_output * mask).sum(dim=1) / mask.sum())
+            print(i, "=>", word_latents)
         word_batch = torch.stack(word_latents, dim=1)
         print(word_batch.shape)
         # print(subword_to_word_ids)
