@@ -262,7 +262,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                     subwords += [tokenizer.sep_token_id]
                     subword_to_word_indices += [-1]
 
-                    subword_batch.append[subwords]
+                    subword_batch.append(subwords)
                     subword_to_word_indices_batch.append(subword_to_word_indices)
             else:
                 # Add subwords
@@ -273,11 +273,11 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                         subword_list = tokenizer.encode(word, add_special_tokens=False)
                         subword_to_word_indices += [word_idx for i in range(len(subword_list))]
                         subwords += subword_list
-                        
+
                     subwords += [tokenizer.sep_token_id]
                     subword_to_word_indices += [-1]
 
-                    subword_batch.append[subwords]
+                    subword_batch.append(subwords)
                     subword_to_word_indices_batch.append(subword_to_word_indices)
                 
             # Add last SEP token
