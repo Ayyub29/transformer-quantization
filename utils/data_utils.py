@@ -103,8 +103,10 @@ class DataCollatorForWordClassification(DataCollatorMixin):
                 batch["subword_to_word_ids"] = [
                     list(label) + [self.subword_pad_token_id] * (sequence_length - len(label)) for label in subword_to_word_ids_col
                 ]
-
-        batch = {k: torch.tensor(v, dtype=torch.int64) for k, v in batch.items()}
+        try:
+            batch = {k: torch.tensor(v, dtype=torch.int64) for k, v in batch.items()}
+        except:
+            print(batch)
         return batch
 
 @dataclass
