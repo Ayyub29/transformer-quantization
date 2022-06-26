@@ -238,7 +238,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             
             # Add subwords
             for sentence in sentences:
-                print(sentences)
+                print(sentence)
                 for word_idx, word in enumerate(sentence):
                     subword_list = tokenizer.encode(word, add_special_tokens=False)
                     subword_to_word_indices += [word_idx for i in range(len(subword_list))]
