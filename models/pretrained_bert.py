@@ -169,7 +169,7 @@ class BertForWordClassification(BertPreTrainedModel):
         for i in range(max_seq_len):
             mask = (subword_to_word_ids == i).unsqueeze(dim=-1)
             print(sequence_output.shape, mask.shape, subword_to_word_ids.shape)
-            print(subword_to_word_ids[i], sequence_output[i])
+            print(subword_to_word_ids[0][i], sequence_output[0][i])
             word_latents.append((sequence_output * mask).sum(dim=1) / mask.sum())
         word_batch = torch.stack(word_latents, dim=1)
 
