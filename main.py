@@ -276,6 +276,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 
             # Add last SEP token
             # subwords += [tokenizer.sep_token_id]
+            tokenized_inputs["subword"] = subwords
             tokenized_inputs["labels"] = seq_label
             tokenized_inputs["subword_to_word_ids"] = subword_to_word_indices_batch
             return tokenized_inputs
