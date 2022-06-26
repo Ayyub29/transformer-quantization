@@ -233,22 +233,23 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             # data['sentence'] = data['tokens']
             # data['seq_labels'] = data['ner_tags']
             # Add CLS token
-            subwords = [tokenizer.cls_token_id]
-            subword_to_word_indices = [-1] # For CLS
             
+            subword_to_word_indices_batch = []
             # Add subwords
             for sentence in sentences:
-                print(sentence)
+                subwords = [tokenizer.cls_token_id]
+                subword_to_word_indices = [-1] # For CLS
                 for word_idx, word in enumerate(sentence):
                     subword_list = tokenizer.encode(word, add_special_tokens=False)
                     subword_to_word_indices += [word_idx for i in range(len(subword_list))]
                     subwords += subword_list
+                subword_to_word_indices += [-1]
+                subword_to_word_indices_batch.append(subword_to_word_indices)
                 
             # Add last SEP token
             # subwords += [tokenizer.sep_token_id]
-            subword_to_word_indices += [-1]
             tokenized_inputs["labels"] = seq_label
-            tokenized_inputs["subword_to_word_ids"] = subword_to_word_indices
+            tokenized_inputs["subword_to_word_ids"] = subword_to_word_indices_batch
             return tokenized_inputs
         except Exception as err:
             print(err)
