@@ -227,6 +227,8 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                 if task_data.sentence2_key is None
                 else (examples[task_data.sentence1_key],examples[task_data.sentence2_key])
             )
+            tokenized_inputs = tokenizer(*args, truncation=True, max_length=max_length, is_split_into_words=True)
+            print(tokenized_inputs.keys())
             sentence, seq_label = examples[task_data.sentence1_key], examples[TASK_LABELS[task]]
             # Add CLS token
             subwords = [tokenizer.cls_token_id]
@@ -241,7 +243,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             # Add last SEP token
             subwords += [tokenizer.sep_token_id]
             subword_to_word_indices += [-1]
-            tokenized_inputs = tokenizer(*args, truncation=True, max_length=max_length, is_split_into_words=True)
+            # tokenized_inputs = tokenizer(*args, truncation=True, max_length=max_length, is_split_into_words=True)
             tokenized_inputs["labels"] = seq_label
             tokenized_inputs["subword_to_word_ids"] = subword_to_word_indices
             return tokenized_inputs
