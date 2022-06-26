@@ -231,7 +231,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             label_all_tokens = True
             labels = []
             subword_to_word_ids = []
-            print("examples: ",examples)
+            print("examples: ",examples.keys())
 
             for i, label in enumerate(examples[TASK_LABELS[task]]):
                 word_ids = tokenized_inputs.word_ids(batch_index=i)
