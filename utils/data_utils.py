@@ -79,13 +79,6 @@ class DataCollatorForWordClassification(DataCollatorMixin):
             return_tensors="pt" if labels is None else None,
         )
 
-        for item in batch:
-            print(item, "=>",batch[item])
-            print(len(batch[item]),' : ', end=" ")
-            for i in range(len(batch[item])):
-                print(len(batch[item][i]), end=" ")
-            print()
-
         if labels is None:
             return batch
                 
@@ -93,7 +86,7 @@ class DataCollatorForWordClassification(DataCollatorMixin):
         padding_side = self.tokenizer.padding_side
         subword_to_word_ids_col = [feature["subword_to_word_ids"] for feature in features] if "subword_to_word_ids" in features[0].keys() else None
         max_label_length = max(map(lambda x: len(x), batch[label_name]))
-        print("max_label_length", max_label_length)
+
         if padding_side == "right":
             batch[label_name] = [
                 list(label) + [self.label_pad_token_id] * (max_label_length - len(label)) for label in labels
@@ -110,13 +103,6 @@ class DataCollatorForWordClassification(DataCollatorMixin):
                 batch["subword_to_word_ids"] = [
                     list(label) + [self.subword_pad_token_id] * (sequence_length - len(label)) for label in subword_to_word_ids_col
                 ]
-
-        for item in batch:
-            print(item, "=>",batch[item])
-            print(len(batch[item]),' : ', end=" ")
-            for i in range(len(batch[item])):
-                print(len(batch[item][i]), end=" ")
-            print()
 
         batch = {k: torch.tensor(v, dtype=torch.int64) for k, v in batch.items()}
         return batch
