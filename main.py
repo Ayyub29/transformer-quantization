@@ -240,31 +240,28 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
                     # Add CLS token
                     subwords = [tokenizer.cls_token_id]
                     subword_to_word_indices = [-1] # For CLS
-                    token_type_ids = [0]
                     
                     # Add subwords for question
                     for word_idx, word in enumerate(question):
                         subword_list = tokenizer.encode(word, add_special_tokens=False)
                         subword_to_word_indices += [-1 for i in range(len(subword_list))]
-                        token_type_ids += [0 for i in range(len(subword_list))]
                         subwords += subword_list
                         
                     # Add intermediate SEP token
                     subwords += [tokenizer.sep_token_id]
                     subword_to_word_indices += [-1]
-                    token_type_ids += [0]
                     
                     # Add subwords
                     for word_idx, word in enumerate(sentence):
                         subword_list = tokenizer.encode(word, add_special_tokens=False)
                         subword_to_word_indices += [word_idx for i in range(len(subword_list))]
-                        token_type_ids += [1 for i in range(len(subword_list))]
                         subwords += subword_list
                         
                     # Add last SEP token
                     subwords += [tokenizer.sep_token_id]
                     subword_to_word_indices += [-1]
-                    token_type_ids += [1]
+
+                    subword_to_word_indices_batch.append(subword_to_word_indices)
             else:
                 # Add subwords
                 for sentence in sentences:
