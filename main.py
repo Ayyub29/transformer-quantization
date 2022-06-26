@@ -229,23 +229,53 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             )
             tokenized_inputs = tokenizer(*args, truncation=True, max_length=max_length, is_split_into_words=True)
 
-            sentences = examples[task_data.sentence2_key] if task == INDONLU_Task.facqa else examples[task_data.sentence1_key]
             seq_label = examples[TASK_LABELS[task]]
-            # data['sentence'] = data['tokens']
-            # data['seq_labels'] = data['ner_tags']
-            # Add CLS token
-            
+            questions = examples[task_data.sentence1_key]
+            sentences = examples[task_data.sentence2_key] if task == INDONLU_Task.facqa else examples[task_data.sentence1_key]
             subword_to_word_indices_batch = []
-            # Add subwords
-            for sentence in sentences:
-                subwords = [tokenizer.cls_token_id]
-                subword_to_word_indices = [-1] # For CLS
-                for word_idx, word in enumerate(sentence):
-                    subword_list = tokenizer.encode(word, add_special_tokens=False)
-                    subword_to_word_indices += [word_idx for i in range(len(subword_list))]
-                    subwords += subword_list
-                subword_to_word_indices += [-1]
-                subword_to_word_indices_batch.append(subword_to_word_indices)
+
+            if task_data.sentence2_key is not None:
+                # Add dummy subwords 
+                for question, sentence in zip(questions,sentences):
+                    # Add CLS token
+                    subwords = [tokenizer.cls_token_id]
+                    subword_to_word_indices = [-1] # For CLS
+                    token_type_ids = [0]
+                    
+                    # Add subwords for question
+                    for word_idx, word in enumerate(question):
+                        subword_list = tokenizer.encode(word, add_special_tokens=False)
+                        subword_to_word_indices += [-1 for i in range(len(subword_list))]
+                        token_type_ids += [0 for i in range(len(subword_list))]
+                        subwords += subword_list
+                        
+                    # Add intermediate SEP token
+                    subwords += [tokenizer.sep_token_id]
+                    subword_to_word_indices += [-1]
+                    token_type_ids += [0]
+                    
+                    # Add subwords
+                    for word_idx, word in enumerate(sentence):
+                        subword_list = tokenizer.encode(word, add_special_tokens=False)
+                        subword_to_word_indices += [word_idx for i in range(len(subword_list))]
+                        token_type_ids += [1 for i in range(len(subword_list))]
+                        subwords += subword_list
+                        
+                    # Add last SEP token
+                    subwords += [tokenizer.sep_token_id]
+                    subword_to_word_indices += [-1]
+                    token_type_ids += [1]
+            else:
+                # Add subwords
+                for sentence in sentences:
+                    subwords = [tokenizer.cls_token_id]
+                    subword_to_word_indices = [-1] # For CLS
+                    for word_idx, word in enumerate(sentence):
+                        subword_list = tokenizer.encode(word, add_special_tokens=False)
+                        subword_to_word_indices += [word_idx for i in range(len(subword_list))]
+                        subwords += subword_list
+                    subword_to_word_indices += [-1]
+                    subword_to_word_indices_batch.append(subword_to_word_indices)
                 
             # Add last SEP token
             # subwords += [tokenizer.sep_token_id]
@@ -271,7 +301,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
     train_dataset = datasets['train']
     logger.info('Example of dataset to be trained..: {features => dataset }')
     for features in train_dataset.features:
-        logger.info(f"{features} => {train_dataset[2][features]}")
+        logger.info(f"{features} [{len(train_dataset[2][features])}] => {train_dataset[2][features]}")
     eval_dataset = datasets['validation']
     
     if model_enum in (
