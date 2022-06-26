@@ -162,32 +162,20 @@ class BertForWordClassification(BertPreTrainedModel):
         )
 
         sequence_output = outputs[0]
-        print("seq_output: ", sequence_output)
-        print("seq_output_shape: ", sequence_output.shape)
-        print("subword: ",subword_to_word_ids)
-        print("subword_shape: ",subword_to_word_ids.shape)
-        print("label: ",labels)
-        print("label_shape: ",labels.shape)
-        # print(subword_to_word_ids+"bacod")
         # average the token-level outputs to compute word-level representations
         max_seq_len = subword_to_word_ids.max() + 1
-        print(subword_to_word_ids.max())
+
         word_latents = []
         for i in range(max_seq_len):
             mask = (subword_to_word_ids == i).unsqueeze(dim=-1)
             word_latents.append((sequence_output * mask).sum(dim=1) / mask.sum())
         word_batch = torch.stack(word_latents, dim=1)
-        print(word_batch.shape)
-        # print(subword_to_word_ids)
-        # print(labels)
+
         # sequence_output = self.dropout(outputs[0])
         sequence_output = self.dropout(word_batch)
-        print("seq_output_changed: ", sequence_output)
-        print("seq_output_shape_changed: ", sequence_output.shape)
         logits = self.classifier(sequence_output)
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
-        # print(logits.shape)
-        # print(labels.shape)
+
         if labels is not None:
             loss_fct = CrossEntropyLoss()
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
