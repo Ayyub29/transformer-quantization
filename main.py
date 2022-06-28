@@ -760,7 +760,6 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
             eval_dataset = eval_dataset.select(range(n))
 
         eval_result = trainer.evaluate(eval_dataset=eval_dataset)
-        neptune.log_metric('epoch',eval_result['eval_loss'])
         # print_summary(eval_result)
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
