@@ -9,7 +9,7 @@ import os
 import random
 import warnings
 from models.quantized_bert import QuantizedBertForMultiLabelClassification
-
+import neptune.new as neptune
 from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
 
 warnings.filterwarnings('ignore')  # ignore TF warnings
@@ -95,17 +95,6 @@ def indonlu():
 
 # show default values for all options
 click.option = partial(click.option, show_default=True)
-
-# def print_gpu_utilization():
-#     nvmlInit()
-#     handle = nvmlDeviceGetHandleByIndex(0)
-#     info = nvmlDeviceGetMemoryInfo(handle)
-#     print(f"GPU memory occupied: {info.used//1024**2} MB.")
-
-# def print_summary(result):
-#     print(f"Time: {result.metrics['train_runtime']:.2f}")
-#     print(f"Samples/second: {result.metrics['train_samples_per_second']:.2f}")
-#     print_gpu_utilization()
 
 def _is_non_empty_dir(path):
     return path.exists() and len(list(path.iterdir()))
@@ -760,7 +749,12 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     # if task == INDONLU_Task.wrete:
     #     subtask_names.append('mnli-mm')
     #     eval_datasets.append(datasets['validation_mismatched'])
+    run = neptune.init(
+        project="ayyub29/Transformer-Quantization",
+        api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiIxNTMxODRhNC01NDVkLTQ4YzYtOTU5Ni03NDA2MjY5MzU0NTUifQ==",
+    )
 
+    neptune.create_experiment()
     subtask_final_scores = []
     for subtask, eval_dataset in zip(subtask_names, eval_datasets):
         if config.data.num_val_samples is not None:
@@ -768,6 +762,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
             eval_dataset = eval_dataset.select(range(n))
 
         eval_result = trainer.evaluate(eval_dataset=eval_dataset)
+        neptune.log_metric('epoch',eval_result['eval_loss'])
         # print_summary(eval_result)
         # log eval results
         logger.info(f'***** Eval results {subtask} *****')
