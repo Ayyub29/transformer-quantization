@@ -9,7 +9,7 @@ import os
 import random
 import warnings
 from models.quantized_bert import QuantizedBertForMultiLabelClassification
-import neptune.new as neptune
+import tracemalloc
 from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
 
 warnings.filterwarnings('ignore')  # ignore TF warnings
@@ -711,7 +711,10 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     if config.training.do_train:
         logger.info('*** Training ***')
+        # starting the monitoring
+        tracemalloc.start()
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
+        print("Memory Used: ", tracemalloc.get_traced_memory())
         # print_summary(result)
         if config.progress.save_model:
             trainer.save_model()  # saves the tokenizer too
@@ -749,12 +752,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     # if task == INDONLU_Task.wrete:
     #     subtask_names.append('mnli-mm')
     #     eval_datasets.append(datasets['validation_mismatched'])
-    run = neptune.init(
-        project="ayyub29/Transformer-Quantization",
-        api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiIxNTMxODRhNC01NDVkLTQ4YzYtOTU5Ni03NDA2MjY5MzU0NTUifQ==",
-    )
 
-    neptune.create_experiment()
     subtask_final_scores = []
     for subtask, eval_dataset in zip(subtask_names, eval_datasets):
         if config.data.num_val_samples is not None:
