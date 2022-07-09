@@ -225,7 +225,7 @@ def check_memory_and_inference_time(config, task):
             subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
             label = torch.LongTensor(label).view(1, -1).to(model.device)
         else:
-            text = tokenizer.encode(sentence)
+            text = tokenizer(sentence, truncation=True, is_split_into_words=True)
             subwords, subword_to_word_indices = word_subword_tokenize(text, tokenizer)
 
             subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
