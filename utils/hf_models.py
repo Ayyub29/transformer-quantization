@@ -169,10 +169,11 @@ def check_memory_and_inference_time(config, task, dataset):
     text = 'Budi pergi ke pondok indah mall membeli cakwe'
     subwords = tokenizer.encode(text)
     subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+    labels = torch.LongTensor(1)
     # Forward model
     outputs = model(subwords)
     loss, logits = outputs[:2]
-    forward_memory = checkpoint("Forwarding the Model")
+    # forward_memory = checkpoint("Forwarding the Model")
     # optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
     # optimizer.zero_grad()
     # loss.backward()
