@@ -166,20 +166,25 @@ def check_memory_and_inference_time(config, task, has_Trained):
         output_dir = HF_Models[config.model.model_name].value
     tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
-    print(dataset.datasets['train'][1])
+    is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
+    is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
     
+    if is_text_class_task:
+        start_memory = checkpoint("Starting Point")
+        model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+        model.eval()
+        load_memory = checkpoint("Loading the Model")
+        
+        subwords = tokenizer.encode(dataset.datasets['train'][1][dataset.sentence1_key])
+        subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+        label = torch.LongTensor([dataset.datasets['train'][1]['label']])
+        outputs = model(subwords, labels=label)
+        loss, logits = outputs[:2]
+        forward_memory = checkpoint("Forwarding the Model")
 
-    # start_memory = checkpoint("Starting Point")
-    # model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-    # model.eval()
-    # load_memory = checkpoint("Loading the Model")
-    # # Forward model
-    # outputs = model(subwords, labels=label)
-    # loss, logits = outputs[:2]
-    # forward_memory = checkpoint("Forwarding the Model")
-    # optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
-    # optimizer.zero_grad()
-    # loss.backward()
-    # optimizer.step()
-    # backward_memory = checkpoint("Backwarding the Model")
+        optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        backward_memory = checkpoint("Backwarding the Model")
     
