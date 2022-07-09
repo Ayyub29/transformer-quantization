@@ -162,6 +162,7 @@ def checkpoint(point=""):
     return usage 
 
 def check_memory_and_inference_time(config, task, has_Trained):
+    print("Checking Model..")
     output_dir = config.base.output_dir if has_Trained else config.model.model_path
     if output_dir is not None:
         output_dir = os.path.join(output_dir, 'out')
@@ -196,6 +197,7 @@ def check_memory_and_inference_time(config, task, has_Trained):
             if (i == 0):
                 forward_memory = checkpoint("Forwarding the Model")
             forward_time = time.time() - start_time
+            time_after_forward = time.time()
 
             #Backward
             optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
@@ -204,9 +206,10 @@ def check_memory_and_inference_time(config, task, has_Trained):
             optimizer.step()
             if (i == 0):
                 backward_memory = checkpoint("Backwarding the Model")
-            backward_time = time.time() - forward_time
+            backward_time = time.time() - time_after_forward
             
             index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
             print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
             print(f'Memory Used: Start {load_memory[2]/1024.0} mb | Dataset {dataset_memory[2]/1024.0} mb | Forward {forward_memory[2]/1024.0} mb | Backward {backward_memory[2]/1024.0} mb  ')
             print(f'Time: Forward {forward_time} s | Backward {backward_time} s')
+            print()
