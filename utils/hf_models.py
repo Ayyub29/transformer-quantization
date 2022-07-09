@@ -207,7 +207,7 @@ def check_memory_and_inference_time(config, task):
 
             #Forward
             start_time = time.time()
-            outputs = model(subwords, labels=label)
+            outputs = model(subwords)
             loss, logits = outputs[:2]
             forward_memory = checkpoint("Forwarding the Model")
             forward_memory_arr.append((forward_memory[2]/1024.0) - (dataset_memory[2]/1024.0))
