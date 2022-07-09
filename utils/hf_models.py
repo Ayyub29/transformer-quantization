@@ -154,6 +154,9 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
     out.backbone_attr = MODEL_TO_BACKBONE_ATTR.get(out.model_enum, None)
     return out
 
+def Average(lst):
+    return sum(lst) / len(lst)
+
 def checkpoint(point=""):
     usage=resource.getrusage(resource.RUSAGE_SELF)
     # print('''%s: usertime=%s systime=%s mem=%s mb
@@ -172,7 +175,13 @@ def check_memory_and_inference_time(config, task, has_Trained):
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
-    
+
+    load_memory_arr = []
+    forward_memory_arr = []
+    backward_memory_arr = []
+    forward_time_arr = []
+    backward_time_arr = []
+
     if is_text_class_task:
         for i in range(10):
             start_memory = checkpoint("Starting Point")
@@ -180,23 +189,24 @@ def check_memory_and_inference_time(config, task, has_Trained):
             #Load
             model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=has_Trained)
             model.eval()
-            if (i == 0):
-                load_memory = checkpoint("Loading the Model")
+            load_memory = checkpoint("Loading the Model")
+            load_memory_arr.append((load_memory[2]/1024.0) - (start_memory[2]/1024.0))
+
             sentence = dataset.datasets['train'][i][dataset.sentence1_key]
             label = [dataset.datasets['train'][i]['label']]
             subwords = tokenizer.encode(sentence)
             subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
             label = torch.LongTensor(label)
-            if (i == 0):
-                dataset_memory = checkpoint("Loading the Dataset")
+            dataset_memory = checkpoint("Loading the Dataset")
 
             #Forward
             start_time = time.time()
             outputs = model(subwords, labels=label)
             loss, logits = outputs[:2]
-            if (i == 0):
-                forward_memory = checkpoint("Forwarding the Model")
+            forward_memory = checkpoint("Forwarding the Model")
+            forward_memory_arr.append((forward_memory[2]/1024.0) - (dataset_memory[2]/1024.0))
             forward_time = time.time() - start_time
+            forward_time_arr.append(forward_time)
             time_after_forward = time.time()
 
             #Backward
@@ -204,12 +214,17 @@ def check_memory_and_inference_time(config, task, has_Trained):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            if (i == 0):
-                backward_memory = checkpoint("Backwarding the Model")
+            backward_memory = checkpoint("Backwarding the Model")
+            backward_memory_arr.append((backward_memory[2]/1024.0) - (dataset_memory[2]/1024.0))
             backward_time = time.time() - time_after_forward
+            backward_time_arr.append(backward_time)
             
             index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
             print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
-            print(f'Memory Used: Start {load_memory[2]/1024.0} mb | Dataset {dataset_memory[2]/1024.0} mb | Forward {forward_memory[2]/1024.0} mb | Backward {backward_memory[2]/1024.0} mb  ')
+            print(f'Memory Used: Load {load_memory[2]/1024.0 - (start_memory[2]/1024.0)} mb | Forward {forward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb | Backward {backward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb')
             print(f'Time: Forward {forward_time} s | Backward {backward_time} s')
             print()
+        print("Average: ")
+        print(f'Memory Used: Load {Average(load_memory_arr)} mb | Forward {Average(forward_memory_arr)} mb | Backward {Average(backward_memory_arr)} mb  ')
+        print(f'Time: Forward {Average(forward_time_arr)} s | Backward {Average(backward_time_arr)} s')
+        print()
