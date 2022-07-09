@@ -158,7 +158,7 @@ def checkpoint(point=""):
                 usage[2]/1024.0 ))
     return usage 
 
-def check_memory_and_inference_time(config, task, dataset, has_Trained):
+def check_memory_and_inference_time(config, task, has_Trained):
     output_dir = config.base.output_dir if has_Trained else config.model.model_path
     if output_dir is not None:
         output_dir = os.path.join(output_dir, 'out')
@@ -168,17 +168,18 @@ def check_memory_and_inference_time(config, task, dataset, has_Trained):
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
     print(dataset.dataset)
     
-    start_memory = checkpoint("Starting Point")
-    model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-    model.eval()
-    load_memory = checkpoint("Loading the Model")
-    # Forward model
-    outputs = model(subwords, labels=label)
-    loss, logits = outputs[:2]
-    forward_memory = checkpoint("Forwarding the Model")
-    optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-    backward_memory = checkpoint("Backwarding the Model")
+
+    # start_memory = checkpoint("Starting Point")
+    # model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+    # model.eval()
+    # load_memory = checkpoint("Loading the Model")
+    # # Forward model
+    # outputs = model(subwords, labels=label)
+    # loss, logits = outputs[:2]
+    # forward_memory = checkpoint("Forwarding the Model")
+    # optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
+    # optimizer.zero_grad()
+    # loss.backward()
+    # optimizer.step()
+    # backward_memory = checkpoint("Backwarding the Model")
     

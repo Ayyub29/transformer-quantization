@@ -729,7 +729,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     # if task == INDONLU_Task.wrete:
     #     subtask_names.append('mnli-mm')
     #     eval_datasets.append(datasets['validation_mismatched'])
-    check_memory_and_inference_time(config, task, eval_dataset, True)
+    check_memory_and_inference_time(config, task, True)
 
     subtask_final_scores = []
     for subtask, eval_dataset in zip(subtask_names, eval_datasets):
@@ -805,7 +805,8 @@ def _run(config):
                 if config.base.output_dir is None:
                     task_config.base.output_dir = task_out_dirpath
                 task_config.model.model_path = task_out_dirpath
-
+        #initial state
+        check_memory_and_inference_time(task_config, task, False)
         # load data
         task_data = load_task_data_indonlu(task=task, data_dir=task_config.indonlu.data_dir)
         # load model and tokenizer
