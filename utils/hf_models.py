@@ -270,7 +270,7 @@ def check_memory_and_inference_time(config, task):
             preds = torch.topk(logits, k=1, dim=-1)[1].squeeze().numpy()
             labels = [TASK_INDEX2LABEL[task][preds[i]] for i in range(len(preds))]
             for idx,word in enumerate(sentence):
-                print(f'words {word} label: {labels[idx]}')
+                print(f'{word} | {labels[idx]}')
         print(f'Memory Used: Load {load_memory[2]/1024.0 - (start_memory[2]/1024.0)} mb | Forward {forward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb | Backward {backward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb')
         print(f'Time: Forward {forward_time} s | Backward {backward_time} s')
         print()
