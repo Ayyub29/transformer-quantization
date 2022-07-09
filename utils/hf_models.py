@@ -166,8 +166,13 @@ def check_memory_and_inference_time(config, task, dataset):
     start_memory = checkpoint("Starting Point")
     model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
     load_memory = checkpoint("Loading the Model")
+
+    text = 'Budi pergi ke pondok indah mall membeli cakwe'
+    subwords = tokenizer.encode(text)
+    subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+    label = 1
     # Forward model
-    outputs = model(dataset[2]['input_ids'], attention_mask=dataset[2]['attention_mask'], token_type_ids=dataset[2]['token_type_ids'], labels=dataset[2]['label'])
+    outputs = model(subwords, labels=label)
     loss, logits = outputs[:2]
     forward_memory = checkpoint("Forwarding the Model")
     optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
