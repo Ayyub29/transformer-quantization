@@ -196,7 +196,7 @@ def check_memory_and_inference_time(config, task):
                 label_id = []
                 for feature in TASK_MULTILABELS[task]:
                     label_id.append(dataset.datasets['train'][i][feature])
-                label = [label_id]
+                label = label_id
             elif is_text_class_task:
                 label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
             subwords = tokenizer.encode(sentence)
