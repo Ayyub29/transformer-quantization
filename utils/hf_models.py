@@ -159,10 +159,24 @@ def Average(lst):
 
 def checkpoint(point=""):
     usage=resource.getrusage(resource.RUSAGE_SELF)
-    # print('''%s: usertime=%s systime=%s mem=%s mb
-    #        '''%(point,usage[0],usage[1],
-    #             usage[2]/1024.0 ))
     return usage 
+
+def word_subword_tokenize(sentence, tokenizer):
+    # Add CLS token
+    subwords = [tokenizer.cls_token_id]
+    subword_to_word_indices = [-1] # For CLS
+
+    # Add subwords
+    for word_idx, word in enumerate(sentence):
+        subword_list = tokenizer.encode(word, add_special_tokens=False)
+        subword_to_word_indices += [word_idx for i in range(len(subword_list))]
+        subwords += subword_list
+
+    # Add last SEP token
+    subwords += [tokenizer.sep_token_id]
+    subword_to_word_indices += [-1]
+
+    return subwords, subword_to_word_indices
 
 def check_memory_and_inference_time(config, task):
     print("Checking Model..")
@@ -174,74 +188,88 @@ def check_memory_and_inference_time(config, task):
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
-
+    is_token_class_task = task == INDONLU_Task.bapos or task == INDONLU_Task.keps or task == INDONLU_Task.nergrit or task == INDONLU_Task.nerp or task == INDONLU_Task.posp or task == INDONLU_Task.terma
     load_memory_arr = []
     forward_memory_arr = []
     backward_memory_arr = []
     forward_time_arr = []
     backward_time_arr = []
 
-    if is_text_class_task or is_multilabel_class_task:
-        for i in range(10):
-            start_memory = checkpoint("Starting Point")
+    for i in range(10):
+        start_memory = checkpoint("Starting Point")
 
-            #Load
-            if is_text_class_task: 
-                model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-            elif is_multilabel_class_task:
-                model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
-                
-            model.eval()
-            load_memory = checkpoint("Loading the Model")
-            load_memory_arr.append((load_memory[2]/1024.0) - (start_memory[2]/1024.0))
+        #Load
+        if is_text_class_task: 
+            model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+        elif is_multilabel_class_task:
+            model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
+        else:
+            model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
+            
+        model.eval()
+        load_memory = checkpoint("Loading the Model")
+        load_memory_arr.append((load_memory[2] - start_memory[2])/1024.0)
 
-            sentence = dataset.datasets['train'][i][dataset.sentence1_key]
-            if is_multilabel_class_task:
-                label_id = []
-                for feature in TASK_MULTILABELS[task]:
-                    label_id.append(dataset.datasets['train'][i][feature])
-                label = [label_id]
-            elif is_text_class_task:
-                label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
+        sentence = dataset.datasets['train'][i][dataset.sentence1_key]
+        if is_multilabel_class_task:
+            label_id = []
+            for feature in TASK_MULTILABELS[task]:
+                label_id.append(dataset.datasets['train'][i][feature])
+            label = [label_id]
             subwords = tokenizer.encode(sentence)
             subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
             label = torch.LongTensor(label).view(1, -1).to(model.device)
-            # print(label.size(), subwords.size())
-            dataset_memory = checkpoint("Loading the Dataset")
+        elif is_text_class_task:
+            label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
+            subwords = tokenizer.encode(sentence)
+            subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+            label = torch.LongTensor(label).view(1, -1).to(model.device)
+        else:
+            text = tokenizer.encode(sentence)
+            subwords, subword_to_word_indices = word_subword_tokenize(text, tokenizer)
 
-            #Forward
-            start_time = time.time()
+            subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+            subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
+            label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
+            label = torch.LongTensor(label).view(1, -1).to(model.device)
+
+        # print(label.size(), subwords.size())
+        dataset_memory = checkpoint("Loading the Dataset")
+
+        #Forward
+        start_time = time.time()
+        if is_multilabel_class_task or is_text_class_task:
             outputs = model(subwords, labels=label)
-            loss, logits = outputs[:2]
-            forward_memory = checkpoint("Forwarding the Model")
-            forward_memory_arr.append((forward_memory[2]/1024.0) - (dataset_memory[2]/1024.0))
-            forward_time = time.time() - start_time
-            forward_time_arr.append(forward_time)
-            time_after_forward = time.time()
+        else:
+            outputs = model(subwords, subword_to_word_indices, labels=label)
+        loss, logits = outputs[:2]
+        forward_memory = checkpoint("Forwarding the Model")
+        forward_memory_arr.append((forward_memory[2] - dataset_memory[2])/1024.0)
+        forward_time = time.time() - start_time
+        forward_time_arr.append(forward_time)
+        time_after_forward = time.time()
 
-            #Backward
-            optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            backward_memory = checkpoint("Backwarding the Model")
-            backward_memory_arr.append((backward_memory[2]/1024.0) - (dataset_memory[2]/1024.0))
-            backward_time = time.time() - time_after_forward
-            backward_time_arr.append(backward_time)
-            if (is_text_class_task):
-                index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
-                print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
-            elif is_multilabel_class_task:
-                index = [torch.topk(logit, k=1, dim=-1)[1].squeeze().item() for logit in logits]
-                print(f'Text: {sentence}')
-                for i, label in enumerate(index):
-                    print(f'Label `{TASK_MULTILABELS[task][i]}` : {TASK_INDEX2LABEL[task][label]} ({F.softmax(logits[i], dim=-1).squeeze()[label] * 100:.3f}%)')
-            print(f'Memory Used: Load {load_memory[2]/1024.0 - (start_memory[2]/1024.0)} mb | Forward {forward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb | Backward {backward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb')
-            print(f'Time: Forward {forward_time} s | Backward {backward_time} s')
-            print()
-        print("Average: ")
-        print(f'Memory Used: Load {Average(load_memory_arr)} mb | Forward {Average(forward_memory_arr)} mb | Backward {Average(backward_memory_arr)} mb  ')
-        print(f'Time: Forward {Average(forward_time_arr)} s | Backward {Average(backward_time_arr)} s')
+        #Backward
+        optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        backward_memory = checkpoint("Backwarding the Model")
+        backward_memory_arr.append((backward_memory[2]- dataset_memory[2])/1024.0)
+        backward_time = time.time() - time_after_forward
+        backward_time_arr.append(backward_time)
+        if (is_text_class_task):
+            index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+            print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
+        elif is_multilabel_class_task:
+            index = [torch.topk(logit, k=1, dim=-1)[1].squeeze().item() for logit in logits]
+            print(f'Text: {sentence}')
+            for i, label in enumerate(index):
+                print(f'Label `{TASK_MULTILABELS[task][i]}` : {TASK_INDEX2LABEL[task][label]} ({F.softmax(logits[i], dim=-1).squeeze()[label] * 100:.3f}%)')
+        print(f'Memory Used: Load {load_memory[2]/1024.0 - (start_memory[2]/1024.0)} mb | Forward {forward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb | Backward {backward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb')
+        print(f'Time: Forward {forward_time} s | Backward {backward_time} s')
         print()
-    else:
-        pass
+    print("Average: ")
+    print(f'Memory Used: Load {Average(load_memory_arr)} mb | Forward {Average(forward_memory_arr)} mb | Backward {Average(backward_memory_arr)} mb  ')
+    print(f'Time: Forward {Average(forward_time_arr)} s | Backward {Average(backward_time_arr)} s')
+    print()
