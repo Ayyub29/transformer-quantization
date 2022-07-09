@@ -10,7 +10,7 @@ from enum import Enum
 
 from transformers import BertForSequenceClassification, AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
-from utils.indonlu_task import INDONLU_Task, TASK_INDEX2LABEL
+from utils.indonlu_task import INDONLU_Task, TASK_INDEX2LABEL, load_task_data_indonlu
 
 from utils.utils import count_embedding_params, count_params, DotDict
 logger = logging.getLogger('INDO_NLU')
@@ -165,14 +165,13 @@ def check_memory_and_inference_time(config, task, dataset, has_Trained):
     else:
         output_dir = HF_Models[config.model.model_name].value
     tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
+    dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
+    print(dataset.dataset)
+    
     start_memory = checkpoint("Starting Point")
     model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
     model.eval()
     load_memory = checkpoint("Loading the Model")
-    text = 'Budi pergi ke pondok indah mall membeli cakwe'
-    subwords = tokenizer.encode(text)
-    subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-    label = torch.LongTensor([1])
     # Forward model
     outputs = model(subwords, labels=label)
     loss, logits = outputs[:2]
