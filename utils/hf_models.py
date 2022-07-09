@@ -175,7 +175,7 @@ def check_memory_and_inference_time(config, task, has_Trained):
             start_memory = checkpoint("Starting Point")
 
             #Load
-            model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+            model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=has_Trained)
             model.eval()
             load_memory = checkpoint("Loading the Model")
             
