@@ -163,16 +163,16 @@ def check_memory_and_inference_time(config, task, dataset):
     if output_dir is not None:
         output_dir = os.path.join(output_dir, 'out')
     tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
-    checkpoint("Starting Point")
+    start_memory = checkpoint("Starting Point")
     model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-    checkpoint("Loading the Model")
+    load_memory = checkpoint("Loading the Model")
     # Forward model
     outputs = model(dataset[0]['input_ids'], attention_mask=dataset[0]['attention_mask'], token_type_ids=dataset[0]['token_type_ids'], labels=dataset[0]['label'])
     loss, logits = outputs[:2]
-    checkpoint("Forwarding the Model")
+    forward_memory = checkpoint("Forwarding the Model")
     optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-    checkpoint("Backwarding the Model")
+    backward_memory = checkpoint("Backwarding the Model")
     
