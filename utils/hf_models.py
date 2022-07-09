@@ -186,7 +186,11 @@ def check_memory_and_inference_time(config, task):
             start_memory = checkpoint("Starting Point")
 
             #Load
-            model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+            if is_text_class_task: 
+                model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+            elif is_multilabel_class_task:
+                model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
+                
             model.eval()
             load_memory = checkpoint("Loading the Model")
             load_memory_arr.append((load_memory[2]/1024.0) - (start_memory[2]/1024.0))
@@ -196,7 +200,7 @@ def check_memory_and_inference_time(config, task):
                 label_id = []
                 for feature in TASK_MULTILABELS[task]:
                     label_id.append(dataset.datasets['train'][i][feature])
-                label = label_id
+                label = [label_id]
             elif is_text_class_task:
                 label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
             subwords = tokenizer.encode(sentence)
