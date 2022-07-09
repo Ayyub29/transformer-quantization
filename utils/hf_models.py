@@ -201,7 +201,7 @@ def check_memory_and_inference_time(config, task):
                 label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
             subwords = tokenizer.encode(sentence)
             subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-            label = torch.LongTensor(label)
+            label = torch.LongTensor(label).view(1, -1).to(model.device)
             print(label.size(), subwords.size())
             dataset_memory = checkpoint("Loading the Dataset")
 
