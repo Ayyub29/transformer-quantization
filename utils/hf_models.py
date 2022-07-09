@@ -172,7 +172,7 @@ def check_memory_and_inference_time(config, task, dataset, has_Trained):
     text = 'Budi pergi ke pondok indah mall membeli cakwe'
     subwords = tokenizer.encode(text)
     subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-    label = torch.LongTensor(1)
+    label = torch.LongTensor([1])
     # Forward model
     outputs = model(subwords, labels=label)
     # loss, logits = outputs[:2]
