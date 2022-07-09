@@ -6,6 +6,7 @@ import os
 from re import I
 import resource
 import torch 
+import time
 
 from enum import Enum
 
@@ -154,9 +155,9 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
 
 def checkpoint(point=""):
     usage=resource.getrusage(resource.RUSAGE_SELF)
-    print('''%s: usertime=%s systime=%s mem=%s mb
-           '''%(point,usage[0],usage[1],
-                usage[2]/1024.0 ))
+    # print('''%s: usertime=%s systime=%s mem=%s mb
+    #        '''%(point,usage[0],usage[1],
+    #             usage[2]/1024.0 ))
     return usage 
 
 def check_memory_and_inference_time(config, task, has_Trained):
@@ -177,22 +178,34 @@ def check_memory_and_inference_time(config, task, has_Trained):
             #Load
             model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=has_Trained)
             model.eval()
-            load_memory = checkpoint("Loading the Model")
-            
-            subwords = tokenizer.encode(dataset.datasets['train'][i][dataset.sentence1_key])
+            if (i == 0):
+                load_memory = checkpoint("Loading the Model")
+            sentence = dataset.datasets['train'][i][dataset.sentence1_key]
+            label = [dataset.datasets['train'][i]['label']]
+            subwords = tokenizer.encode(sentence)
             subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-            label = torch.LongTensor([dataset.datasets['train'][i]['label']])
-            load_memory = checkpoint("Loading the Dataset")
+            label = torch.LongTensor(label)
+            if (i == 0):
+                dataset_memory = checkpoint("Loading the Dataset")
 
             #Forward
+            start_time = time.time()
             outputs = model(subwords, labels=label)
             loss, logits = outputs[:2]
-            forward_memory = checkpoint("Forwarding the Model")
+            if (i == 0):
+                forward_memory = checkpoint("Forwarding the Model")
+            forward_time = time.time() - start_time
 
             #Backward
             optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            backward_memory = checkpoint("Backwarding the Model")
-    
+            if (i == 0):
+                backward_memory = checkpoint("Backwarding the Model")
+            backward_time = time.time() - forward_time
+            
+            index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+            print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
+            print(f'Memory Used: Start {load_memory[2]/1024.0} mb | Dataset {dataset_memory[2]/1024.0} mb | Forward {forward_memory[2]/1024.0} mb | Backward {backward_memory[2]/1024.0} mb  ')
+            print(f'Time: Forward {forward_time} s | Backward {forward_time} s')
