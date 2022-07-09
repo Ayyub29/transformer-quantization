@@ -5,6 +5,9 @@ import logging
 import os
 import torch
 import torch.nn.functional as F
+import tracemalloc
+from collections import Counter
+import linecache
 
 from enum import Enum
 
@@ -151,7 +154,33 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
     out.backbone_attr = MODEL_TO_BACKBONE_ATTR.get(out.model_enum, None)
     return out
 
+def display_top(snapshot, key_type='lineno', limit=3):
+    snapshot = snapshot.filter_traces((
+        tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
+        tracemalloc.Filter(False, "<unknown>"),
+    ))
+    top_stats = snapshot.statistics(key_type)
+
+    print("Top %s lines" % limit)
+    for index, stat in enumerate(top_stats[:limit], 1):
+        frame = stat.traceback[0]
+        # replace "/path/to/module/file.py" with "module/file.py"
+        filename = os.sep.join(frame.filename.split(os.sep)[-2:])
+        print("#%s: %s:%s: %.1f KiB"
+              % (index, filename, frame.lineno, stat.size / 1024))
+        line = linecache.getline(frame.filename, frame.lineno).strip()
+        if line:
+            print('    %s' % line)
+
+    other = top_stats[limit:]
+    if other:
+        size = sum(stat.size for stat in other)
+        print("%s other: %.1f KiB" % (len(other), size / 1024))
+    total = sum(stat.size for stat in top_stats)
+    print("Total allocated size: %.1f KiB" % (total / 1024))
+
 def check_memory_and_inference_time(config, task):
+    tracemalloc.start()
     output_dir = config.base.output_dir
     if output_dir is not None:
         output_dir = os.path.join(output_dir, 'out')
@@ -170,3 +199,6 @@ def check_memory_and_inference_time(config, task):
         index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
     
         print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
+
+    snapshot = tracemalloc.take_snapshot()
+    display_top(snapshot)
