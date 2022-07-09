@@ -166,7 +166,7 @@ def check_memory_and_inference_time(config, task, has_Trained):
         output_dir = HF_Models[config.model.model_name].value
     tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
-    print(dataset.datasets)
+    print(dataset.datasets['train'][1])
     
 
     # start_memory = checkpoint("Starting Point")
