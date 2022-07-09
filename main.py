@@ -806,7 +806,7 @@ def _run(config):
                     task_config.base.output_dir = task_out_dirpath
                 task_config.model.model_path = task_out_dirpath
         #initial state
-        check_memory_and_inference_time(task_config, task, False)
+        # check_memory_and_inference_time(task_config, task, False)
         # load data
         task_data = load_task_data_indonlu(task=task, data_dir=task_config.indonlu.data_dir)
         # load model and tokenizer
