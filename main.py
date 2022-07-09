@@ -729,7 +729,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     # if task == INDONLU_Task.wrete:
     #     subtask_names.append('mnli-mm')
     #     eval_datasets.append(datasets['validation_mismatched'])
-    check_memory_and_inference_time(config, task, True)
+    check_memory_and_inference_time(config, task)
 
     subtask_final_scores = []
     for subtask, eval_dataset in zip(subtask_names, eval_datasets):
