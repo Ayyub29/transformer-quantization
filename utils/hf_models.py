@@ -164,13 +164,12 @@ def checkpoint(point=""):
     #             usage[2]/1024.0 ))
     return usage 
 
-def check_memory_and_inference_time(config, task, has_Trained):
+def check_memory_and_inference_time(config, task):
     print("Checking Model..")
-    output_dir = config.base.output_dir if has_Trained else config.model.model_path
+    output_dir = config.base.output_dir
     if output_dir is not None:
         output_dir = os.path.join(output_dir, 'out')
-    else:
-        output_dir = HF_Models[config.model.model_name].value
+    
     tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
@@ -182,12 +181,12 @@ def check_memory_and_inference_time(config, task, has_Trained):
     forward_time_arr = []
     backward_time_arr = []
 
-    if is_text_class_task:
+    if is_text_class_task or is_multilabel_class_task:
         for i in range(10):
             start_memory = checkpoint("Starting Point")
 
             #Load
-            model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=has_Trained)
+            model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
             model.eval()
             load_memory = checkpoint("Loading the Model")
             load_memory_arr.append((load_memory[2]/1024.0) - (start_memory[2]/1024.0))
@@ -228,3 +227,5 @@ def check_memory_and_inference_time(config, task, has_Trained):
         print(f'Memory Used: Load {Average(load_memory_arr)} mb | Forward {Average(forward_memory_arr)} mb | Backward {Average(backward_memory_arr)} mb  ')
         print(f'Time: Forward {Average(forward_time_arr)} s | Backward {Average(backward_time_arr)} s')
         print()
+    else:
+        pass
