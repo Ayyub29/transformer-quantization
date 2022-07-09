@@ -166,7 +166,7 @@ def check_memory_and_inference_time(config, task, dataset):
     start_memory = checkpoint("Starting Point")
     model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
     load_memory = checkpoint("Loading the Model")
-    print(dataset)
+    print(dataset[2])
     # Forward model
     # for features in dataset.features:
     #     logger.info(f"{features} => {dataset[2][features]}")
