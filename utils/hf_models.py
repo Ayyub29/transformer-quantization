@@ -235,7 +235,7 @@ def check_memory_and_inference_time(config, task):
                 index = [torch.topk(logit, k=1, dim=-1)[1].squeeze().item() for logit in logits]
                 print(f'Text: {sentence}')
                 for i, label in enumerate(index):
-                    print(f'Label `{TASK_MULTILABELS[task][i]}` : {TASK_INDEX2LABEL[label]} ({F.softmax(logits[i], dim=-1).squeeze()[label] * 100:.3f}%)')
+                    print(f'Label `{TASK_MULTILABELS[task][i]}` : {TASK_INDEX2LABEL[task][label]} ({F.softmax(logits[i], dim=-1).squeeze()[label] * 100:.3f}%)')
             print(f'Memory Used: Load {load_memory[2]/1024.0 - (start_memory[2]/1024.0)} mb | Forward {forward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb | Backward {backward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb')
             print(f'Time: Forward {forward_time} s | Backward {backward_time} s')
             print()
