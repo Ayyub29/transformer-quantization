@@ -696,8 +696,6 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
         if config.progress.save_model:
             trainer.save_model()  # saves the tokenizer too
-    
-    check_memory_and_inference_time(config, task, train_dataset)
 
     # fix ranges after training, for final evaluation
     if 'quant' in config:
@@ -731,7 +729,8 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     # if task == INDONLU_Task.wrete:
     #     subtask_names.append('mnli-mm')
     #     eval_datasets.append(datasets['validation_mismatched'])
-
+    check_memory_and_inference_time(config, task, train_dataset)
+    
     subtask_final_scores = []
     for subtask, eval_dataset in zip(subtask_names, eval_datasets):
         if config.data.num_val_samples is not None:

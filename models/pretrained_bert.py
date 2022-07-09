@@ -17,23 +17,10 @@ class BertForSequenceClassification(BertPreTrainedModel):
         #     config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         # )
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        # if self.config.problem_type == "multi_label_classification":
-        #     self.classifiers = nn.ModuleList([nn.Linear(config.hidden_size, num_label) for num_label in self.num_labels])
-        # else:
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
         # Initialize weights and apply final processing
         self.init_weights()
-
-    # @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
-    # @add_code_sample_docstrings(
-    #     processor_class=_TOKENIZER_FOR_DOC,
-    #     checkpoint=_CHECKPOINT_FOR_SEQUENCE_CLASSIFICATION,
-    #     output_type=SequenceClassifierOutput,
-    #     config_class=_CONFIG_FOR_DOC,
-    #     expected_output=_SEQ_CLASS_EXPECTED_OUTPUT,
-    #     expected_loss=_SEQ_CLASS_EXPECTED_LOSS,
-    # )
     
     def forward(
         self,

@@ -158,22 +158,25 @@ def checkpoint(point=""):
                 usage[2]/1024.0 ))
     return usage 
 
-def check_memory_and_inference_time(config, task, dataset):
-    output_dir = config.base.output_dir
+def check_memory_and_inference_time(config, task, has_Trained):
+    output_dir = config.base.output_dir if has_Trained else config.model.model_path
     if output_dir is not None:
         output_dir = os.path.join(output_dir, 'out')
+    else:
+        output_dir = HF_Models[config.model.model_name].value
     tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
     start_memory = checkpoint("Starting Point")
     model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+    model.eval()
     load_memory = checkpoint("Loading the Model")
     text = 'Budi pergi ke pondok indah mall membeli cakwe'
     subwords = tokenizer.encode(text)
     subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-    labels = torch.LongTensor(1)
+    label = torch.LongTensor(1)
     # Forward model
-    outputs = model(subwords)
+    outputs = model(subwords, labels=label)
     # loss, logits = outputs[:2]
-    forward_memory = checkpoint("Forwarding the Model")
+    # forward_memory = checkpoint("Forwarding the Model")
     # optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
     # optimizer.zero_grad()
     # loss.backward()
