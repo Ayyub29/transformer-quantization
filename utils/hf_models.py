@@ -3,6 +3,7 @@
 
 import logging
 import os
+from re import I
 import resource
 import torch 
 
@@ -170,21 +171,28 @@ def check_memory_and_inference_time(config, task, has_Trained):
     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
     
     if is_text_class_task:
-        start_memory = checkpoint("Starting Point")
-        model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-        model.eval()
-        load_memory = checkpoint("Loading the Model")
-        
-        subwords = tokenizer.encode(dataset.datasets['train'][1][dataset.sentence1_key])
-        subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-        label = torch.LongTensor([dataset.datasets['train'][1]['label']])
-        outputs = model(subwords, labels=label)
-        loss, logits = outputs[:2]
-        forward_memory = checkpoint("Forwarding the Model")
+        for i in range(10):
+            start_memory = checkpoint("Starting Point")
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        backward_memory = checkpoint("Backwarding the Model")
+            #Load
+            model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+            model.eval()
+            load_memory = checkpoint("Loading the Model")
+            
+            subwords = tokenizer.encode(dataset.datasets['train'][i][dataset.sentence1_key])
+            subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+            label = torch.LongTensor([dataset.datasets['train'][i]['label']])
+            load_memory = checkpoint("Loading the Dataset")
+
+            #Forward
+            outputs = model(subwords, labels=label)
+            loss, logits = outputs[:2]
+            forward_memory = checkpoint("Forwarding the Model")
+
+            #Backward
+            optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            backward_memory = checkpoint("Backwarding the Model")
     
