@@ -166,20 +166,16 @@ def check_memory_and_inference_time(config, task, dataset):
     start_memory = checkpoint("Starting Point")
     model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
     load_memory = checkpoint("Loading the Model")
-
-    text = 'Budi pergi ke pondok indah mall membeli cakwe'
-    subwords = tokenizer.encode(text)
-    subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-    label = torch.LongTensor(1)
+    print(dataset)
     # Forward model
     # for features in dataset.features:
     #     logger.info(f"{features} => {dataset[2][features]}")
-    outputs = model(subwords, labels=label)
-    loss, logits = outputs[:2]
-    forward_memory = checkpoint("Forwarding the Model")
-    optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-    backward_memory = checkpoint("Backwarding the Model")
+    # outputs = model(subwords, labels=label)
+    # loss, logits = outputs[:2]
+    # forward_memory = checkpoint("Forwarding the Model")
+    # optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
+    # optimizer.zero_grad()
+    # loss.backward()
+    # optimizer.step()
+    # backward_memory = checkpoint("Backwarding the Model")
     
