@@ -166,7 +166,22 @@ def check_memory_and_inference_time(config, task, dataset):
     start_memory = checkpoint("Starting Point")
     model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
     load_memory = checkpoint("Loading the Model")
-    print(dataset[2])
+    # Prepare input & label
+    subword_batch = torch.LongTensor(dataset[2]['input_ids'])
+    mask_batch = torch.FloatTensor(dataset[2]['attention_mask'])
+    token_type_batch = torch.LongTensor(dataset[2]['token_type_ids']) if dataset[2]['token_type_ids'] is not None else None
+    label_batch = torch.LongTensor(dataset[2]['label'])
+            
+    # if config. == "cuda":
+    #     subword_batch = subword_batch.cuda()
+    #     mask_batch = mask_batch.cuda()
+    #     token_type_batch = token_type_batch.cuda() if token_type_batch is not None else None
+    #     label_batch = label_batch.cuda()
+
+    # Forward model
+    outputs = model(subword_batch, attention_mask=mask_batch, token_type_ids=token_type_batch, labels=label_batch)
+    loss, logits = outputs[:2]
+    print()
     # Forward model
     # for features in dataset.features:
     #     logger.info(f"{features} => {dataset[2][features]}")
