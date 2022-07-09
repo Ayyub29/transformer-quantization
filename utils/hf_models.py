@@ -170,7 +170,7 @@ def check_memory_and_inference_time(config, task, dataset):
     text = 'Budi pergi ke pondok indah mall membeli cakwe'
     subwords = tokenizer.encode(text)
     subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-    label = 1
+    label = torch.LongTensor(1)
     # Forward model
     for features in dataset.features:
         logger.info(f"{features} => {dataset[2][features]}")
