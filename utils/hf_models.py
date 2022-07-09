@@ -172,6 +172,8 @@ def check_memory_and_inference_time(config, task, dataset):
     subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
     label = 1
     # Forward model
+    for features in dataset.features:
+        logger.info(f"{features} => {dataset[2][features]}")
     outputs = model(subwords, labels=label)
     loss, logits = outputs[:2]
     forward_memory = checkpoint("Forwarding the Model")
