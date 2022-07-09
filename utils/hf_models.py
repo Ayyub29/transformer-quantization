@@ -7,6 +7,7 @@ from re import I
 import resource
 import torch 
 import time
+import torch.nn.functional as F
 
 from enum import Enum
 
