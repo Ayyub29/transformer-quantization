@@ -64,6 +64,7 @@ from utils import (
     make_compute_metric_fn_text,
     make_compute_metric_fn_word,
     make_compute_metric_fn_multilable,
+    check_memory_and_inference_time,
     HF_Models,
     GLUE_Task,
     INDONLU_Task,
@@ -98,23 +99,6 @@ click.option = partial(click.option, show_default=True)
 
 def _is_non_empty_dir(path):
     return path.exists() and len(list(path.iterdir()))
-
-
-def _show_model_on_task(model, tokenizer, task):
-    text = ['Budi pergi ke pondok indah mall membeli cakwe',
-            'Dasar anak sialan!! Kurang ajar!!',
-            'Bahagia hatiku melihat pernikahan putri sulungku yang cantik jelita']
-
-    # logger.info(f'Running task {task}...')
-    for sentence in text:
-        subwords = tokenizer.encode(sentence)
-        subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-
-        logits = model(subwords)[0]
-        index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
-    
-        logger.info(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
-
 
 def _make_huggingface_training_args(config):
     """Create Training Arguments as required by HuggingFace Trainer."""
@@ -171,7 +155,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         # to the max sequence length in each batch
 
     max_length = config.data.max_seq_length
-    print("max_length :", max_length)
+    
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
 
@@ -307,7 +291,6 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
             sep_pos_idx = tokens.index('[SEP]')
             len_ = len(tokens)
             logger.info(f'{i + 1}, {sep_pos_idx}, {len_}, {tokens}')
-
 
     word_data_collator = DataCollatorForWordClassification(tokenizer)
     
@@ -448,7 +431,6 @@ def adaround_get_samples_fn(data_loader, num_samples):
         inp_tuple = inp_tuple + (X_dict['token_type_ids'],)
     train_data = TransformerInput(inp_tuple)
     return train_data
-
 
 def _run_task(config, task: INDONLU_Task, task_data, model_data):
     """Common routine to run training/validation on a signle task."""
@@ -711,13 +693,12 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     if config.training.do_train:
         logger.info('*** Training ***')
-        # starting the monitoring
-        tracemalloc.start()
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
-        print("Memory Used: ", tracemalloc.get_traced_memory())
         # print_summary(result)
         if config.progress.save_model:
             trainer.save_model()  # saves the tokenizer too
+    
+    check_memory_and_inference_time(config,task)
 
     # fix ranges after training, for final evaluation
     if 'quant' in config:
@@ -742,7 +723,6 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     # _show_model_on_task(model, tokenizer, task)
 
     return final_score
-
 
 def _eval_task(config, task, trainer, eval_dataset, datasets):
     # loop to handle MNLI double evaluation (matched and mis-matched accuracy)

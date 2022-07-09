@@ -2,14 +2,17 @@
 # All Rights Reserved.
 
 import logging
+import os
+import torch
+import torch.nn.functional as F
+
 from enum import Enum
 
 from transformers import BertForSequenceClassification, AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
-from utils.indonlu_task import INDONLU_Task
+from utils.indonlu_task import INDONLU_Task, TASK_INDEX2LABEL
 
 from utils.utils import count_embedding_params, count_params, DotDict
-
 logger = logging.getLogger('INDO_NLU')
 logger.setLevel(logging.ERROR)
 
@@ -79,17 +82,17 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
 
     # set dropout rates
     if attn_dropout is not None:
-        logger.info(f'Setting attn dropout to {attn_dropout}')
+        print(f'Setting attn dropout to {attn_dropout}')
         if hasattr(config, 'attention_probs_dropout_prob'):
             setattr(config, 'attention_probs_dropout_prob', attn_dropout)
 
     if hidden_dropout is not None:
-        logger.info(f'Setting hidden dropout to {hidden_dropout}')
+        print(f'Setting hidden dropout to {hidden_dropout}')
         if hasattr(config, 'hidden_dropout_prob'):
             setattr(config, 'hidden_dropout_prob', attn_dropout)
 
     logger.info('HuggingFace model config:')
-    logger.info(config)
+    print(config)
     out.config = config
     out.model_name_or_path = model_name_or_path
 
@@ -113,7 +116,6 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
         )
     elif task == INDONLU_Task.casa or task == INDONLU_Task.hoasa:
         config.num_labels_list = task_data.num_labels_list
-        config.problem_type = "multi_label_classification"
         model = BertForMultiLabelClassification.from_pretrained(
             model_name_or_path,
             from_tf=False,
@@ -128,17 +130,18 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
             cache_dir=cache_dir,
         )
 
-    logger.info('Model:')
-    logger.info(model)
+    print('Model:')
+    print(model)
+    print()
     out.model = model
 
     # Parameter counts
     total_params = count_params(model)
     embedding_params = count_embedding_params(model)
     non_embedding_params = total_params - embedding_params
-    logger.info(f'Parameters (embedding): {embedding_params}')
-    logger.info(f'Parameters (non-embedding): {non_embedding_params}')
-    logger.info(f'Parameters (total): {total_params}')
+    print(f'Parameters (embedding): {embedding_params}')
+    print(f'Parameters (non-embedding): {non_embedding_params}')
+    print(f'Parameters (total): {total_params}')
     out.total_params = total_params
     out.embedding_params = embedding_params
     out.non_embedding_params = non_embedding_params
@@ -147,3 +150,23 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
     out.model_enum = HF_Models[model_name]
     out.backbone_attr = MODEL_TO_BACKBONE_ATTR.get(out.model_enum, None)
     return out
+
+def check_memory_and_inference_time(config, task):
+    output_dir = config.base.output_dir
+    if output_dir is not None:
+        output_dir = os.path.join(output_dir, 'out')
+    model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+    tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
+    text = ['Budi pergi ke pondok indah mall membeli cakwe',
+            'Dasar anak sialan!! Kurang ajar!!',
+            'Bahagia hatiku melihat pernikahan putri sulungku yang cantik jelita']
+
+    # logger.info(f'Running task {task}...')
+    for sentence in text:
+        subwords = tokenizer.encode(sentence)
+        subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+
+        logits = model(subwords)[0]
+        index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+    
+        print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
