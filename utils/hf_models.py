@@ -13,7 +13,7 @@ from enum import Enum
 
 from transformers import BertForSequenceClassification, AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
-from utils.indonlu_task import TASK_LABELS, INDONLU_Task, TASK_INDEX2LABEL, load_task_data_indonlu
+from utils.indonlu_task import TASK_LABELS, TASK_MULTILABELS, INDONLU_Task, TASK_INDEX2LABEL, load_task_data_indonlu
 
 from utils.utils import count_embedding_params, count_params, DotDict
 logger = logging.getLogger('INDO_NLU')
@@ -192,7 +192,13 @@ def check_memory_and_inference_time(config, task):
             load_memory_arr.append((load_memory[2]/1024.0) - (start_memory[2]/1024.0))
 
             sentence = dataset.datasets['train'][i][dataset.sentence1_key]
-            label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
+            if is_multilabel_class_task:
+                label_id = []
+                for feature in TASK_MULTILABELS[task]:
+                    label_id.append(dataset.datasets['train'][i][feature])
+                label = [label_id]
+            elif is_text_class_task:
+                label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
             subwords = tokenizer.encode(sentence)
             subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
             label = torch.LongTensor(label)
