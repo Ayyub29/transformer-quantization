@@ -118,7 +118,16 @@ TASK_INDEX2LABEL = {
     INDONLU_Task.emot: {0: 'sadness', 1: 'anger', 2: 'love', 3: 'fear', 4: 'happy'},
     INDONLU_Task.smsa: {0: 'positive', 1: 'neutral', 2: 'negative'},
     INDONLU_Task.casa: {0: 'negative', 1: 'neutral', 2: 'positive'},
-    INDONLU_Task.hoasa: {0: 'neg', 1: 'neut', 2: 'pos', 3: 'neg_pos'}
+    INDONLU_Task.hoasa: {0: 'neg', 1: 'neut', 2: 'pos', 3: 'neg_pos'},
+    INDONLU_Task.wrete: {0: 'NotEntail', 1: 'Entail_or_Paraphrase'},
+    INDONLU_Task.posp: {0: 'B-PPO', 1: 'B-KUA', 2: 'B-ADV', 3: 'B-PRN', 4: 'B-VBI', 5: 'B-PAR', 6: 'B-VBP', 7: 'B-NNP', 8: 'B-UNS', 9: 'B-VBT', 10: 'B-VBL', 11: 'B-NNO', 12: 'B-ADJ', 13: 'B-PRR', 14: 'B-PRK', 15: 'B-CCN', 16: 'B-$$$', 17: 'B-ADK', 18: 'B-ART', 19: 'B-CSN', 20: 'B-NUM', 21: 'B-SYM', 22: 'B-INT', 23: 'B-NEG', 24: 'B-PRI', 25: 'B-VBE'},
+    INDONLU_Task.bapos: {0: 'B-PR', 1: 'B-CD', 2: 'I-PR', 3: 'B-SYM', 4: 'B-JJ', 5: 'B-DT', 6: 'I-UH', 7: 'I-NND', 8: 'B-SC', 9: 'I-WH', 10: 'I-IN', 11: 'I-NNP', 12: 'I-VB', 13: 'B-IN', 14: 'B-NND', 15: 'I-CD', 16: 'I-JJ', 17: 'I-X', 18: 'B-OD', 19: 'B-RP', 20: 'B-RB', 21: 'B-NNP', 22: 'I-RB', 23: 'I-Z', 24: 'B-CC', 25: 'B-NEG', 26: 'B-VB', 27: 'B-NN', 28: 'B-MD', 29: 'B-UH', 30: 'I-NN', 31: 'B-PRP', 32: 'I-SC', 33: 'B-Z', 34: 'I-PRP', 35: 'I-OD', 36: 'I-SYM', 37: 'B-WH', 38: 'B-FW', 39: 'I-CC', 40: 'B-X'},
+    INDONLU_Task.terma: {0: 'I-SENTIMENT', 1: 'O', 2: 'I-ASPECT', 3: 'B-SENTIMENT', 4: 'B-ASPECT'},
+    INDONLU_Task.keps: {0:'O', 1:'B', 2:'I'},
+    INDONLU_Task.nergrit: {0: 'I-PERSON', 1: 'B-ORGANISATION', 2: 'I-ORGANISATION', 3: 'B-PLACE', 4: 'I-PLACE', 5: 'O', 6: 'B-PERSON'},
+    INDONLU_Task.nerp: {0: 'I-PPL', 1: 'B-EVT', 2: 'B-PLC', 3: 'I-IND', 4: 'B-IND', 5: 'B-FNB', 6: 'I-EVT', 7: 'B-PPL', 8: 'I-PLC', 9: 'O', 10: 'I-FNB'},
+    INDONLU_Task.facqa: {0:'O', 1:'B', 2:'I'}
+
 }
 
 TASK_MULTILABELS = {

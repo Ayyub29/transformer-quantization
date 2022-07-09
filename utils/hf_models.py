@@ -231,9 +231,7 @@ def check_memory_and_inference_time(config, task):
             subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
             subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
             label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
-            print(label)
             label = torch.LongTensor(label)
-            print(label.size(), subwords.size(), subword_to_word_indices.size())
 
         # print(label.size(), subwords.size())
         dataset_memory = checkpoint("Loading the Dataset")
@@ -268,6 +266,11 @@ def check_memory_and_inference_time(config, task):
             print(f'Text: {sentence}')
             for i, label in enumerate(index):
                 print(f'Label `{TASK_MULTILABELS[task][i]}` : {TASK_INDEX2LABEL[task][label]} ({F.softmax(logits[i], dim=-1).squeeze()[label] * 100:.3f}%)')
+        else:
+            preds = torch.topk(logits, k=1, dim=-1)[1].squeeze().numpy()
+            labels = [TASK_INDEX2LABEL[task][preds[i]] for i in range(len(preds))]
+            for idx,word in enumerate(sentence):
+                print(f'words {word} label: {labels[idx]}')
         print(f'Memory Used: Load {load_memory[2]/1024.0 - (start_memory[2]/1024.0)} mb | Forward {forward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb | Backward {backward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb')
         print(f'Time: Forward {forward_time} s | Backward {backward_time} s')
         print()
