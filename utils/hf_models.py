@@ -172,8 +172,8 @@ def check_memory_and_inference_time(config, task, dataset):
     labels = torch.LongTensor(1)
     # Forward model
     outputs = model(subwords)
-    loss, logits = outputs[:2]
-    # forward_memory = checkpoint("Forwarding the Model")
+    # loss, logits = outputs[:2]
+    forward_memory = checkpoint("Forwarding the Model")
     # optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
     # optimizer.zero_grad()
     # loss.backward()
