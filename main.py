@@ -697,7 +697,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         if config.progress.save_model:
             trainer.save_model()  # saves the tokenizer too
     
-    check_memory_and_inference_time(config, task)
+    check_memory_and_inference_time(config, task, eval_dataset)
 
     # fix ranges after training, for final evaluation
     if 'quant' in config:

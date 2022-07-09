@@ -3,11 +3,8 @@
 
 import logging
 import os
-import torch
-import torch.nn.functional as F
-import tracemalloc
-from collections import Counter
-import linecache
+import resource
+import torch 
 
 from enum import Enum
 
@@ -154,51 +151,28 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
     out.backbone_attr = MODEL_TO_BACKBONE_ATTR.get(out.model_enum, None)
     return out
 
-def display_top(snapshot, key_type='lineno', limit=3):
-    snapshot = snapshot.filter_traces((
-        tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
-        tracemalloc.Filter(False, "<unknown>"),
-    ))
-    top_stats = snapshot.statistics(key_type)
+def checkpoint(point=""):
+    usage=resource.getrusage(resource.RUSAGE_SELF)
+    print('''%s: usertime=%s systime=%s mem=%s mb
+           '''%(point,usage[0],usage[1],
+                usage[2]/1024.0 ))
+    return usage 
 
-    print("Top %s lines" % limit)
-    for index, stat in enumerate(top_stats[:limit], 1):
-        frame = stat.traceback[0]
-        # replace "/path/to/module/file.py" with "module/file.py"
-        filename = os.sep.join(frame.filename.split(os.sep)[-2:])
-        print("#%s: %s:%s: %.1f KiB"
-              % (index, filename, frame.lineno, stat.size / 1024))
-        line = linecache.getline(frame.filename, frame.lineno).strip()
-        if line:
-            print('    %s' % line)
-
-    other = top_stats[limit:]
-    if other:
-        size = sum(stat.size for stat in other)
-        print("%s other: %.1f KiB" % (len(other), size / 1024))
-    total = sum(stat.size for stat in top_stats)
-    print("Total allocated size: %.1f KiB" % (total / 1024))
-
-def check_memory_and_inference_time(config, task):
-    tracemalloc.start()
+def check_memory_and_inference_time(config, task, dataset):
     output_dir = config.base.output_dir
     if output_dir is not None:
         output_dir = os.path.join(output_dir, 'out')
-    model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
     tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
-    text = ['Budi pergi ke pondok indah mall membeli cakwe',
-            'Dasar anak sialan!! Kurang ajar!!',
-            'Bahagia hatiku melihat pernikahan putri sulungku yang cantik jelita']
-
-    # logger.info(f'Running task {task}...')
-    for sentence in text:
-        subwords = tokenizer.encode(sentence)
-        subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-
-        logits = model(subwords)[0]
-        index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+    checkpoint("Starting Point")
+    model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+    checkpoint("Loading the Model")
+    # Forward model
+    outputs = model(dataset[0]['input_ids'], attention_mask=dataset[0]['attention_mask'], token_type_ids=dataset[0]['token_type_ids'], labels=dataset[0]['label'])
+    loss, logits = outputs[:2]
+    checkpoint("Forwarding the Model")
+    optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    checkpoint("Backwarding the Model")
     
-        print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
-
-    snapshot = tracemalloc.take_snapshot()
-    display_top(snapshot)
