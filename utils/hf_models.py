@@ -208,4 +208,4 @@ def check_memory_and_inference_time(config, task, has_Trained):
             index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
             print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
             print(f'Memory Used: Start {load_memory[2]/1024.0} mb | Dataset {dataset_memory[2]/1024.0} mb | Forward {forward_memory[2]/1024.0} mb | Backward {backward_memory[2]/1024.0} mb  ')
-            print(f'Time: Forward {forward_time} s | Backward {forward_time} s')
+            print(f'Time: Forward {forward_time} s | Backward {backward_time} s')
