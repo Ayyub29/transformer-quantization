@@ -158,7 +158,7 @@ def checkpoint(point=""):
                 usage[2]/1024.0 ))
     return usage 
 
-def check_memory_and_inference_time(config, task, has_Trained):
+def check_memory_and_inference_time(config, task, dataset, has_Trained):
     output_dir = config.base.output_dir if has_Trained else config.model.model_path
     if output_dir is not None:
         output_dir = os.path.join(output_dir, 'out')
