@@ -11,7 +11,7 @@ import torch.nn.functional as F
 
 from enum import Enum
 
-from transformers import BertForSequenceClassification, AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
+from transformers import BertForSequenceClassification, AutoTokenizer, BertConfig
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
 from models.quantized_bert import (
     QuantizedBertForSequenceClassification,
