@@ -181,8 +181,6 @@ def word_subword_tokenize(sentence, tokenizer):
 def check_memory_and_inference_time(config, task):
     print("Checking Model..")
     output_dir = config.base.output_dir
-    if output_dir is not None:
-        output_dir = os.path.join(output_dir, 'out')
     
     tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
