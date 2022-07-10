@@ -301,6 +301,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics,
         tokenizer=tokenizer,
+        overwrite_output_dir = 'True'
         # data collator will default to DataCollatorWithPadding,
         # so we change it if we already did the padding:
         data_collator=default_data_collator if padding and (is_text_class_task or is_multilabel_class_task) else word_data_collator if padding else None,
@@ -820,13 +821,13 @@ def _train(config):
     if config.base.output_dir is None:
         raise ValueError('--output-dir must be provided for training')
     config.training.do_train = True
-
+    config.base.overwrite_output = True
     _run(config)
 
 
 def _validate(config):
     # check and set validation-specific options
-    config.base.overwrite_output = False
+    config.base.overwrite_output = True
     config.training.do_eval = True
     config.training.do_train = False
 
