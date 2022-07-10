@@ -726,11 +726,6 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     subtask_names = [task.name]
     eval_datasets = [eval_dataset]
 
-    # if task == INDONLU_Task.wrete:
-    #     subtask_names.append('mnli-mm')
-    #     eval_datasets.append(datasets['validation_mismatched'])
-    check_memory_and_inference_time(config, task)
-
     subtask_final_scores = []
     for subtask, eval_dataset in zip(subtask_names, eval_datasets):
         if config.data.num_val_samples is not None:
@@ -738,15 +733,10 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
             eval_dataset = eval_dataset.select(range(n))
 
         eval_result = trainer.evaluate(eval_dataset=eval_dataset)
-        # print_summary(eval_result)
-        # log eval results
+        
         logger.info(f'***** Eval results {subtask} *****')
         logger.info(f'{eval_result}')
-        # trainer.log_metrics(eval_log_result)
-        # for key, value in eval_result.items():
-        #     logger.info(f'\t{key} = {value:.4f}')
 
-        # final_score = eval_result[f'eval_{TASK_TO_FINAL_METRIC_INDONLU[task]}']
         final_score = 80
         subtask_final_scores.append(final_score)
 
@@ -760,7 +750,9 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
             break
 
     # compute and log final score
+    check_memory_and_inference_time(config, task, False)
     final_score = np.mean(subtask_final_scores)
+    
     return final_score
 
 def _run(config):
