@@ -337,5 +337,10 @@ def check_inference_time(config, task, is_quantized):
 
 def print_size_of_model(model):
     torch.save(model.state_dict(), "temp.p")
+    # Print model's state_dict
+    print("Model's state_dict:")
+    for param_tensor in model.state_dict():
+        print(param_tensor, "\t", model.state_dict()[param_tensor].size())
+
     print('Size (MB):', os.path.getsize("temp.p")/1e6)
     # os.remove('temp.p')
