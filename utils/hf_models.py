@@ -207,7 +207,7 @@ def check_memory_usage(config, task, is_quantized):
 
         if is_quantized:
             model = _quantize_model(config,model,task)
-        model.cuda()
+            
         model.eval()
         load_memory = checkpoint("Loading the Model")
         load_memory_arr.append((load_memory[2] - start_memory[2])/1024.0)
@@ -269,7 +269,7 @@ def check_memory_usage(config, task, is_quantized):
     print(f'Time: Forward {Average(forward_time_arr)} s | Backward {Average(backward_time_arr)} s')
     print()
 
-def check_inference_time(config, task, model):
+def check_inference_time(config, task, is_quantized):
     print("Checking Model..")
     output_dir = config.base.output_dir
     
@@ -278,7 +278,17 @@ def check_inference_time(config, task, model):
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
     forward_time_arr = []
-    model.cuda()
+
+    if is_text_class_task: 
+        model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+    elif is_multilabel_class_task:
+        model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
+    else:
+        model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
+
+    if is_quantized:
+        model = _quantize_model(config,model,task)
+            
     model.eval()
 
     for i in range(10):
@@ -318,7 +328,7 @@ def check_inference_time(config, task, model):
             preds = torch.topk(logits, k=1, dim=-1)[1].squeeze().numpy()
             labels = [TASK_INDEX2LABEL[task][preds[i]] for i in range(len(preds))]
             for idx,word in enumerate(sentence):
-                print(f'{word} | {labels[idx]}')
+                print(f'{word} | {labels[idx]} | ({F.softmax(logits[i], dim=-1).squeeze()[word] * 100:.3f}%)')
         print(f'Time: {forward_time} s ')
         print()
     print("Average: ")
