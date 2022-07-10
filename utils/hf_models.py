@@ -206,18 +206,18 @@ def check_memory_and_inference_time(config, task, is_quantized):
         #Load
         if is_quantized:
             if is_text_class_task: 
-                model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-            elif is_multilabel_class_task:
-                model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
-            else:
-                model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
-        else:
-            if is_text_class_task: 
                 model = QuantizedBertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
             elif is_multilabel_class_task:
                 model = QuantizedBertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
             else:
                 model = QuantizedBertForWordClassification.from_pretrained(output_dir,local_files_only=True)
+        else:
+            if is_text_class_task: 
+                model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+            elif is_multilabel_class_task:
+                model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
+            else:
+                model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
             
         model.eval()
         load_memory = checkpoint("Loading the Model")
