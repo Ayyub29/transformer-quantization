@@ -6,7 +6,7 @@ from enum import Flag
 from lib2to3.pgen2.tokenize import tokenize
 import logging
 import os
-
+import time 
 import warnings
 from utils.hf_models import check_inference_time, check_memory_usage, print_size_of_model
 
@@ -728,9 +728,11 @@ def _eval_task(config, task, trainer, eval_dataset, model):
             n = min(len(eval_dataset), config.data.num_val_samples)
             eval_dataset = eval_dataset.select(range(n))
 
+        start_time = time.time()
         eval_result = trainer.evaluate(eval_dataset=eval_dataset)
-        
+        forward_time = time.time() - start_time
         logger.info(f'***** Eval results {subtask} *****')
+        print(f'Time: {forward_time} s ')
         logger.info(f'{eval_result}')
 
         final_score = 80
