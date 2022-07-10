@@ -207,7 +207,7 @@ def check_memory_usage(config, task, is_quantized):
 
         if is_quantized:
             model = _quantize_model(config,model,task)
-            
+        model.cuda()
         model.eval()
         load_memory = checkpoint("Loading the Model")
         load_memory_arr.append((load_memory[2] - start_memory[2])/1024.0)
@@ -278,7 +278,7 @@ def check_inference_time(config, task, model):
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
     forward_time_arr = []
-
+    model.cuda()
     model.eval()
 
     for i in range(10):
@@ -294,7 +294,7 @@ def check_inference_time(config, task, model):
 
             subwords = torch.LongTensor(subwords).view(1, -1)
             subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1)
-            
+
         #Forward
         start_time = time.time()
         if is_multilabel_class_task or is_text_class_task:
