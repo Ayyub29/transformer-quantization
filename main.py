@@ -8,7 +8,7 @@ import logging
 import os
 
 import warnings
-from utils.hf_models import check_inference_time, check_memory_usage
+from utils.hf_models import check_inference_time, check_memory_usage, print_size_of_model
 
 warnings.filterwarnings('ignore')  # ignore TF warnings
 from copy import deepcopy
@@ -705,6 +705,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         logger.info('*** Evaluation ***')
 
         final_score = _eval_task(config, task, trainer, eval_dataset, model)
+        print_size_of_model(model)
         # logger.info(f'Final score {task.name} -> {100. * final_score:.2f}')
 
         # save final score to file
