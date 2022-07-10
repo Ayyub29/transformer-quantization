@@ -95,10 +95,10 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
             setattr(config, 'hidden_dropout_prob', attn_dropout)
 
     logger.info('HuggingFace model config:')
-    print(config)
+    # print(config)
     out.config = config
     out.model_name_or_path = model_name_or_path
-    config.to_json_file(os.path.join(output_dir,'config.json'))
+    config.to_json_file(output_dir)
     # Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
         model_name_or_path,
