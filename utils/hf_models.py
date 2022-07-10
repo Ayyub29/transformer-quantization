@@ -99,7 +99,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
     out.config = config
     out.model_name_or_path = model_name_or_path
     # create dirpath if not exist
-    os.makedirs(config.base.output_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
     config.to_json_file(output_dir + '/config.json')
     # Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
