@@ -220,19 +220,19 @@ def check_memory_and_inference_time(config, task, is_quantized):
                 label_id.append(dataset.datasets['train'][i][feature])
             label = [label_id]
             subwords = tokenizer.encode(sentence)
-            subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+            subwords = torch.LongTensor(subwords).view(1, -1)
             label = torch.LongTensor(label)
         elif is_text_class_task:
             label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
             subwords = tokenizer.encode(sentence)
-            subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+            subwords = torch.LongTensor(subwords).view(1, -1)
             label = torch.LongTensor(label)
         else:
             # text = tokenizer(sentence, truncation=True,max_length= config.data.max_seq_length, is_split_into_words=True)
             subwords, subword_to_word_indices = word_subword_tokenize(sentence, tokenizer)
 
-            subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-            subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
+            subwords = torch.LongTensor(subwords).view(1, -1)
+            subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1)
             label = [dataset.datasets['train'][i][TASK_LABELS[task]]]
             label = torch.LongTensor(label)
 
