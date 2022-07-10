@@ -328,7 +328,7 @@ def check_inference_time(config, task, is_quantized):
             preds = torch.topk(logits, k=1, dim=-1)[1].squeeze().numpy()
             labels = [TASK_INDEX2LABEL[task][preds[i]] for i in range(len(preds))]
             for idx,word in enumerate(sentence):
-                print(f'{word} | {labels[idx]} | ({F.softmax(logits[i], dim=-1).squeeze()[word] * 100:.3f}%)')
+                print(f'{word} | {labels[idx]}')
         print(f'Time: {forward_time} s ')
         print()
     print("Average: ")
