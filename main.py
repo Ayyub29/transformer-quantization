@@ -8,6 +8,7 @@ import logging
 import os
 
 import warnings
+from utils.hf_models import check_inference_time, check_memory_usage
 
 warnings.filterwarnings('ignore')  # ignore TF warnings
 from copy import deepcopy
@@ -26,9 +27,8 @@ from pynvml import *
 from models import (
     QuantizedBertForSequenceClassification,
     QuantizedBertForMultiLabelClassification,
-    QuantizedBertForWordClassification,
+    QuantizedBertForWordClassification
 )
-
 from utils import (
     # click options
     quantization_options,
@@ -59,8 +59,6 @@ from utils import (
     make_compute_metric_fn_text,
     make_compute_metric_fn_word,
     make_compute_metric_fn_multilable,
-    check_inference_time, 
-    check_memory_usage,
     HF_Models,
     GLUE_Task,
     INDONLU_Task,
