@@ -695,7 +695,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     if config.training.do_train:
         logger.info('*** Training ***')
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
-        print(config.base.output_dir)
+        
         trainer.save_model(output_dir=config.base.output_dir)  # saves the tokenizer too
         # model.save_pretrained(config.base.output_dir)
 
@@ -804,7 +804,7 @@ def _run(config):
         # load data
         task_data = load_task_data_indonlu(task=task, data_dir=task_config.indonlu.data_dir)
         # load model and tokenizer
-        model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task, task_data=task_data)
+        model_data = load_model_and_tokenizer(**task_config.model, num_labels=task_data.num_labels, task=task, task_data=task_data, output_dir=task_config.base.output_dir)
         # logger.info(f'{mode_str} with model configuration: {model_data}')
         # run on a task
         task_scores_map[task] = _run_task(task_config, task, task_data, model_data)

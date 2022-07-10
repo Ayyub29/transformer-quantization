@@ -62,7 +62,7 @@ MODEL_TO_BACKBONE_ATTR = {  # model.<backbone attr>.<layers etc.>
 }
 
 def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_dir, attn_dropout,
-                             hidden_dropout, num_labels, task: INDONLU_Task, task_data, **kw):
+                             hidden_dropout, num_labels, task: INDONLU_Task, task_data, output_dir, **kw):
     """
     Loading the model and tokenizer
     """
@@ -98,7 +98,7 @@ def load_model_and_tokenizer(model_name, model_path, use_fast_tokenizer, cache_d
     print(config)
     out.config = config
     out.model_name_or_path = model_name_or_path
-    config.to_json_file(config.base.output_dir + 'config.json')
+    config.to_json_file(os.path.join(output_dir,'config.json'))
     # Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
         model_name_or_path,
