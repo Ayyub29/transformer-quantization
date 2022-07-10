@@ -13,6 +13,7 @@ from enum import Enum
 
 from transformers import BertForSequenceClassification, AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
+from models.quantized_bert import QuantizedBertForSequenceClassification, QuantizedBertForWordClassification, QuantizedBertForMultiLabelClassification
 from utils.indonlu_task import TASK_LABELS, TASK_MULTILABELS, INDONLU_Task, TASK_INDEX2LABEL, load_task_data_indonlu
 
 from utils.utils import count_embedding_params, count_params, DotDict
@@ -180,7 +181,7 @@ def word_subword_tokenize(sentence, tokenizer):
 
     return subwords, subword_to_word_indices
 
-def check_memory_and_inference_time(config, task):
+def check_memory_and_inference_time(config, task, is_quantized):
     print("Checking Model..")
     output_dir = config.base.output_dir
     
@@ -199,12 +200,20 @@ def check_memory_and_inference_time(config, task):
         start_memory = checkpoint("Starting Point")
 
         #Load
-        if is_text_class_task: 
-            model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-        elif is_multilabel_class_task:
-            model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
+        if is_quantized:
+            if is_text_class_task: 
+                model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+            elif is_multilabel_class_task:
+                model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
+            else:
+                model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
         else:
-            model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
+            if is_text_class_task: 
+                model = QuantizedBertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+            elif is_multilabel_class_task:
+                model = QuantizedBertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
+            else:
+                model = QuantizedBertForWordClassification.from_pretrained(output_dir,local_files_only=True)
             
         model.eval()
         load_memory = checkpoint("Loading the Model")
