@@ -13,7 +13,7 @@ from enum import Enum
 
 from transformers import BertForSequenceClassification, AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
-from models import (
+from models.quantized_bert import (
     QuantizedBertForSequenceClassification,
     QuantizedBertForMultiLabelClassification,
     QuantizedBertForWordClassification

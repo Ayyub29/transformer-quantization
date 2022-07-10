@@ -2,6 +2,6 @@
 # All Rights Reserved.
 
 from .pretrained_bert import BertForSequenceClassification, BertForWordClassification, BertForMultiLabelClassification
-from .quantized_bert import QuantizedBertForSequenceClassification, QuantizedBertForWordClassification, QuantizedBertForMultiLabelClassification
+from .quantized_bert import QuantizedBertForSequenceClassification, QuantizedBertForWordClassification, QuantizedBertForMultiLabelClassification, QuantizedActivation, QuantizedBertEmbeddings, QuantizedBertLayer, QuantizedBertModel, QuantizedBertOutput, QuantizedBertPooler, QuantizedBertSelfAttention, QuantizedBertSelfOutput, QuantizedModel
 from .quantized_mobilebert import QuantizedMobileBertForSequenceClassification
 from .quantized_roberta import QuantizedRobertaForSequenceClassification
