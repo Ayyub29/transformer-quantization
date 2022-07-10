@@ -8,7 +8,6 @@ import logging
 import os
 import random
 import warnings
-from models.quantized_bert import QuantizedBertForMultiLabelClassification
 import tracemalloc
 from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
 
