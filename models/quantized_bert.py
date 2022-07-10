@@ -21,7 +21,8 @@ from quantization.base_quantized_classes import QuantizedActivation, FP32Acts
 from quantization.base_quantized_model import QuantizedModel
 from quantization.range_estimators import RangeEstimators, OptMethod
 from utils.tb_utils import _tb_advance_global_step, _tb_advance_token_counters, _tb_hist
-
+from utils.quant_click_options import make_qparams
+from utils.indonlu_task import INDONLU_Task
 
 class QuantizedBertEmbeddings(QuantizedModel):
     """
@@ -824,3 +825,37 @@ class QuantizedBertForMultiLabelClassification(QuantizedModel):
         _tb_advance_global_step(self)
 
         return outputs  # (loss), scores, (hidden_states), (attentions)
+
+def _quantize_model(config, model, task):
+    """
+        Changing Model into quantized one
+    """
+    #
+    qparams = make_qparams(config)
+    qparams['quant_dict'] = config.quant.get('quant_dict', {})
+
+    if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
+        model = QuantizedBertForSequenceClassification(model, **qparams)
+    elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
+        model = QuantizedBertForWordClassification(model, **qparams)
+    elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
+        model = QuantizedBertForMultiLabelClassification(model, **qparams)
+    else:
+        raise NotImplementedError(
+            f'Model {config.model.model_name} is not supported for ' f'quantization.'
+        )
+
+    # use double precision if necessary
+    if config.double:
+        for m in model.modules():
+            if hasattr(m, 'weight') or hasattr(m, 'bias'):
+                m.double()
+
+    # set state
+    model.set_quant_state(weight_quant=config.quant.weight_quant, act_quant=config.quant.act_quant)
+
+    # print model
+    config('Quantized model:')
+    config(model)
+
+    return model

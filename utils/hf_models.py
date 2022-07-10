@@ -13,11 +13,7 @@ from enum import Enum
 
 from transformers import BertForSequenceClassification, AutoTokenizer, BertConfig
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
-from models.quantized_bert import (
-    QuantizedBertForSequenceClassification,
-    QuantizedBertForMultiLabelClassification,
-    QuantizedBertForWordClassification
-)
+from models.quantized_bert import _quantize_model
 from utils.indonlu_task import TASK_LABELS, TASK_MULTILABELS, INDONLU_Task, TASK_INDEX2LABEL, load_task_data_indonlu
 
 from utils.utils import count_embedding_params, count_params, DotDict
@@ -203,21 +199,15 @@ def check_memory_and_inference_time(config, task, is_quantized):
     for i in range(10):
         start_memory = checkpoint("Starting Point")
 
-        #Load
-        if is_quantized:
-            if is_text_class_task: 
-                model = QuantizedBertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-            elif is_multilabel_class_task:
-                model = QuantizedBertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
-            else:
-                model = QuantizedBertForWordClassification.from_pretrained(output_dir,local_files_only=True)
+        if is_text_class_task: 
+            model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+        elif is_multilabel_class_task:
+            model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
         else:
-            if is_text_class_task: 
-                model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-            elif is_multilabel_class_task:
-                model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
-            else:
-                model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
+            model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
+
+        if is_quantized:
+            model = _quantize_model(config,model,task)
             
         model.eval()
         load_memory = checkpoint("Loading the Model")
