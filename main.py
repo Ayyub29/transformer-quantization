@@ -696,6 +696,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
         print(config.base.output_dir)
         trainer.save_model(output_dir=config.base.output_dir)  # saves the tokenizer too
+        model.save_pretrained(config.base.output_dir)
 
     # fix ranges after training, for final evaluation
     if 'quant' in config:
