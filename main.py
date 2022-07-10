@@ -676,7 +676,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         model = _prepare_quantized_model(
             config, model, loader=trainer_range_est.get_train_dataloader()
         )
-        
+
     print_size_of_model(model)
     # make datasets and Trainer
     trainer, datasets, train_dataset, eval_dataset = _make_datasets_and_trainer(
@@ -706,6 +706,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         logger.info('*** Evaluation ***')
 
         final_score = _eval_task(config, task, trainer, eval_dataset, model)
+        model.eval()
         print_size_of_model(model)
         # logger.info(f'Final score {task.name} -> {100. * final_score:.2f}')
 
