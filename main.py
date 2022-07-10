@@ -27,7 +27,7 @@ from models import (
     QuantizedBertForSequenceClassification,
     QuantizedBertForMultiLabelClassification,
     QuantizedBertForWordClassification,
-    _quantize_model
+    quantizing_model
 )
 from utils import (
     # click options
