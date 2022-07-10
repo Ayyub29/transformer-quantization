@@ -13,7 +13,11 @@ from enum import Enum
 
 from transformers import BertForSequenceClassification, AutoModelForTokenClassification, AutoTokenizer, BertConfig, BertTokenizer, PreTrainedTokenizerFast, BertForTokenClassification
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
-from models.quantized_bert import QuantizedBertForSequenceClassification, QuantizedBertForWordClassification, QuantizedBertForMultiLabelClassification
+from models import (
+    QuantizedBertForSequenceClassification,
+    QuantizedBertForMultiLabelClassification,
+    QuantizedBertForWordClassification
+)
 from utils.indonlu_task import TASK_LABELS, TASK_MULTILABELS, INDONLU_Task, TASK_INDEX2LABEL, load_task_data_indonlu
 
 from utils.utils import count_embedding_params, count_params, DotDict
