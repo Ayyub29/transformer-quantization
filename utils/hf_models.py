@@ -260,19 +260,7 @@ def check_memory_usage(config, task, is_quantized):
         backward_memory_arr.append((backward_memory[2]- dataset_memory[2])/1024.0)
         backward_time = time.time() - time_after_forward
         backward_time_arr.append(backward_time)
-        if (is_text_class_task):
-            index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
-            print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
-        elif is_multilabel_class_task:
-            index = [torch.topk(logit, k=1, dim=-1)[1].squeeze().item() for logit in logits]
-            print(f'Text: {sentence}')
-            for i, label in enumerate(index):
-                print(f'Label `{TASK_MULTILABELS[task][i]}` : {TASK_INDEX2LABEL[task][label]} ({F.softmax(logits[i], dim=-1).squeeze()[label] * 100:.3f}%)')
-        else:
-            preds = torch.topk(logits, k=1, dim=-1)[1].squeeze().numpy()
-            labels = [TASK_INDEX2LABEL[task][preds[i]] for i in range(len(preds))]
-            for idx,word in enumerate(sentence):
-                print(f'{word} | {labels[idx]}')
+        print(f'data {i+1}')
         print(f'Memory Used: Load {load_memory[2]/1024.0 - (start_memory[2]/1024.0)} mb | Forward {forward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb | Backward {backward_memory[2]/1024.0 - (dataset_memory[2]/1024.0)} mb')
         print(f'Time: Forward {forward_time} s | Backward {backward_time} s')
         print()
