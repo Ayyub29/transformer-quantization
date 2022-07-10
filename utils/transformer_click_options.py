@@ -40,7 +40,7 @@ def transformer_base_options(func):
     @click.option(
         '--overwrite-output',
         is_flag=True,
-        default=False,
+        default=True,
         help='Overwrite the content of the output directory and log file. Use this to '
         'continue training if output directory contains model checkpoint.',
     )
