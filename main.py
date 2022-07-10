@@ -26,7 +26,8 @@ from pynvml import *
 from models import (
     QuantizedBertForSequenceClassification,
     QuantizedBertForMultiLabelClassification,
-    QuantizedBertForWordClassification
+    QuantizedBertForWordClassification,
+    _quantize_model
 )
 from utils import (
     # click options
