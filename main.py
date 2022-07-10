@@ -6,10 +6,8 @@ from enum import Flag
 from lib2to3.pgen2.tokenize import tokenize
 import logging
 import os
-import random
+
 import warnings
-import tracemalloc
-from utils.indonlu_task import TASK_TO_FINAL_METRIC_INDONLU
 
 warnings.filterwarnings('ignore')  # ignore TF warnings
 from copy import deepcopy
@@ -21,9 +19,8 @@ import click
 import numpy as np
 import torch
 import torch.nn.functional as F
-from transformers import Trainer, TrainingArguments, default_data_collator, DataCollatorForTokenClassification
-from transformers.integrations import TensorBoardCallback
-from datasets import load_dataset, load_metric
+from transformers import Trainer, TrainingArguments, default_data_collator
+
 from pynvml import *
 
 from models import (
@@ -31,7 +28,6 @@ from models import (
     QuantizedBertForMultiLabelClassification,
     QuantizedBertForWordClassification
 )
-from quantization.adaround import AdaRoundActQuantMode
 from utils import (
     # click options
     quantization_options,
@@ -49,7 +45,6 @@ from utils import (
     transformer_quant_options,
 
     # quantization
-    apply_adaround_to_model,
     prepare_model_for_quantization,
     pass_data_for_range_estimation,
     hijack_act_quant,
@@ -63,7 +58,8 @@ from utils import (
     make_compute_metric_fn_text,
     make_compute_metric_fn_word,
     make_compute_metric_fn_multilable,
-    check_memory_and_inference_time,
+    check_inference_time, 
+    check_memory_usage,
     HF_Models,
     GLUE_Task,
     INDONLU_Task,
@@ -751,7 +747,8 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
 
     # compute and log final score
     is_quantized = 'quant' in config
-    check_memory_and_inference_time(config, task, is_quantized)
+    check_memory_usage(config, task, is_quantized)
+    check_inference_time(config, task, is_quantized)
     final_score = np.mean(subtask_final_scores)
     
     return final_score

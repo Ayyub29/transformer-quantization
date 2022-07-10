@@ -181,7 +181,7 @@ def word_subword_tokenize(sentence, tokenizer):
 
     return subwords, subword_to_word_indices
 
-def check_memory_and_inference_time(config, task, is_quantized):
+def check_memory_usage(config, task, is_quantized):
     print("Checking Model..")
     output_dir = config.base.output_dir
     
@@ -189,7 +189,6 @@ def check_memory_and_inference_time(config, task, is_quantized):
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
-    is_token_class_task = task == INDONLU_Task.bapos or task == INDONLU_Task.keps or task == INDONLU_Task.nergrit or task == INDONLU_Task.nerp or task == INDONLU_Task.posp or task == INDONLU_Task.terma
     load_memory_arr = []
     forward_memory_arr = []
     backward_memory_arr = []
@@ -280,4 +279,73 @@ def check_memory_and_inference_time(config, task, is_quantized):
     print("Average: ")
     print(f'Memory Used: Load {Average(load_memory_arr)} mb | Forward {Average(forward_memory_arr)} mb | Backward {Average(backward_memory_arr)} mb  ')
     print(f'Time: Forward {Average(forward_time_arr)} s | Backward {Average(backward_time_arr)} s')
+    print()
+
+def check_inference_time(config, task, is_quantized):
+    print("Checking Model..")
+    output_dir = config.base.output_dir
+    
+    tokenizer = AutoTokenizer.from_pretrained(output_dir,use_fast=True)
+    dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
+    is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
+    is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
+    forward_time_arr = []
+
+    if is_text_class_task: 
+        model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
+    elif is_multilabel_class_task:
+        model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
+    else:
+        model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
+
+    if is_quantized:
+        model = _quantize_model(config,model,task)
+            
+    model.eval()
+
+    for i in range(10):
+        sentence = dataset.datasets['validation'][i][dataset.sentence1_key]
+        if is_multilabel_class_task:
+            subwords = tokenizer.encode(sentence)
+            subwords = torch.LongTensor(subwords).view(1, -1)
+        elif is_text_class_task:
+            subwords = tokenizer.encode(sentence)
+            subwords = torch.LongTensor(subwords).view(1, -1)
+        else:
+            subwords, subword_to_word_indices = word_subword_tokenize(sentence, tokenizer)
+
+            subwords = torch.LongTensor(subwords).view(1, -1)
+            subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1)
+
+        # print(label.size(), subwords.size())
+        dataset_memory = checkpoint("Loading the Dataset")
+
+        #Forward
+        start_time = time.time()
+        if is_multilabel_class_task or is_text_class_task:
+            outputs = model(subwords)
+        else:
+            outputs = model(subwords, subword_to_word_indices)
+        logits = outputs[0]
+        
+        forward_time = time.time() - start_time
+        forward_time_arr.append(forward_time)
+
+        if (is_text_class_task):
+            index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+            print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
+        elif is_multilabel_class_task:
+            index = [torch.topk(logit, k=1, dim=-1)[1].squeeze().item() for logit in logits]
+            print(f'Text: {sentence}')
+            for i, label in enumerate(index):
+                print(f'Label `{TASK_MULTILABELS[task][i]}` : {TASK_INDEX2LABEL[task][label]} ({F.softmax(logits[i], dim=-1).squeeze()[label] * 100:.3f}%)')
+        else:
+            preds = torch.topk(logits, k=1, dim=-1)[1].squeeze().numpy()
+            labels = [TASK_INDEX2LABEL[task][preds[i]] for i in range(len(preds))]
+            for idx,word in enumerate(sentence):
+                print(f'{word} | {labels[idx]}')
+        print(f'Time: {forward_time} s ')
+        print()
+    print("Average: ")
+    print(f'Time: Forward {Average(forward_time_arr)} s ')
     print()

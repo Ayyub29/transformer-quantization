@@ -4,7 +4,7 @@
 from utils.adaround_utils import apply_adaround_to_model
 from utils.glue_tasks import GLUE_Task, TASK_TO_FINAL_METRIC, load_task_data, make_compute_metric_fn
 from utils.indonlu_task import INDONLU_Task, TASK_TO_FINAL_METRIC_INDONLU,TASK_LABELS, TASK_LABEL2INDEX, TASK_INDEX2LABEL, TASK_MULTILABELS, load_task_data_indonlu, make_compute_metric_fn_text, make_compute_metric_fn_word, make_compute_metric_fn_multilable
-from utils.hf_models import HF_Models, load_model_and_tokenizer, check_memory_and_inference_time
+from utils.hf_models import HF_Models, load_model_and_tokenizer, check_memory_usage, check_inference_time
 from utils.data_utils import DataCollatorForWordClassification
 
 from utils.per_embd_quant_utils import (
