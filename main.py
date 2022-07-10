@@ -301,7 +301,7 @@ def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics,
         tokenizer=tokenizer,
-        overwrite_output_dir = 'True'
+        overwrite_output_dir = 'True',
         # data collator will default to DataCollatorWithPadding,
         # so we change it if we already did the padding:
         data_collator=default_data_collator if padding and (is_text_class_task or is_multilabel_class_task) else word_data_collator if padding else None,
