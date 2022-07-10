@@ -855,7 +855,7 @@ def _quantize_model(config, model, task):
     model.set_quant_state(weight_quant=config.quant.weight_quant, act_quant=config.quant.act_quant)
 
     # print model
-    config('Quantized model:')
-    config(model)
+    print('Quantized model:')
+    print(model)
 
     return model
