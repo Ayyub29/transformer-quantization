@@ -13,7 +13,7 @@ from enum import Enum
 
 from transformers import BertForSequenceClassification, AutoTokenizer, BertConfig
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
-from models.quantized_bert import _quantize_model
+from models.quantized_bert import quantizing_model
 from utils.indonlu_task import TASK_LABELS, TASK_MULTILABELS, INDONLU_Task, TASK_INDEX2LABEL, load_task_data_indonlu
 
 from utils.utils import count_embedding_params, count_params, DotDict
@@ -299,7 +299,7 @@ def check_inference_time(config, task, is_quantized):
         model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
 
     if is_quantized:
-        model = _quantize_model(config,model,task)
+        model = quantizing_model(config,model,task)
             
     model.eval()
 
@@ -316,9 +316,6 @@ def check_inference_time(config, task, is_quantized):
 
             subwords = torch.LongTensor(subwords).view(1, -1)
             subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1)
-
-        # print(label.size(), subwords.size())
-        dataset_memory = checkpoint("Loading the Dataset")
 
         #Forward
         start_time = time.time()

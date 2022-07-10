@@ -826,7 +826,7 @@ class QuantizedBertForMultiLabelClassification(QuantizedModel):
 
         return outputs  # (loss), scores, (hidden_states), (attentions)
 
-def _quantize_model(config, model, task):
+def quantizing_model(config, model, task):
     """
         Changing Model into quantized one
     """
