@@ -269,7 +269,7 @@ def check_memory_usage(config, task, is_quantized):
     print(f'Time: Forward {Average(forward_time_arr)} s | Backward {Average(backward_time_arr)} s')
     print()
 
-def check_inference_time(config, task, is_quantized):
+def check_inference_time(config, task, model):
     print("Checking Model..")
     output_dir = config.base.output_dir
     
@@ -279,16 +279,6 @@ def check_inference_time(config, task, is_quantized):
     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
     forward_time_arr = []
 
-    if is_text_class_task: 
-        model = BertForSequenceClassification.from_pretrained(output_dir,local_files_only=True)
-    elif is_multilabel_class_task:
-        model = BertForMultiLabelClassification.from_pretrained(output_dir,local_files_only=True)
-    else:
-        model = BertForWordClassification.from_pretrained(output_dir,local_files_only=True)
-
-    if is_quantized:
-        model = _quantize_model(config,model,task)
-            
     model.eval()
 
     for i in range(10):
@@ -304,10 +294,7 @@ def check_inference_time(config, task, is_quantized):
 
             subwords = torch.LongTensor(subwords).view(1, -1)
             subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1)
-
-        # print(label.size(), subwords.size())
-        dataset_memory = checkpoint("Loading the Dataset")
-
+            
         #Forward
         start_time = time.time()
         if is_multilabel_class_task or is_text_class_task:

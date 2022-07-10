@@ -704,7 +704,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     if config.training.do_eval:
         logger.info('*** Evaluation ***')
 
-        final_score = _eval_task(config, task, trainer, eval_dataset, datasets)
+        final_score = _eval_task(config, task, trainer, eval_dataset, model)
         # logger.info(f'Final score {task.name} -> {100. * final_score:.2f}')
 
         # save final score to file
@@ -716,7 +716,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     return final_score
 
-def _eval_task(config, task, trainer, eval_dataset, datasets):
+def _eval_task(config, task, trainer, eval_dataset, model):
     # loop to handle MNLI double evaluation (matched and mis-matched accuracy)
     subtask_names = [task.name]
     eval_datasets = [eval_dataset]
@@ -747,7 +747,7 @@ def _eval_task(config, task, trainer, eval_dataset, datasets):
     # compute and log final score
     is_quantized = 'quant' in config
     check_memory_usage(config, task, is_quantized)
-    check_inference_time(config, task, is_quantized)
+    check_inference_time(config, task, model)
     final_score = np.mean(subtask_final_scores)
     
     return final_score
