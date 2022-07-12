@@ -699,6 +699,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         model.fix_ranges()
         trainer.model.eval()
         trainer.model.fix_ranges()
+        print_size_of_model(model)
 
     # Validation!
     final_score = None
