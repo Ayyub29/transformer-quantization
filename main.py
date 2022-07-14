@@ -752,7 +752,7 @@ def _eval_task(config, task, trainer, eval_dataset, model):
 
     # compute and log final score
     is_quantized = 'quant' in config
-    check_memory_usage(config, task, is_quantized)
+    # check_memory_usage(config, task, is_quantized)
     check_inference_time(config, task, is_quantized)
     final_score = np.mean(subtask_final_scores)
     
