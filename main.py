@@ -677,7 +677,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
             config, model, loader=trainer_range_est.get_train_dataloader()
         )
 
-    print_size_of_model(model)
+    # print_size_of_model(model)
     # make datasets and Trainer
     trainer, datasets, train_dataset, eval_dataset = _make_datasets_and_trainer(
         config, model, model_enum, tokenizer, task, task_data, compute_metrics, training_args

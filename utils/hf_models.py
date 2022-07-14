@@ -339,7 +339,7 @@ def check_inference_time(config, task, is_quantized):
 def print_size_of_model(model):
     print(model)
     model_size = 0
-    # print(list(model.named_parameters())) 
+    print(list(model.named_parameters())) 
     for param in model.parameters():
         # print(param.data, param.data.dtype, param.numel())
         if param.data.dtype == torch.float32:
