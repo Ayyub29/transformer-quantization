@@ -353,26 +353,19 @@ def print_size_of_model(model):
     print(model_size)
 
 def load_model_and_eval(config, task):
-    is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
-    is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
-
     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
-        model = QuantizedBertForSequenceClassification()
-        model.load_state_dict(config.base.output_dir + '/model.pth')
-        model.eval()
-
+        org_model = BertForSequenceClassification()
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
-        model = QuantizedBertForWordClassification()
-        model.load_state_dict(config.base.output_dir + '/model.pth')
-        model.eval()
+        org_model = BertForWordClassification()
     elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
-        model = QuantizedBertForMultiLabelClassification()
-        model.load_state_dict(config.base.output_dir + '/model.pth')
-        model.eval()
+        org_model = BertForWordClassification()
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
         )
+    model = _quantize_model(config, org_model, task)
+    model.load_state_dict(config.base.output_dir + '/model.pth')
+    model.eval()
 
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
     tokenizer = AutoTokenizer.from_pretrained(config.base.output_dir,use_fast=True)
