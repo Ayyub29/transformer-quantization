@@ -690,7 +690,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
         logger.info('*** Training ***')
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
         
-        # trainer.save_model(output_dir=config.base.output_dir)  # saves the tokenizer too
+        trainer.save_model(output_dir=config.base.output_dir)  # saves the tokenizer too
         torch.save(model.state_dict(), config.base.output_dir + '/model.pth')
         # model.save_pretrained(config.base.output_dir)
 
@@ -754,7 +754,7 @@ def _eval_task(config, task, trainer, eval_dataset, model):
     # compute and log final score
     is_quantized = 'quant' in config
     # check_memory_usage(config, task, is_quantized)
-    check_inference_time(config, task, is_quantized)
+    # check_inference_time(config, task, is_quantized)
     final_score = np.mean(subtask_final_scores)
     
     return final_score
