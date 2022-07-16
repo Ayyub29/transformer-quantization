@@ -437,13 +437,13 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     # log options
     # logger.info(f'Running task {task.name} with options:\n' + pformat(config))
 
-    if config.training.do_train:
-        # create dirpath if not exist
-        os.makedirs(config.base.output_dir, exist_ok=True)
+    # if config.training.do_train:
+    #     # create dirpath if not exist
+    #     os.makedirs(config.base.output_dir, exist_ok=True)
 
-        # log config additionaly into a separate file
-        with open(os.path.join(config.base.output_dir, 'config.out'), 'w') as f:
-            f.write(pformat(config) + '\n')
+    #     # log config additionaly into a separate file
+    #     with open(os.path.join(config.base.output_dir, 'config.out'), 'w') as f:
+    #         f.write(pformat(config) + '\n')
 
     # get metric
     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
