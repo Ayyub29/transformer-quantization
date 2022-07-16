@@ -14,7 +14,7 @@ from enum import Enum
 
 from transformers import BertForSequenceClassification, AutoTokenizer, BertConfig
 from models.pretrained_bert import BertForWordClassification, BertForMultiLabelClassification
-from models.quantized_bert import _quantize_model
+from models.quantized_bert import QuantizedBertForSequenceClassification, _quantize_model, QuantizedBertForMultiLabelClassification, QuantizedBertForWordClassification
 from utils.indonlu_task import TASK_LABELS, TASK_MULTILABELS, INDONLU_Task, TASK_INDEX2LABEL, load_task_data_indonlu
 
 from utils.utils import count_embedding_params, count_params, DotDict
@@ -351,3 +351,18 @@ def print_size_of_model(model):
         model_size += param.numel() * size
 
     print(model_size)
+
+# def load_model_and_eval(task, model_path):
+#     is_text_class_task = task == INDONLU_Task.emot or task == INDONLU_Task.smsa or task == INDONLU_Task.wrete
+#     is_multilabel_class_task = task == INDONLU_Task.casa or task == INDONLU_Task.hoasa
+
+#     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
+#         model = QuantizedBertForSequenceClassification(model, **qparams)
+#     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
+#         model = QuantizedBertForWordClassification(model, **qparams)
+#     elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
+#         model = QuantizedBertForMultiLabelClassification(model, **qparams)
+#     else:
+#         raise NotImplementedError(
+#             f'Model {config.model.model_name} is not supported for ' f'quantization.'
+#         )
