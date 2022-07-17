@@ -732,7 +732,7 @@ class QuantizedBertForWordClassification(QuantizedModel, BertPreTrainedModel):
         return outputs  # (loss), scores, (hidden_states), (attentions)
 
 class QuantizedBertForMultiLabelClassification(QuantizedModel, BertPreTrainedModel):
-    def __init__(self, config, org_model, quant_setup=None, **quant_params):
+    def __init__(self, config, org_model=None, quant_setup=None, **quant_params):
         super().__init__(config)
 
         self.num_labels = org_model.num_labels
