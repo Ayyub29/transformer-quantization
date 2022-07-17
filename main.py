@@ -328,11 +328,11 @@ def _quantize_model(config, model, task):
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
 
     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
-        model = QuantizedBertForSequenceClassification(model, **qparams)
+        model = QuantizedBertForSequenceClassification(config, model, **qparams)
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
-        model = QuantizedBertForWordClassification(model, **qparams)
+        model = QuantizedBertForWordClassification(config, model, **qparams)
     elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
-        model = QuantizedBertForMultiLabelClassification(model, **qparams)
+        model = QuantizedBertForMultiLabelClassification(config, model, **qparams)
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
@@ -753,7 +753,6 @@ def _eval_task(config, task, trainer, eval_dataset, model):
             break
 
     # compute and log final score
-    is_quantized = 'quant' in config
     # check_memory_usage(config, task, is_quantized)
     # check_inference_time(config, task, is_quantized)
     final_score = np.mean(subtask_final_scores)

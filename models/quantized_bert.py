@@ -528,8 +528,8 @@ class QuantizedBertModel(QuantizedModel, ModuleUtilsMixin):
 
 
 class QuantizedBertForSequenceClassification(QuantizedModel, BertPreTrainedModel):
-    def __init__(self, org_model, quant_setup=None, **quant_params):
-        super().__init__()
+    def __init__(self, config, org_model, quant_setup=None, **quant_params):
+        super().__init__(self, config)
 
         self.num_labels = org_model.num_labels
         self.config = org_model.config
@@ -628,8 +628,8 @@ class QuantizedBertForSequenceClassification(QuantizedModel, BertPreTrainedModel
 
 
 class QuantizedBertForWordClassification(QuantizedModel, BertPreTrainedModel):
-    def __init__(self, org_model, quant_setup=None, **quant_params):
-        super().__init__()
+    def __init__(self, config, org_model, quant_setup=None, **quant_params):
+        super().__init__(self, config)
 
         self.num_labels = org_model.num_labels
         self.config = org_model.config
@@ -732,8 +732,8 @@ class QuantizedBertForWordClassification(QuantizedModel, BertPreTrainedModel):
         return outputs  # (loss), scores, (hidden_states), (attentions)
 
 class QuantizedBertForMultiLabelClassification(QuantizedModel, BertPreTrainedModel):
-    def __init__(self, org_model, quant_setup=None, **quant_params):
-        super().__init__()
+    def __init__(self, config, org_model, quant_setup=None, **quant_params):
+        super().__init__(self, config)
 
         self.num_labels = org_model.num_labels
         self.config = org_model.config
@@ -836,11 +836,11 @@ def _quantize_model(config, model, task):
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
 
     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
-        model = QuantizedBertForSequenceClassification(model, **qparams)
+        model = QuantizedBertForSequenceClassification(config, model, **qparams)
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
-        model = QuantizedBertForWordClassification(model, **qparams)
+        model = QuantizedBertForWordClassification(config, model, **qparams)
     elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
-        model = QuantizedBertForMultiLabelClassification(model, **qparams)
+        model = QuantizedBertForMultiLabelClassification(config, model, **qparams)
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
