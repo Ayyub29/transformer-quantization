@@ -16,6 +16,7 @@ from quantization.quantization_manager import QuantizationManager
 class QuantLinear(QuantizationHijacker, nn.Linear):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        print(*args, **kwargs)
 
     def run_forward(self, x, weight, bias, offsets=None):
         return F.linear(x.contiguous(), weight.contiguous(), bias=bias)
@@ -238,8 +239,6 @@ def quantize_model(model, specials=None, tie_activation_quantizers=False, **quan
         quant_model = modtype(**kwargs, **quant_params)
 
         quant_model.weight.data = model.weight.data
-        if (type(model) == nn.Linear):
-            print(f'Checking model data {quant_model.weight.data}')
         if getattr(model, 'bias', None) is not None:
             quant_model.bias.data = model.bias.data
 
