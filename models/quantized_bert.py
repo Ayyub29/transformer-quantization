@@ -528,8 +528,8 @@ class QuantizedBertModel(QuantizedModel, ModuleUtilsMixin):
 
 
 class QuantizedBertForSequenceClassification(QuantizedModel, BertPreTrainedModel):
-    def __init__(self, config, org_model, quant_setup=None, **quant_params):
-        super().__init__(self, config)
+    def __init__(self, org_model, quant_setup=None, **quant_params):
+        super().__init__(self, org_model.config)
 
         self.num_labels = org_model.num_labels
         self.config = org_model.config
@@ -628,8 +628,8 @@ class QuantizedBertForSequenceClassification(QuantizedModel, BertPreTrainedModel
 
 
 class QuantizedBertForWordClassification(QuantizedModel, BertPreTrainedModel):
-    def __init__(self, config, org_model, quant_setup=None, **quant_params):
-        super().__init__(self, config)
+    def __init__(self, org_model, quant_setup=None, **quant_params):
+        super().__init__(self, org_model.config)
 
         self.num_labels = org_model.num_labels
         self.config = org_model.config
@@ -733,7 +733,7 @@ class QuantizedBertForWordClassification(QuantizedModel, BertPreTrainedModel):
 
 class QuantizedBertForMultiLabelClassification(QuantizedModel, BertPreTrainedModel):
     def __init__(self, config, org_model, quant_setup=None, **quant_params):
-        super().__init__(self, config)
+        super().__init__(self, org_model.config)
 
         self.num_labels = org_model.num_labels
         self.config = org_model.config
