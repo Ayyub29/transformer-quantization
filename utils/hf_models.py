@@ -364,8 +364,8 @@ def load_model_and_eval(config, task):
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
         )
-    model = QuantizedBertForWordClassification.from_pretrained(config.base.output_dir)
-    # model.load_state_dict(config.base.output_dir + '/model.pth')
+    model = _quantize_model(config, org_model, task)
+    model.load_state_dict(config.base.output_dir + '/model.pth')
     model.eval()
 
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)

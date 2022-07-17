@@ -14,7 +14,6 @@ warnings.filterwarnings('ignore')  # ignore TF warnings
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from transformers import PretrainedConfig
 from pprint import pformat
 
 import click
@@ -320,7 +319,7 @@ def _log_results(task_scores_map):
             )
 
 
-def _quantize_model(config, model, task, num_labels):
+def _quantize_model(config, model, task):
     """
         Changing Model into quantized one
     """
@@ -328,18 +327,12 @@ def _quantize_model(config, model, task, num_labels):
     qparams = make_qparams(config)
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
 
-    model_config = PretrainedConfig.from_pretrained(
-        config.model.model_path,
-        num_labels=num_labels,
-        cache_dir=config.model.cache_dir,
-    )
-    # print(f'{model_config}')
     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
-        model = QuantizedBertForSequenceClassification(model_config, model, **qparams)
+        model = QuantizedBertForSequenceClassification(model, **qparams)
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
-        model = QuantizedBertForWordClassification(model_config, model, **qparams)
+        model = QuantizedBertForWordClassification(model, **qparams)
     elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
-        model = QuantizedBertForMultiLabelClassification(model_config, model, **qparams)
+        model = QuantizedBertForMultiLabelClassification(model, **qparams)
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
@@ -476,7 +469,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     # Quantization!
     if 'quant' in config:
         # replace model with a quantized one
-        model = _quantize_model(config, model, task, task_data.num_labels)
+        model = _quantize_model(config, model, task)
 
     # Per-embedding / per-token quantization
     per_token = config.get('quant', {}).get('per_token', False)
@@ -692,7 +685,6 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     # Training!
     model_name_or_path = model_data.model_name_or_path
-    print(model_name_or_path)
     if config.training.do_train:
         logger.info('*** Training ***')
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
@@ -760,6 +752,7 @@ def _eval_task(config, task, trainer, eval_dataset, model):
             break
 
     # compute and log final score
+    is_quantized = 'quant' in config
     # check_memory_usage(config, task, is_quantized)
     # check_inference_time(config, task, is_quantized)
     final_score = np.mean(subtask_final_scores)
