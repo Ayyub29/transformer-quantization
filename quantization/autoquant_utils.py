@@ -18,7 +18,7 @@ class QuantLinear(QuantizationHijacker, nn.Linear):
         super().__init__(*args, **kwargs)
 
     def run_forward(self, x, weight, bias, offsets=None):
-        print(x.contiguous(), weight.contiguous(), bias)
+        # print(x.contiguous().data.dtype, weight.contiguous(), bias)
         return F.linear(x.contiguous(), weight.contiguous(), bias=bias)
 
 
