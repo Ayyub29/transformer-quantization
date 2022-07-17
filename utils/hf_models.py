@@ -356,19 +356,16 @@ def load_model_and_eval(config, task):
     print("starting evaluate saved model...")
     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
         org_model = BertForSequenceClassification.from_pretrained(config.base.output_dir,local_files_only=True)
-        model = QuantizedBertForSequenceClassification(org_model)
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
         org_model = BertForWordClassification.from_pretrained(config.base.output_dir,local_files_only=True)
-        model = QuantizedBertForWordClassification(org_model)
     elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
-        org_model = BertForMultiLabelClassification.from_pretrained(config.base.output_dir,local_files_only=True)
-        model = QuantizedBertForMultiLabelClassification(org_model)
+        org_model = BertForWordClassification.from_pretrained(config.base.output_dir,local_files_only=True)
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
         )
-    # model = _quantize_model(config, org_model, task)
-    model.load_state_dict(torch.load(config.base.output_dir + '/model.pth'))
+    model = _quantize_model(config, org_model, task)
+    model.load_state_dict(config.base.output_dir + '/model.pth')
     model.eval()
 
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)

@@ -685,7 +685,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
     # Training!
     model_name_or_path = model_data.model_name_or_path
-
+    print(model_name_or_path)
     if config.training.do_train:
         logger.info('*** Training ***')
         trainer.train(model_path=model_name_or_path if os.path.isdir(model_name_or_path) else None)
@@ -709,7 +709,8 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
         final_score = _eval_task(config, task, trainer, eval_dataset, model)
         # model.eval()
-        load_model_and_eval(config, task)
+        if 'quant' in config:
+            load_model_and_eval(config, task)
         # logger.info(f'Final score {task.name} -> {100. * final_score:.2f}')
 
         # save final score to file
