@@ -365,7 +365,7 @@ def load_model_and_eval(config, task):
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
         )
     model = _quantize_model(config, org_model, task)
-    model.load_state_dict(config.base.output_dir + '/model.pth')
+    model.load_state_dict(torch.load(config.base.output_dir + '/model.pth'))
     model.eval()
 
     dataset = load_task_data_indonlu(task,data_dir=config.indonlu.data_dir)
