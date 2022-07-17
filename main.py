@@ -14,6 +14,7 @@ warnings.filterwarnings('ignore')  # ignore TF warnings
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
+from transformers import PretrainedConfig
 from pprint import pformat
 
 import click
@@ -319,13 +320,19 @@ def _log_results(task_scores_map):
             )
 
 
-def _quantize_model(config, model, task, model_config):
+def _quantize_model(config, model, task):
     """
         Changing Model into quantized one
     """
     #
     qparams = make_qparams(config)
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
+
+    model_config = PretrainedConfig.from_pretrained(
+        config.model.model_name_or_path,
+        num_labels=config.model.num_labels,
+        cache_dir=config.model.cache_dir,
+    )
     print(f'{model_config}')
     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
         model = QuantizedBertForSequenceClassification(model_config, model, **qparams)
