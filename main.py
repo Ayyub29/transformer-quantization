@@ -469,7 +469,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     # Quantization!
     if 'quant' in config:
         # replace model with a quantized one
-        model = _quantize_model(config, model, task)
+        model = _quantize_model(model_data.config, model, task)
 
     # Per-embedding / per-token quantization
     per_token = config.get('quant', {}).get('per_token', False)
