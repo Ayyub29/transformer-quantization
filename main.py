@@ -320,7 +320,7 @@ def _log_results(task_scores_map):
             )
 
 
-def _quantize_model(config, model, task):
+def _quantize_model(config, model, task, num_labels):
     """
         Changing Model into quantized one
     """
@@ -330,7 +330,7 @@ def _quantize_model(config, model, task):
 
     model_config = PretrainedConfig.from_pretrained(
         config.model.model_path,
-        num_labels=config.model.num_labels,
+        num_labels=num_labels,
         cache_dir=config.model.cache_dir,
     )
     print(f'{model_config}')
@@ -476,7 +476,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     # Quantization!
     if 'quant' in config:
         # replace model with a quantized one
-        model = _quantize_model(config, model, task)
+        model = _quantize_model(config, model, task, task_data.num_labels)
 
     # Per-embedding / per-token quantization
     per_token = config.get('quant', {}).get('per_token', False)
