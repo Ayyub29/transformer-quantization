@@ -326,7 +326,7 @@ def _quantize_model(config, model, task, model_config):
     #
     qparams = make_qparams(config)
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
-
+    print(f'{model_config}')
     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
         model = QuantizedBertForSequenceClassification(model_config, model, **qparams)
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
