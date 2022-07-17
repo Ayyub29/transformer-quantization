@@ -372,10 +372,10 @@ def load_model_and_eval(config, task):
     forward_time_arr = []
     for i in range(10):
         sentence = dataset.datasets['validation'][i][dataset.sentence1_key]
-        if is_multilabel_class_task:
+        if task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
             subwords = tokenizer.encode(sentence)
             subwords = torch.LongTensor(subwords).view(1, -1)
-        elif is_text_class_task:
+        elif task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
             subwords = tokenizer.encode(sentence)
             subwords = torch.LongTensor(subwords).view(1, -1)
         else:
@@ -385,7 +385,7 @@ def load_model_and_eval(config, task):
             subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1)
         #Forward
         start_time = time.time()
-        if is_multilabel_class_task or is_text_class_task:
+        if task in (INDONLU_Task.casa, INDONLU_Task.hoasa, INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
             outputs = model(subwords)
         else:
             outputs = model(subwords, subword_to_word_indices)
@@ -394,10 +394,10 @@ def load_model_and_eval(config, task):
         forward_time = time.time() - start_time
         forward_time_arr.append(forward_time)
 
-        if (is_text_class_task):
+        if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
             index = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
             print(f'Text: {sentence} | Label : {TASK_INDEX2LABEL[task][index]} ({F.softmax(logits, dim=-1).squeeze()[index] * 100:.3f}%)')
-        elif is_multilabel_class_task:
+        elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
             index = [torch.topk(logit, k=1, dim=-1)[1].squeeze().item() for logit in logits]
             print(f'Text: {sentence}')
             for i, label in enumerate(index):
