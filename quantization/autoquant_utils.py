@@ -234,11 +234,12 @@ def quantize_model(model, specials=None, tie_activation_quantizers=False, **quan
         # if we do isinstance() then we might run into issues with modules that inherit from
         # one of these classes, for whatever reason
         modtype = module_map[type(model)]
-        print(f'this is crazy dude {modtype}')
         kwargs = get_module_args(model, None)
         quant_model = modtype(**kwargs, **quant_params)
 
         quant_model.weight.data = model.weight.data
+        if (type(model) == nn.Linear):
+            print(f'Checking model data {quant_model.weight.data}')
         if getattr(model, 'bias', None) is not None:
             quant_model.bias.data = model.bias.data
 
