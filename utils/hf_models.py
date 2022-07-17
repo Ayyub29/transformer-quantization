@@ -353,12 +353,13 @@ def print_size_of_model(model):
     print(model_size)
 
 def load_model_and_eval(config, task):
+    print("starting evaluate saved model...")
     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
-        org_model = BertForSequenceClassification()
+        org_model = BertForSequenceClassification.from_pretrained(config.base.output_dir,local_files_only=True)
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
-        org_model = BertForWordClassification()
+        org_model = BertForWordClassification.from_pretrained(config.base.output_dir,local_files_only=True)
     elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
-        org_model = BertForWordClassification()
+        org_model = BertForWordClassification.from_pretrained(config.base.output_dir,local_files_only=True)
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
