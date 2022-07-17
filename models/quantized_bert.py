@@ -15,6 +15,7 @@ from transformers.models.bert.modeling_bert import (
 )
 from transformers.modeling_outputs import SequenceClassifierOutput
 from transformers.modeling_utils import ModuleUtilsMixin, apply_chunking_to_forward
+from transformers import BertPreTrainedModel
 
 from quantization.autoquant_utils import quantize_model
 from quantization.base_quantized_classes import QuantizedActivation, FP32Acts
@@ -526,7 +527,7 @@ class QuantizedBertModel(QuantizedModel, ModuleUtilsMixin):
         )
 
 
-class QuantizedBertForSequenceClassification(QuantizedModel):
+class QuantizedBertForSequenceClassification(QuantizedModel, BertPreTrainedModel):
     def __init__(self, org_model, quant_setup=None, **quant_params):
         super().__init__()
 
@@ -626,7 +627,7 @@ class QuantizedBertForSequenceClassification(QuantizedModel):
         )
 
 
-class QuantizedBertForWordClassification(QuantizedModel):
+class QuantizedBertForWordClassification(QuantizedModel, BertPreTrainedModel):
     def __init__(self, org_model, quant_setup=None, **quant_params):
         super().__init__()
 
@@ -730,7 +731,7 @@ class QuantizedBertForWordClassification(QuantizedModel):
 
         return outputs  # (loss), scores, (hidden_states), (attentions)
 
-class QuantizedBertForMultiLabelClassification(QuantizedModel):
+class QuantizedBertForMultiLabelClassification(QuantizedModel, BertPreTrainedModel):
     def __init__(self, org_model, quant_setup=None, **quant_params):
         super().__init__()
 
