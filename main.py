@@ -329,7 +329,7 @@ def _quantize_model(config, model, task):
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
 
     model_config = PretrainedConfig.from_pretrained(
-        config.model.model_name_or_path,
+        config.model.model_path,
         num_labels=config.model.num_labels,
         cache_dir=config.model.cache_dir,
     )
