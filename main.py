@@ -320,7 +320,7 @@ def _log_results(task_scores_map):
             )
 
 
-def _quantize_model(config, model, task):
+def _quantize_model(config, model, task, num_labels):
     """
         Changing Model into quantized one
     """
@@ -328,12 +328,18 @@ def _quantize_model(config, model, task):
     qparams = make_qparams(config)
     qparams['quant_dict'] = config.quant.get('quant_dict', {})
 
+    model_config = PretrainedConfig.from_pretrained(
+        config.model.model_path,
+        num_labels=num_labels,
+        cache_dir=config.model.cache_dir,
+    )
+    # print(f'{model_config}')
     if task in (INDONLU_Task.emot, INDONLU_Task.smsa, INDONLU_Task.wrete):
-        model = QuantizedBertForSequenceClassification(model, **qparams)
+        model = QuantizedBertForSequenceClassification(model_config, model, **qparams)
     elif task in (INDONLU_Task.posp, INDONLU_Task.bapos, INDONLU_Task.facqa, INDONLU_Task.keps, INDONLU_Task.nergrit, INDONLU_Task.nerp, INDONLU_Task.terma):
-        model = QuantizedBertForWordClassification( model, **qparams)
+        model = QuantizedBertForWordClassification(model_config, model, **qparams)
     elif task in (INDONLU_Task.casa, INDONLU_Task.hoasa):
-        model = QuantizedBertForMultiLabelClassification(model, **qparams)
+        model = QuantizedBertForMultiLabelClassification(model_config, model, **qparams)
     else:
         raise NotImplementedError(
             f'Model {config.model.model_name} is not supported for ' f'quantization.'
@@ -470,7 +476,7 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
     # Quantization!
     if 'quant' in config:
         # replace model with a quantized one
-        model = _quantize_model(config, model, task)
+        model = _quantize_model(config, model, task, task_data.num_labels)
 
     # Per-embedding / per-token quantization
     per_token = config.get('quant', {}).get('per_token', False)
