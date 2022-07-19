@@ -141,7 +141,7 @@ def _make_huggingface_training_args(config):
 def check_flops(model, tokenizer):
     text = 'Dasar anak sialan!! Kurang ajar!!'
     subwords = tokenizer.encode(text)
-    subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+    subwords = torch.LongTensor(subwords).view(1, -1)
 
     flops = FlopCountAnalysis(model, subwords)
     print(flop_count_str(flops))
