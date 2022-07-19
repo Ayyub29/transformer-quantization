@@ -9,6 +9,7 @@ import os
 import time 
 import warnings
 from utils.hf_models import check_inference_time, check_memory_usage, print_size_of_model, load_model_and_eval
+from fvcore.nn import FlopCountAnalysis, flop_count_str
 
 warnings.filterwarnings('ignore')  # ignore TF warnings
 from copy import deepcopy
@@ -137,6 +138,13 @@ def _make_huggingface_training_args(config):
     )
     return args
 
+def check_flops(model, tokenizer):
+    text = 'Dasar anak sialan!! Kurang ajar!!'
+    subwords = tokenizer.encode(text)
+    subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+
+    flops = FlopCountAnalysis(model, subwords)
+    print(flop_count_str(flops))
 
 def _make_datasets_and_trainer(config, model, model_enum, tokenizer, task, task_data,
                                compute_metrics, training_args, padding=None):
@@ -708,10 +716,10 @@ def _run_task(config, task: INDONLU_Task, task_data, model_data):
 
         final_score = _eval_task(config, task, trainer, eval_dataset, model)
         # model.eval()
-        if 'quant' in config:
-            load_model_and_eval(config, task)
+        # if 'quant' in config:
+        #     load_model_and_eval(config, task)
         # logger.info(f'Final score {task.name} -> {100. * final_score:.2f}')
-
+        check_flops(model, tokenizer)
         # save final score to file
         if config.training.do_train:
             with open(os.path.join(config.base.output_dir, 'final_score.txt'), 'w') as f:
